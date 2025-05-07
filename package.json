@@ -1,0 +1,19 @@
+{
+  "name": "dswtp-backend",
+  "version": "1.0.0",
+  "description": "Trabajo Practico - Desarrollo de Software - Comision 303",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.5",
+  "devDependencies": {
+    "tsc-watch": "6.0.4",
+    "typescript": "5.1.3"
+  },
+  "build": "tsc -p ./tsconfig.json",
+  "start:dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/index.js\""
+}
