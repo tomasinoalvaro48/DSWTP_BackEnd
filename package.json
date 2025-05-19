@@ -1,7 +1,7 @@
 {
   "name": "dswtp-backend",
   "version": "1.0.0",
-  "description": "Trabajo Practico - Desarrollo de Software - Comision 303",
+  "description": "trabajopractico-desarrollodesoftware-comision303",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
