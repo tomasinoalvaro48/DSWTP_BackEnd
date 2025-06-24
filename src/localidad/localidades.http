@@ -1,0 +1,34 @@
+###GetAll localides
+GET http://localHost:4000/api/localidad
+
+### GetOne 
+GET http://localHost:4000/api/localidad/2000
+
+### Put
+
+POST http://localHost:4000/api/localidad
+Content-Type: application/json
+
+{
+    "codigoPostal": "1000",    
+    "nombre": "Buenos Aires"
+}
+### Modificacion Parcial
+PATCH http://localHost:4000/api/localidad/1000
+Content-Type: application/json
+
+{  
+    "nombre": "CIUDAD DE Buenos Aires"
+}
+
+###
+PUT http://localHost:4000/api/localidad/1000
+Content-Type: application/json
+
+{  
+    "nombre": "Cordoba"
+}
+
+
+### Remove
+DELETE http://localHost:4000/api/localidad/1000
