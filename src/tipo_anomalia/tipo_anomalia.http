@@ -1,7 +1,38 @@
-###getAll
-GET "http://localhost:3000/api/tipo_anomalia"
+### Recurso web de nuestra api
 
-###getOne
-GET "http://localhost:3000/api/tipo_anomalia/id"
+### Obtener todos
+GET http://localhost:3000/api/tipo_anomalia
 
-#
+### Obtener 1
+GET http://localhost:3000/api/tipo_anomalia/1
+
+### Crear
+POST http://localhost:3000/api/tipo_anomalia
+Content-Type: application/json
+
+{
+  "cod_anom": 3,
+  "nombre_anom": "Moco Verde", 
+  "dif_anom": 2 
+}
+
+### Modificar entero
+PUT http://localhost:3000/api/tipo_anomalia/1
+Content-Type: application/json
+
+{
+  "nombre_anom": "Ejército de Zombies", 
+  "dif_anom": 10
+}
+
+### modificar (PATCH - recurso parcial)
+PATCH http://localhost:3000/api/tipo_anomalia/2
+Content-Type: application/json
+
+{
+  "nombre_anom": "Ejército de Zombies", 
+  "dif_anom": 10   
+}
+
+### Eliminar 1
+DELETE http://localhost:3000/api/tipo_anomalia/1
