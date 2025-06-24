@@ -37,9 +37,4 @@ export class zonaRepository implements Repository<Zona>{
             return zonaEliminar
         }
     }
-
-
-
-
-
 }
