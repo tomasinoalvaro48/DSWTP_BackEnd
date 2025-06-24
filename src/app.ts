@@ -1,11 +1,13 @@
 import express from 'express'
 import { localidadRouter } from './localidad/localidad.routes.js';
+import { denuncianteRouter } from './denunciante/denunciante.routes.js'
 
 const app = express();
 
 app.use(express.json())
 
 app.use('/api/localidad',localidadRouter)
+app.use('/api/denunciantes', denuncianteRouter)
 
 
 app.use((_, res)=>{
