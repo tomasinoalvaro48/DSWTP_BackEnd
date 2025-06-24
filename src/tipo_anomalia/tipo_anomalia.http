@@ -1,0 +1,7 @@
+###getAll
+GET "http://localhost:3000/api/tipo_anomalia"
+
+###getOne
+GET "http://localhost:3000/api/tipo_anomalia/id"
+
+#
