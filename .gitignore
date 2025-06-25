@@ -15,6 +15,7 @@ Thumbs.db
 dist/**/*
 
 # vscode
+.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

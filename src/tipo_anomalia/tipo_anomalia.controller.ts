@@ -39,8 +39,8 @@ function add(req: Request, res: Response) {
 }
 
 function update(req: Request, res: Response) {
+  req.body.sanitizedInput.cod_anom = parseInt(req.params.id)
   const input = req.body.sanitizedInput
-  input.cod_anom = parseInt(req.params.id)
   const tipo = repository.update(input)
   if (!tipo) {
     res.status(404).send({ message: 'Tipo de Anomalia not found' })

@@ -30,7 +30,7 @@ PATCH http://localhost:3000/api/tipo_anomalia/2
 Content-Type: application/json
 
 {
-  "nombre_anom": "Ejército de Zombies", 
+  "nombre_anom": "Muñeco Viviente", 
   "dif_anom": 10   
 }
 
