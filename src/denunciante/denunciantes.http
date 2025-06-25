@@ -1,0 +1,41 @@
+### obtener todos los denunciantes
+GET http://localhost:4000/api/denunciantes
+
+### obtener un denunciante
+GET http://localhost:4000/api/denunciantes/123456789
+
+### crear un nuevo denunciante
+POST http://localhost:4000/api/denunciantes
+Content-Type: application/json
+
+{
+  "cod_den": 456789123,
+  "nombre_den": "Juan Pepe",
+  "telefono": 3415987654,
+  "direccion_den": "Corrientes 1400"
+}
+
+### modificar un denunciante
+PUT http://localhost:4000/api/denunciantes/123456789
+Content-Type: application/json
+
+{
+  "cod_den": 789123456,
+  "nombre_den": "Juan Pepe Junior",
+  "telefono": 3415456129,
+  "direccion_den": "Entre Rios 2000"
+}
+
+### modificar un denunciante
+PATCH http://localhost:4000/api/denunciantes/123456789
+Content-Type: application/json
+
+{
+  "cod_den": 789123456,
+  "nombre_den": "Juan Pepe Modificado",
+  "telefono": 3415456129,
+  "direccion_den": "Entre Rios 2000"
+}
+
+### borrar un denunciante
+DELETE http://localhost:4000/api/denunciantes/123456789
