@@ -1,12 +1,12 @@
 ###GetAll localides
-GET http://localHost:4000/api/localidad
+GET http://localHost:3000/api/localidad
 
 ### GetOne 
-GET http://localHost:4000/api/localidad/2000
+GET http://localHost:3000/api/localidad/2000
 
 ### Put
 
-POST http://localHost:4000/api/localidad
+POST http://localHost:3000/api/localidad
 Content-Type: application/json
 
 {

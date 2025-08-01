@@ -1,11 +1,11 @@
 ### obtener todos los denunciantes
-GET http://localhost:4000/api/denunciantes
+GET http://localhost:3000/api/denunciantes
 
 ### obtener un denunciante
-GET http://localhost:4000/api/denunciantes/123456789
+GET http://localhost:3000/api/denunciantes/123456789
 
 ### crear un nuevo denunciante
-POST http://localhost:4000/api/denunciantes
+POST http://localhost:3000/api/denunciantes
 Content-Type: application/json
 
 {
