@@ -14,7 +14,7 @@ Content-Type: application/json
     "nombre": "Buenos Aires"
 }
 ### Modificacion Parcial
-PATCH http://localHost:4000/api/localidad/1000
+PATCH http://localHost:3000/api/localidad/1000
 Content-Type: application/json
 
 {  
@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localHost:4000/api/localidad/1000
+PUT http://localHost:3000/api/localidad/1000
 Content-Type: application/json
 
 {  
@@ -31,4 +31,4 @@ Content-Type: application/json
 
 
 ### Remove
-DELETE http://localHost:4000/api/localidad/1000
+DELETE http://localHost:3000/api/localidad/1000

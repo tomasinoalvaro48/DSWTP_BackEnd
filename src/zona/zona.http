@@ -1,0 +1,35 @@
+### Get All
+GET http://localhost:4000/api/zona
+
+### Get One
+GET http://localhost:4000/api/zona/2
+
+### Post
+POST http://localhost:4000/api/zona/
+Content-Type: application/json
+
+{
+  "cod_zona": 5,
+  "nombre_zona": "Oeste",
+  "cod_postal_localidad": "2000"
+}
+
+### Put
+PUT http://localhost:4000/api/zona/2
+Content-Type: application/json
+
+{
+  "nombre_zona": "mordor",
+  "cod_postal_localidad": "89999999"
+}
+
+### Patch
+PATCH http://localhost:4000/api/zona/2
+Content-Type: application/json
+
+{
+  "nombre_zona": "alaska"
+}
+
+### Delete
+DELETE http://localhost:4000/api/zona/2
