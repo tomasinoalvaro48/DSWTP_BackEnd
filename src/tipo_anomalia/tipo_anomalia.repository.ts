@@ -1,6 +1,5 @@
 import { Tipo_Anomalia } from './tipo_anomalia.entity.js'
 import { Repository } from '../shared/repository.js'
-
 const tipos_anomalia: Tipo_Anomalia[] = [
   new Tipo_Anomalia(1, 'Casper', 5),
   new Tipo_Anomalia(2, 'Vuelan Objetos', 2),

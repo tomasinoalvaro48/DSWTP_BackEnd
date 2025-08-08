@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { localidadRepository } from "./localidad.repository.js";
+import { orm } from '../shared/db/orm.js'
+import { Localidad } from './localidad.entity.js'
 
-const repository = new localidadRepository()
 
+/*
 function sanatizeLocalidadInput(req: Request, res: Response, next :NextFunction){
     req.body.sanatizeLocalidadInput = {
         codigoPostal: req.body.codigoPostal,
@@ -16,50 +17,79 @@ function sanatizeLocalidadInput(req: Request, res: Response, next :NextFunction)
     }) 
     next()
 }
+*/
 
+const em = orm.em
 
-
-
-function findAll(req: Request, res: Response){
-    res.json({data: repository.findAll()})
-}
-
-function findOne(req: Request, res: Response){
-    const localidad = repository.findOne({id: req.params.codigoPostal})
-    if(localidad){
-        res.json({data: localidad})    
+async function findAll(req: Request, res: Response){
+    try{
+        const localidades = await em.find(Localidad, {})
+        res
+           .status(200)
+           .json({message: 'find all localidades', data: localidades})
     }
-    else{
-        res.status(404).send({mesagge: 'Resourse Not Found'})
-    }
-    
-}
-
-function add(req: Request, res: Response){
-    const localidad = repository.add(req.body.sanatizeLocalidadInput)
-    res.status(201).send({message: 'Localidad create succesfully', data: localidad})
-}
-
-function update(req:Request, res:Response){
-    req.body.sanatizeLocalidadInput.codigoPostal = req.params.codigoPostal
-    const localidad = repository.update(req.body.sanatizeLocalidadInput)
-    if(!localidad){
-        res.status(404).send({message: 'Resourse Not Found'})
-    }
-    else{
-        
-        res.status(201).send({message: 'Localidad update succesfully', data: localidad})
+    catch(error: any){
+        res
+        .status(500).json({message: error.message})
     }
 }
 
-function remove(req: Request, res: Response){
-    const localidad = repository.remove({id:req.params.codigoPostal})
-    if(!localidad){
-        res.status(404).send({message: 'Resourse Not Found'})
+
+async function findOne(req: Request, res: Response){
+    const id = req.body.id
+    const localidad = await em.findOneOrFail(Localidad, {id})
+    try{
+        res
+            .status(200)
+            .json({message: 'find one localidad', data: localidad})
     }
-    else{
-        res.status(200).send({message: 'Localidad remove succesfully', data: localidad})
+    catch(error:any){
+        res.status(500).json({message: error.message})
     }
 }
 
-export{findAll, sanatizeLocalidadInput, findOne, add, remove, update}
+async function add(req: Request, res: Response){
+    try{
+        const localidad = em.create(Localidad, req.body)
+        await em.flush()
+        res
+           .status(200)
+           .json({message: 'create localidad', data: localidad})
+    }catch(error: any){
+        res
+        .status(500).json({message: error.message})
+    }
+}
+
+async function update(req:Request, res:Response){
+    try{
+        const id = req.body.id
+        const localidad = em.getReference(Localidad, id)
+        em.assign(Localidad, id)
+        await em.flush()
+        res
+            .status(200)
+            .json({message: 'localidad update'})
+    }
+    catch(error: any){
+        res
+            .status(500).json({message: error.message})
+    }
+
+}
+
+async function remove(req: Request, res: Response){
+    try{
+        const id = req.body.id
+        const localidad = em.getReference(Localidad, id)
+        await em.removeAndFlush(localidad)
+        res
+           .status(200)
+           .json({message: 'Remove localidad', data: localidad})
+    }catch(error: any){
+        res
+        .status(500).json({message: error.message})
+    }
+}
+
+export{findAll, findOne, add, remove, update}

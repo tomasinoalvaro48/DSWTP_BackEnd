@@ -10,8 +10,19 @@ POST http://localHost:3000/api/localidad
 Content-Type: application/json
 
 {
-    "codigoPostal": "1000",    
+    "codigo": "1000",    
     "nombre": "Buenos Aires"
+}
+
+
+### Put 2
+
+POST http://localHost:3000/api/localidad
+Content-Type: application/json
+
+{
+    "codigo": "2000",    
+    "nombre": "Rosario"
 }
 ### Modificacion Parcial
 PATCH http://localHost:3000/api/localidad/1000
