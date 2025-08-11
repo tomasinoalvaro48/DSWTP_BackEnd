@@ -1,32 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { orm } from '../shared/db/orm.js'
-import { Localidad } from './localidad.entity.js'
-
-
-/*
-function sanatizeLocalidadInput(req: Request, res: Response, next :NextFunction){
-    req.body.sanatizeLocalidadInput = {
-        codigoPostal: req.body.codigoPostal,
-        nombre: req.body.nombre
-    }
-
-    Object.keys(req.body.sanatizeLocalidadInput).forEach((key)=>{
-        if(req.body.sanatizeLocalidadInput[key]===undefined){
-            delete req.body.sanatizeLocalidadInput[key]
-        }
-    }) 
-    next()
-}
-*/
+import { Usuario } from "./usuario.entity.js";
 
 const em = orm.em
 
-async function findAll(req: Request, res: Response){
+async function findAll(req: Request, res: Response) {
     try{
-        const localidades = await em.find(Localidad, {})
+        const usuarios = await em.find(Usuario,{})
         res
            .status(200)
-           .json({message: 'find all localidades', data: localidades})
+           .json({message: 'find all usuarios', data: usuarios})
     }
     catch(error: any){
         res
@@ -34,14 +17,13 @@ async function findAll(req: Request, res: Response){
     }
 }
 
-
 async function findOne(req: Request, res: Response){
     const id = req.body.id
-    const localidad = await em.findOneOrFail(Localidad, {id})
+    const usuario = await em.findOneOrFail(Usuario,{id})
     try{
         res
             .status(200)
-            .json({message: 'find one localidad', data: localidad})
+            .json({message: 'find one usuario', data: usuario})
     }
     catch(error:any){
         res.status(500).json({message: error.message})
@@ -50,11 +32,11 @@ async function findOne(req: Request, res: Response){
 
 async function add(req: Request, res: Response){
     try{
-        const localidad = em.create(Localidad, req.body)
+        const usuario = em.create(Usuario, req.body)
         await em.flush()
         res
            .status(200)
-           .json({message: 'create localidad', data: localidad})
+           .json({message: 'create usuario', data: usuario})
     }catch(error: any){
         res
         .status(500).json({message: error.message})
@@ -64,12 +46,12 @@ async function add(req: Request, res: Response){
 async function update(req:Request, res:Response){
     try{
         const id = req.body.id
-        const localidad = em.getReference(Localidad, id)
-        em.assign(Localidad, id)
+        const usuario = em.getReference(Usuario, id)
+        em.assign(Usuario, id)
         await em.flush()
         res
             .status(200)
-            .json({message: 'localidad update'})
+            .json({message: 'usuario update'})
     }
     catch(error: any){
         res
@@ -80,15 +62,17 @@ async function update(req:Request, res:Response){
 async function remove(req: Request, res: Response){
     try{
         const id = req.body.id
-        const localidad = em.getReference(Localidad, id)
-        await em.removeAndFlush(localidad)
+        const usuario = em.getReference(Usuario, id)
+        await em.removeAndFlush(usuario)
         res
            .status(200)
-           .json({message: 'Remove localidad', data: localidad})
+           .json({message: 'Remove usuario', data: usuario})
     }catch(error: any){
         res
         .status(500).json({message: error.message})
     }
 }
+
+
 
 export{findAll, findOne, add, remove, update}
