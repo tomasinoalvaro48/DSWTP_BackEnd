@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
-import { DenuncianteRepository } from './denunciante.repository.js'
 import { Denunciante } from './denunciante.entity.js'
+import { orm } from '../shared/db/orm.js'
 
-const repository = new DenuncianteRepository()
+const em = orm.em
 
 function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizedInput = {
@@ -21,60 +21,54 @@ function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunctio
   next()
 }
 
-function findAll(req: Request, res: Response) {
-  res.json({ data: repository.findAll() })
-}
-
-function findOne(req: Request, res: Response) {
-  //const denunciante = repository.findOne({ id: parseInt(req.params.cod_den) })
-  const id = parseInt(req.params.cod_den)
-  const denunciante = repository.findOne({ id })
-  if (!denunciante) {
-    res.status(404).send({ message: 'Denunciante not found' })
-  } else {
-    res.json({ data: denunciante })
+async function findAll(req: Request, res: Response) {
+  try {
+    const denunciantes = await em.find(Denunciante, {})
+    res.status(200).json({ message: 'found all denunciantes', data: denunciantes })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
 }
 
-function add(req: Request, res: Response) {
-  const input = req.body.sanitizedInput
-  const denuncianteInput = new Denunciante(
-    input.cod_den,
-    input.nombre_den,
-    input.telefono,
-    input.direccion_den
-  )
-
-  const denunciante = repository.add(denuncianteInput)
-  if (denunciante) {
-    res.status(201).send({ message: 'Denunciante created', data: denunciante })
-  } else {
-    res.status(500).send({ message: 'Denunciante could not be created' })
+async function findOne(req: Request, res: Response) {
+    try {
+    const id = req.params.id
+    const denunciante = await em.findOneOrFail(Denunciante, { id })
+    res.status(200).json({ message: 'found denunciante', data: denunciante })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
 }
 
-function update(req: Request, res: Response) {
-  //const denunciante = repository.update({ id: parseInt(req.params.cod_den) })
-  const input = req.body.sanitizedInput
-  input.cod_den = parseInt(req.params.cod_den)
-  const denunciante = repository.update(input)
-
-  if (!denunciante) {
-    res.status(404).send({ message: 'Denunciante not found' })
-  } else {
-    res.status(200).send({ message: 'Denunciante updated successfully', data: denunciante })
+async function add(req: Request, res: Response) {
+  try {
+    const denunciante = em.create(Denunciante, req.body.sanitizedInput)
+    await em.flush()
+    res.status(201).json({ message: 'denunciante created', data: denunciante })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
 }
 
-function remove(req: Request, res: Response) {
-  //const denunciante = repository.delete({ id: parseInt(req.params.cod_den) })
-  const id = parseInt(req.params.cod_den)
-  const denunciante = repository.remove({ id })
+async function update(req: Request, res: Response) {  
+  try {
+    const id = req.params.id
+    const denuncianteToUpdate = await em.findOneOrFail(Denunciante, { id })
+    em.assign(denuncianteToUpdate, req.body.sanitizedInput)
+    await em.flush()
+    res.status(200).json({ message: 'denunciante updated', data: denuncianteToUpdate })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
 
-  if (!denunciante) {
-    res.status(404).send({ message: 'Denunciante not found' })
-  } else {
-    res.status(200).send({ message: 'Denunciante deleted successfully' })
+async function remove(req: Request, res: Response) {
+  try {
+    const id = req.params.id
+    const denunciante = em.getReference(Denunciante, id)
+    await em.removeAndFlush(denunciante)
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
 }
 

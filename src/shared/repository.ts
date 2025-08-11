@@ -1,3 +1,5 @@
+//Borrar repository.ts
+
 export interface Repository<T>{
     findAll(): T[] | undefined
     findOne(item: {id: string | number}): T | undefined

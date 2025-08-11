@@ -1,10 +1,18 @@
-//import crypto from 'node:crypto'
+import { Entity, Property } from '@mikro-orm/core'
+import { BaseEntity } from '../shared/db/baseEntity.entity.js'
 
-export class Denunciante{
-    constructor(
-        public cod_den: number,
-        public nombre_den: string,
-        public telefono: number,
-        public direccion_den: string
-    ) {}
+
+@Entity()
+export class Denunciante extends BaseEntity {
+  @Property({ nullable: false, unique: true })
+  cod_den!: number
+
+  @Property({ nullable: false })
+  nombre_den!: string
+
+  @Property({ nullable: false })
+  telefono!: string
+
+  @Property({ nullable: false })
+  direccion_den!: string
 }

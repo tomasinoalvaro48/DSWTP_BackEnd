@@ -4,8 +4,8 @@ import { MongoHighlighter } from '@mikro-orm/mongo-highlighter'
 export const orm = await MikroORM.init({
   //entities: ['dist/**/*.entity.js'],
   //entitiesTs: ['src/**/*.entity.ts'],
-  entities: ['dist/**/localidad.entity.js','dist/**/zona.entity.js'],
-  entitiesTs: ['src/**/zona.entity.ts','src/**/zona.entity.ts'],
+  entities: ['dist/**/localidad.entity.js','dist/**/zona.entity.js', 'dist/**/denunciante.entity.js'],
+  entitiesTs: ['src/**/zona.entity.ts','src/**/zona.entity.ts', 'src/**/denunciante.entity.ts'],
   dbName: 'datecAnomalias',
   clientUrl: 'mongodb://localhost:27017',
   highlighter: new MongoHighlighter(),
