@@ -4,7 +4,7 @@
 GET http://localhost:3000/api/tipo_anomalia
 
 ### Obtener 1
-GET http://localhost:3000/api/tipo_anomalia/1
+GET http://localhost:3000/api/tipo_anomalia/3
 
 ### Crear
 POST http://localhost:3000/api/tipo_anomalia

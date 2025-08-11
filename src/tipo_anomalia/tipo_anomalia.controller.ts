@@ -1,8 +1,8 @@
-import express, { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { Tipo_Anomalia } from './tipo_anomalia.entity.js'
-import { Tipo_AnomaliaRepository } from './tipo_anomalia.repository.js'
+import { orm } from '../shared/db/orm.js'
 
-const repository = new Tipo_AnomaliaRepository()
+const em = orm.em
 
 function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizedInput = {
@@ -16,50 +16,56 @@ function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
   next()
 }
 
-function findAll(req: Request, res: Response) {
-  res.json({ data: repository.findAll() })
-}
-
-function findOne(req: Request, res: Response) {
-  const id = parseInt(req.params.id)
-  const tipo = repository.findOne({ id })
-  if (!tipo) {
-    res.status(404).send({ message: 'Error 404 Tipo de Anomalia not found' })
-    return
+async function findAll(req: Request, res: Response) {
+  try {
+    const tipos = await em.find(Tipo_Anomalia, {})
+    res.status(200).json({ message: 'found all tipos de anomalia', data: tipos })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
-  res.json({ data: tipo })
 }
 
-function add(req: Request, res: Response) {
-  const input = req.body.sanitizedInput
-  const tipoInput = new Tipo_Anomalia(input.cod_anom, input.nombre_anom, input.dif_anom)
-  const tipo = repository.add(tipoInput)
-  res.status(201).send({ message: 'New JSON Tipo de Anomalia created', data: tipo })
-  return
-}
-
-function update(req: Request, res: Response) {
-  req.body.sanitizedInput.cod_anom = parseInt(req.params.id)
-  const input = req.body.sanitizedInput
-  const tipo = repository.update(input)
-  if (!tipo) {
-    res.status(404).send({ message: 'Tipo de Anomalia not found' })
-    return
+async function findOne(req: Request, res: Response) {
+  try {
+    const id = req.params.id
+    const tipo = await em.findOneOrFail(Tipo_Anomalia, { id })
+    res.status(200).json({ message: 'found tipo de anomalia', data: tipo })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
-  res.status(200).send({
-    message: 'Tipo de Anomalia updated',
-    data: tipo,
-  })
 }
 
-function remove(req: Request, res: Response) {
-  const id = parseInt(req.params.id)
-  const tipo = repository.remove({ id })
-  if (!tipo) {
-    res.status(404).send({ message: 'Tipo de Anomalia not found' })
-    return
+async function add(req: Request, res: Response) {
+  try {
+    const tipo = em.create(Tipo_Anomalia, req.body.sanitizedInput)
+    await em.flush()
+    res.status(201).json({ message: 'tipo de anomalia created', data: tipo })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
   }
-  res.status(200).send({ message: 'Tipo de Anomalia deleted' })
+}
+
+async function update(req: Request, res: Response) {
+  try {
+    const id = req.params.id
+    const tipoToUpdate = await em.findOneOrFail(Tipo_Anomalia, { id })
+    em.assign(tipoToUpdate, req.body.sanitizedInput)
+    await em.flush()
+    res.status(200).json({ message: 'tipo de anomalia updated', data: tipoToUpdate })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+async function remove(req: Request, res: Response) {
+  try {
+    const id = req.params.id
+    const tipo = em.getReference(Tipo_Anomalia, id)
+    await em.removeAndFlush(tipo)
+    res.status(200).json({ message: 'tipo de anomalia deleted' })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
 }
 
 export { sanitizeTipoInput, findAll, findOne, add, update, remove }

@@ -1,3 +1,14 @@
-export class Tipo_Anomalia {
-  constructor(public cod_anom: number, public nombre_anom: string, public dif_anom: number) {}
+import { Entity, Property } from '@mikro-orm/core'
+import { BaseEntity } from '../shared/db/baseEntity.entity.js'
+
+@Entity()
+export class Tipo_Anomalia extends BaseEntity {
+  @Property({ nullable: false, unique: true })
+  cod_anom!: number
+
+  @Property({ nullable: false })
+  nombre_anom!: string
+
+  @Property({ nullable: false })
+  dif_anom!: number
 }
