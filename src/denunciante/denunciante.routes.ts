@@ -1,12 +1,5 @@
 import { Router } from 'express'
-import {
-  sanitizeDenuncianteInput,
-  findAll,
-  findOne,
-  add,
-  update,
-  remove,
-} from './denunciante.controller.js'
+import { sanitizeDenuncianteInput, findAll, findOne, add, update, remove, } from './denunciante.controller.js'
 
 export const denuncianteRouter = Router()
 
