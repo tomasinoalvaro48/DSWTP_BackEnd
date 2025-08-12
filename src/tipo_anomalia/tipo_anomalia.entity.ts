@@ -3,7 +3,7 @@ import { BaseEntity } from '../shared/db/baseEntity.entity.js'
 
 @Entity()
 export class Tipo_Anomalia extends BaseEntity {
-  @Property({ nullable: false, unique: true })
+  @Property({ nullable: false, unique: true, autoincrement: true })
   cod_anom!: number
 
   @Property({ nullable: false })
