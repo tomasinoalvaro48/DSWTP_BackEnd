@@ -6,6 +6,7 @@ import { tipoRouter } from './tipo_anomalia/tipo_anomalia.routes.js'
 import 'reflect-metadata'
 import { orm, syncSchema } from './shared/db/orm.js'
 import { RequestContext } from '@mikro-orm/core'
+import { usuarioRouter } from './usuario/usuario.routes.js'
 import cors from 'cors'
 
 const app = express()
@@ -20,6 +21,7 @@ app.use('/api/localidad', localidadRouter)
 app.use('/api/tipo_anomalia', tipoRouter)
 app.use('/api/zona', zonaRouter)
 app.use('/api/denunciantes', denuncianteRouter)
+app.use('/api/usuario',usuarioRouter)
 
 app.use((_, res) => {
   res.status(404).send({ mesagge: 'Resourse not found' })

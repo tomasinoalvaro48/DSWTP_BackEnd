@@ -1,44 +1,65 @@
-/*function sanitizeZonaImput(req: Request, res: Response, next: NextFunction){
-    req.body.sanitizedZonaInput = {
-        cod_zona: req.body.cod_zona,
-        nombre_zona: req.body.nombre_zona,
-        cod_postal_localidad: req.body.cod_postal_localidad
-    };
-    Object.keys(req.body.sanitizedZonaInput).forEach((key)=>{
-    if(req.body.sanitizedZonaInput[key]===undefined){
-        delete req.body.sanitizedZonaInput[key]
-    }
-    }) 
-
-    next();
-}*/
 
 
 import { Request, Response, NextFunction } from "express";
 import { orm } from '../shared/db/orm.js'
 import { Zona } from './zona.entity.js'
+import { ObjectId } from "mongodb";
+import { Localidad } from "./localidad.entity.js";
+
 
 const em = orm.em
 
+function sanitizeZonaImput(req: Request, res: Response, next: NextFunction){
+    
+    if (req.body.localidad !== undefined){
+    const idLocalidad = new ObjectId(req.body.localidad)
+    const localidadRef = em.getReference(Localidad, idLocalidad)
+    req.body.sanitizeZonaImput = {
+        localidad: localidadRef    
+        }    
+    }
+    else
+    {
+        req.body.sanitizeZonaImput = {
+            localidad: req.body.localidad    
+        }
+    }
+    req.body.sanitizeZonaImput = {
+        codigo: req.body.codigo,
+        nombre: req.body.nombre,
+        localidad: req.body.localidad
+        
+    }
+    Object.keys(req.body.sanitizeZonaImput).forEach((key)=>{
+    if(req.body.sanitizeZonaImput[key]===undefined){
+        delete req.body.sanitizeZonaImput[key]
+        }
+    }) 
+    next()
+}
+
+
 async function findAll(req: Request, res: Response){
     try{
-        const zonas = await em.find(Zona, {})
+        const zonas = await em.find(Zona, {},{populate:['localidad']})
         res
             .status(200)
             .json({message: 'find all zonas', data: zonas})
     }
     catch(error: any){
-        res.status(500).json({message: error.message})
+        res
+            .status(500)
+            .json({message: error.message})
     }
 }
 
 async function findOne(req: Request, res: Response){
     try{
-        const id = req.body.id
-        const zona = await em.findOneOrFail(Zona, {id})
+        const id = new ObjectId(req.params.id)
+        const zona = await em.findOneOrFail(Zona, id,{populate:['localidad']})
         res
             .status(200)
-            .json({message: 'find one zoan'})
+            .json({message: 'find one zona', data: zona})
     }
     catch(error: any){
         res.status(500).json({message: error.message})
@@ -46,22 +67,22 @@ async function findOne(req: Request, res: Response){
 }
 async function add(req: Request, res: Response){
     try{
-        const localidad = em.create(Zona, req.body)
+        const zona = em.create(Zona, req.body.sanitizeZonaImput)
         await em.flush()
         res
            .status(200)
-           .json({message: 'create zona', data: localidad})
+           .json({message: 'create zona', data: zona})
     }catch(error: any){
-        res
+        res 
         .status(500).json({message: error.message})
     }
 }
 
 async function update(req:Request, res:Response){
     try{
-        const id = req.body.id
-        const zona = em.getReference(Zona, id)
-        em.assign(zona, id)
+        const id = new ObjectId(req.params.id)
+        const zonaToUpdate = em.getReference(Zona, id)
+        em.assign(zonaToUpdate, req.body.sanitizeZonaImput)
         await em.flush()
         res
             .status(200)
@@ -69,19 +90,20 @@ async function update(req:Request, res:Response){
     }
     catch(error: any){
         res
-            .status(500).json({message: error.message})
+            .status(500)
+            .json({message: error.message})
     }
 
 }
 
 async function remove(req: Request, res: Response){
     try{
-        const id = req.body.id
-        const zona = em.getReference(Zona, id)
-        await em.removeAndFlush(zona)
+        const id = new ObjectId(req.params.id)
+        const zonaToDelete = em.getReference(Zona, id)
+        await em.removeAndFlush(zonaToDelete)
         res
            .status(200)
-           .json({message: 'Remove zona', data: zona})
+           .json({message: 'Remove zona', data: zonaToDelete})
     }catch(error: any){
         res
         .status(500).json({message: error.message})
@@ -89,4 +111,4 @@ async function remove(req: Request, res: Response){
 }
 
 
-export{findAll, findOne, add, remove, update}
+export{findAll, findOne, add, remove, update, sanitizeZonaImput}

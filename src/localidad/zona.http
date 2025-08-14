@@ -1,35 +1,59 @@
 ### Get All
-GET http://localhost:4000/api/zona
+GET http://localhost:3000/api/zona
 
 ### Get One
-GET http://localhost:4000/api/zona/2
+GET http://localhost:3000/api/zona/
 
 ### Post
-POST http://localhost:4000/api/zona/
+POST http://localhost:3000/api/zona/
 Content-Type: application/json
 
 {
-  "cod_zona": 5,
-  "nombre_zona": "Oeste",
-  "cod_postal_localidad": "2000"
+  "codigo": 5,
+  "nombre": "Oeste",
+  "localidad": "689d01428ca37388418ffc2f"
+}
+
+###Post 2
+POST http://localhost:3000/api/zona/
+Content-Type: application/json
+
+{
+  "codigo": 2,
+  "nombre": "Norte",
+  "localidad": "689d01428ca37388418ffc2f"
+}
+
+###Post 3
+POST http://localhost:3000/api/zona/
+Content-Type: application/json
+
+{
+  "codigo": 20,
+  "nombre": "Este",
+  "localidad": "689d01428ca37388418ffc2f"
 }
 
 ### Put
-PUT http://localhost:4000/api/zona/2
+PUT http://localhost:3000/api/zona/689d490f21ed66d1570cdc74
 Content-Type: application/json
 
 {
-  "nombre_zona": "mordor",
-  "cod_postal_localidad": "89999999"
+  "codigo": "89999999",
+  "nombre": "mordor"
 }
 
+//689d05956339000b20585bec
+//689d06176339000b20585bed
+//
+
 ### Patch
-PATCH http://localhost:4000/api/zona/2
+PATCH http://localhost:3000/api/zona/689d490f21ed66d1570cdc74
 Content-Type: application/json
 
 {
-  "nombre_zona": "alaska"
+  "nombre": "ODESA"
 }
 
 ### Delete
-DELETE http://localhost:4000/api/zona/2
+DELETE http://localhost:3000/api/zona/689d490f21ed66d1570cdc74

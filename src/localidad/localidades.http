@@ -1,11 +1,10 @@
 ###GetAll localides
 GET http://localHost:3000/api/localidad
-
+ 
 ### GetOne 
-GET http://localHost:3000/api/localidad/2000
+GET http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
 
 ### Put
-
 POST http://localHost:3000/api/localidad
 Content-Type: application/json
 
@@ -13,6 +12,7 @@ Content-Type: application/json
     "codigo": "1000",    
     "nombre": "Buenos Aires"
 }
+
 
 
 ### Put 2
@@ -24,8 +24,19 @@ Content-Type: application/json
     "codigo": "2000",    
     "nombre": "Rosario"
 }
+
+### Put 3
+
+POST http://localHost:3000/api/localidad
+Content-Type: application/json
+
+{
+    "codigo": "99501",    
+    "nombre": "Anchorage"
+}
+
 ### Modificacion Parcial
-PATCH http://localHost:3000/api/localidad/1000
+PATCH http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
 Content-Type: application/json
 
 {  
@@ -33,13 +44,14 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localHost:3000/api/localidad/1000
+PUT http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
 Content-Type: application/json
 
 {  
+    "codigo": "7777",
     "nombre": "Cordoba"
 }
 
 
 ### Remove
-DELETE http://localHost:3000/api/localidad/1000
+DELETE http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
