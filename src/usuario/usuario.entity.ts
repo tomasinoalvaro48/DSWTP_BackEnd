@@ -9,6 +9,7 @@ import {
 } from '@mikro-orm/core'
 import { BaseEntity } from '../shared/db/baseEntity.entity.js'
 import { Zona } from '../localidad/zona.entity.js'
+
 @Entity()
 export class Usuario extends BaseEntity {
   @Property({ nullable: false, unique: true })

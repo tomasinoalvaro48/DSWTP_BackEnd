@@ -1,29 +1,38 @@
 import { Request, Response, NextFunction } from "express";
 import { orm } from '../shared/db/orm.js'
 import { Localidad } from './localidad.entity.js'
+import { ObjectId } from "mongodb";
 
 
-/*
-function sanatizeLocalidadInput(req: Request, res: Response, next :NextFunction){
-    req.body.sanatizeLocalidadInput = {
-        codigoPostal: req.body.codigoPostal,
-        nombre: req.body.nombre
+
+function sanitizeLocalidadInput(
+    req: Request, 
+    res: Response, 
+    next :NextFunction
+){
+    req.body.sanitizeLocalidadInput = {
+        codigo: req.body.codigo,
+        nombre: req.body.nombre,
+        zonas: req.body.zonas
     }
 
-    Object.keys(req.body.sanatizeLocalidadInput).forEach((key)=>{
-        if(req.body.sanatizeLocalidadInput[key]===undefined){
-            delete req.body.sanatizeLocalidadInput[key]
+    Object.keys(req.body.sanitizeLocalidadInput).forEach((key)=>{
+        if(req.body.sanitizeLocalidadInput[key]===undefined){
+            delete req.body.sanitizeLocalidadInput[key]
         }
     }) 
     next()
 }
-*/
+
 
 const em = orm.em
 
 async function findAll(req: Request, res: Response){
     try{
-        const localidades = await em.find(Localidad, {})
+        const localidades = await em.find(Localidad, 
+            {}, 
+            {populate:['zonas']}
+        )
         res
            .status(200)
            .json({message: 'find all localidades', data: localidades})
@@ -36,9 +45,11 @@ async function findAll(req: Request, res: Response){
 
 
 async function findOne(req: Request, res: Response){
-    const id = req.body.id
-    const localidad = await em.findOneOrFail(Localidad, {id})
     try{
+        const id = new ObjectId(req.params.id)
+        const localidad = await em.findOneOrFail(Localidad, 
+            id,
+        {populate: ['zonas']} )
         res
             .status(200)
             .json({message: 'find one localidad', data: localidad})
@@ -50,7 +61,7 @@ async function findOne(req: Request, res: Response){
 
 async function add(req: Request, res: Response){
     try{
-        const localidad = em.create(Localidad, req.body)
+        const localidad = em.create(Localidad, req.body.sanitizeLocalidadInput)
         await em.flush()
         res
            .status(200)
@@ -63,9 +74,9 @@ async function add(req: Request, res: Response){
 
 async function update(req:Request, res:Response){
     try{
-        const id = req.body.id
-        const localidad = em.getReference(Localidad, id)
-        em.assign(Localidad, id)
+        const id = new ObjectId(req.params.id)
+        const localidadToUpdate = em.getReference(Localidad, id)
+        em.assign(localidadToUpdate, req.body.sanitizeLocalidadInput)
         await em.flush()
         res
             .status(200)
@@ -79,16 +90,16 @@ async function update(req:Request, res:Response){
 
 async function remove(req: Request, res: Response){
     try{
-        const id = req.body.id
-        const localidad = em.getReference(Localidad, id)
-        await em.removeAndFlush(localidad)
+        const id = new ObjectId(req.params.id)
+        const localidadToDelete = em.getReference(Localidad, id)
+        await em.removeAndFlush(localidadToDelete)
         res
            .status(200)
-           .json({message: 'Remove localidad', data: localidad})
+           .json({message: 'Remove localidad', data: localidadToDelete})
     }catch(error: any){
         res
         .status(500).json({message: error.message})
     }
 }
 
-export{findAll, findOne, add, remove, update}
+export{findAll, findOne, add, remove, update, sanitizeLocalidadInput}

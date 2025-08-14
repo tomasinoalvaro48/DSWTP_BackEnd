@@ -1,0 +1,65 @@
+### Get All
+GET http://localhost:3000/api/usuario
+
+### Get One
+GET http://localhost:3000/api/usuario/
+
+### Post
+POST http://localhost:3000/api/usuario/
+Content-Type: application/json
+
+{
+    "codigo": "20",
+    "nombre": "Pedro",
+    "mail": "pedro@gmail.com",
+    "password": "1234",
+    "tipo": "operador",
+    "zona": "689d49d621ed66d1570cdc76"
+}
+
+###Post 2
+POST http://localhost:3000/api/usuario/
+Content-Type: application/json
+
+{
+    "codigo": "30",
+    "nombre": "Maximo",
+    "mail": "maximo@gmail.com",
+    "password": "7890",
+    "tipo": "cazador",
+    "zona": "689d49d621ed66d1570cdc76"
+}
+
+###Post 3
+POST http://localhost:3000/api/usuario/
+Content-Type: application/json
+
+{
+    "codigo": "40",
+    "nombre": "Juan",
+    "mail": "juan@gmail.com",
+    "password": "abdc",
+    "tipo": "cazador",
+    "zona": "689d49d621ed66d1570cdc76"
+}
+
+### Put
+PUT http://localhost:3000/api/usuario/689d490f21ed66d1570cdc74
+Content-Type: application/json
+
+{
+  "codigo": "89999999",
+  "nombre": "vegetta"
+}
+
+
+### Patch
+PATCH http://localhost:3000/api/usuario/689d490f21ed66d1570cdc74
+Content-Type: application/json
+
+{
+  "nombre": "JACKKKKKKKKKK"
+}
+
+### Delete
+DELETE http://localhost:3000/api/usuario/689d490f21ed66d1570cdc74

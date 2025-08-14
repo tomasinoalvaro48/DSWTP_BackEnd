@@ -11,6 +11,7 @@ import {
 import { BaseEntity } from '../shared/db/baseEntity.entity.js'
 import { Localidad } from './localidad.entity.js'
 import { Usuario } from '../usuario/usuario.entity.js'
+//import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
 @Entity()
 export class Zona extends BaseEntity {
@@ -20,14 +21,17 @@ export class Zona extends BaseEntity {
   @Property({ nullable: false})
   nombre!: string
     
-    @ManyToOne(() => Localidad, { nullable: false })
-  Localidad!: Rel<Localidad>
+  @ManyToOne(() => Localidad, { nullable: false })
+  localidad!: Rel<Localidad>
 
- // zonas = new Collection<Zona>(this)
-
-
+  /*
   @OneToMany(() => Usuario, (usuario) => usuario.zona,{
     cascade: [Cascade.ALL]
   })
   usuarios = new Collection<Usuario>(this)
+
+  @OneToMany(() => Pedido_Resolucion, (pedido_resolucion)=>pedido_resolucion.zona,{
+    cascade: [Cascade.ALL]
+  })
+  pedidos_resolucion = new Collection<Pedido_Resolucion>(this)*/
 }
