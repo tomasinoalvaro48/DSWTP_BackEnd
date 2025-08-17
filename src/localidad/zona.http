@@ -43,9 +43,7 @@ Content-Type: application/json
   "nombre": "mordor"
 }
 
-//689d05956339000b20585bec
-//689d06176339000b20585bed
-//
+
 
 ### Patch
 PATCH http://localhost:3000/api/zona/689d490f21ed66d1570cdc74
@@ -56,4 +54,4 @@ Content-Type: application/json
 }
 
 ### Delete
-DELETE http://localhost:3000/api/zona/689d490f21ed66d1570cdc74
+DELETE http://localhost:3000/api/zona/689d49d621ed66d1570cdc76

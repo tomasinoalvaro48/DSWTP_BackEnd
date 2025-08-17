@@ -27,7 +27,7 @@ function sanitizeZonaImput(req: Request, res: Response, next: NextFunction){
     req.body.sanitizeZonaImput = {
         codigo: req.body.codigo,
         nombre: req.body.nombre,
-        localidad: req.body.localidad
+        localidad: req.body.localidad//Ver si sacar!!!!!!!!!!!!!!!!!!!!!
         
     }
     Object.keys(req.body.sanitizeZonaImput).forEach((key)=>{
@@ -41,7 +41,7 @@ function sanitizeZonaImput(req: Request, res: Response, next: NextFunction){
 
 async function findAll(req: Request, res: Response){
     try{
-        const zonas = await em.find(Zona, {},{populate:['localidad']})
+        const zonas = await em.find(Zona, {},{populate:['localidad','usuarios']})
         res
             .status(200)
             .json({message: 'find all zonas', data: zonas})
@@ -56,7 +56,7 @@ async function findAll(req: Request, res: Response){
 async function findOne(req: Request, res: Response){
     try{
         const id = new ObjectId(req.params.id)
-        const zona = await em.findOneOrFail(Zona, id,{populate:['localidad']})
+        const zona = await em.findOneOrFail(Zona, id,{populate:['localidad','usuarios']})
         res
             .status(200)
             .json({message: 'find one zona', data: zona})

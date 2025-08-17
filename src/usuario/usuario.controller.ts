@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { orm } from '../shared/db/orm.js'
 import { Usuario } from "./usuario.entity.js";
 import { ObjectId } from "mongodb";
+import { Zona } from "../localidad/zona.entity.js";
 
 const em = orm.em
 
@@ -9,7 +10,7 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction)
 {
     if (req.body.zona !== undefined){
     const idZona = new ObjectId(req.body.zona)
-    const zonaRef = em.getReference(Usuario, idZona)
+    const zonaRef = em.getReference(Zona, idZona)
     req.body.sanitizeUsuarioImput = {
         zona: zonaRef    
         }    
@@ -26,7 +27,7 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction)
         mail: req.body.mail,
         password: req.body.password,
         tipo: req.body.tipo,
-        //zona: req.body.zona
+        zona: req.body.zona //Ver si sacar!!!!!!!!!!!!!!!!!!!!!
         
     }
     Object.keys(req.body.sanitizeUsuarioImput).forEach((key)=>{
@@ -54,9 +55,9 @@ async function findAll(req: Request, res: Response) {
 }
 
 async function findOne(req: Request, res: Response){
-    const id = new ObjectId(req.params.id)
-    const usuario = await em.findOneOrFail(Usuario, id,{populate:['zona']})
     try{
+        const id = new ObjectId(req.params.id)
+        const usuario = await em.findOneOrFail(Usuario, id,{populate:['zona']})
         res
             .status(200)
             .json({message: 'find one usuario', data: usuario})
@@ -68,7 +69,7 @@ async function findOne(req: Request, res: Response){
 
 async function add(req: Request, res: Response){
     try{
-        const usuario = em.create(Usuario, req.body)
+        const usuario = em.create(Usuario, req.body.sanitizeUsuarioImput)
         await em.flush()
         res
            .status(200)
