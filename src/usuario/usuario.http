@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/usuario
 
 ### Get One
-GET http://localhost:3000/api/usuario/
+GET http://localhost:3000/api/usuario/68a1e4066af269bb88016f1d
 
 ### Post
 POST http://localhost:3000/api/usuario/
@@ -14,7 +14,7 @@ Content-Type: application/json
     "mail": "pedro@gmail.com",
     "password": "1234",
     "tipo": "operador",
-    "zona": "689d49d621ed66d1570cdc76"
+    "zona": "68a1df3092d085a2634a06db"
 }
 
 ###Post 2
@@ -27,7 +27,7 @@ Content-Type: application/json
     "mail": "maximo@gmail.com",
     "password": "7890",
     "tipo": "cazador",
-    "zona": "689d49d621ed66d1570cdc76"
+    "zona": "68a1df3092d085a2634a06db"
 }
 
 ###Post 3
@@ -40,11 +40,11 @@ Content-Type: application/json
     "mail": "juan@gmail.com",
     "password": "abdc",
     "tipo": "cazador",
-    "zona": "689d49d621ed66d1570cdc76"
+    "zona": "68a1df3092d085a2634a06db"
 }
 
 ### Put
-PUT http://localhost:3000/api/usuario/689d490f21ed66d1570cdc74
+PUT http://localhost:3000/api/usuario/68a1e4066af269bb88016f1d
 Content-Type: application/json
 
 {
@@ -54,7 +54,7 @@ Content-Type: application/json
 
 
 ### Patch
-PATCH http://localhost:3000/api/usuario/689d490f21ed66d1570cdc74
+PATCH http://localhost:3000/api/usuario/68a1e4066af269bb88016f1d
 Content-Type: application/json
 
 {
@@ -62,4 +62,4 @@ Content-Type: application/json
 }
 
 ### Delete
-DELETE http://localhost:3000/api/usuario/689d490f21ed66d1570cdc74
+DELETE http://localhost:3000/api/usuario/68a1e4066af269bb88016f1d

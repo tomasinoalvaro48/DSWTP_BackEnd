@@ -24,14 +24,16 @@ export class Zona extends BaseEntity {
   @ManyToOne(() => Localidad, { nullable: false })
   localidad!: Rel<Localidad>
 
-  /*
+  
   @OneToMany(() => Usuario, (usuario) => usuario.zona,{
-    cascade: [Cascade.ALL]
+    cascade: [Cascade.ALL], nullable:true
   })
   usuarios = new Collection<Usuario>(this)
-
+ 
+  /*
   @OneToMany(() => Pedido_Resolucion, (pedido_resolucion)=>pedido_resolucion.zona,{
     cascade: [Cascade.ALL]
   })
-  pedidos_resolucion = new Collection<Pedido_Resolucion>(this)*/
+  pedidos_resolucion = new Collection<Pedido_Resolucion>(this)
+  */
 }
