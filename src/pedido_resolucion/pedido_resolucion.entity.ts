@@ -15,6 +15,7 @@ import { Zona } from '../localidad/zona.entity.js'
 import { BaseEntity } from '../shared/db/baseEntity.entity.js'
 import { Denunciante } from '../denunciante/denunciante.entity.js'
 import { Usuario } from '../usuario/usuario.entity.js'
+import { Tipo_Anomalia } from '../tipo_anomalia/tipo_anomalia.entity.js'
 
 
 @Entity()
@@ -48,13 +49,11 @@ export class Pedido_Resolucion extends BaseEntity {
 
   @ManyToOne(()=> Usuario, {nullable: true})
   cazador!: Rel<Usuario> 
-/*
-  @ManyToMany(()=>Tipo)
 
 
-    @ManyToMany(() => Item, (item) => item.characters, {
-    cascade: [Cascade.ALL],
-    owner: true,
+  @ManyToMany(() => Tipo_Anomalia, (tipo_anomalia) => tipo_anomalia.pedidos_resolucion, {
+  cascade: [Cascade.ALL],
+  owner: true,
   })
-  items = new Collection<Item>(this)*/
+  tipos_anomalia = new Collection<Tipo_Anomalia>(this)
 }
