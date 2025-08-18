@@ -102,4 +102,15 @@ async function remove(req: Request, res: Response){
     }
 }
 
-export{findAll, findOne, add, remove, update, sanitizeLocalidadInput}
+
+async function findLocalidadByName(nombreLocalidad:string) {
+    try{
+        const localidadFound = await em.findOneOrFail(Localidad,{nombre: nombreLocalidad})
+        return localidadFound
+    }
+    catch(error: any)
+    {
+        console.log(`Error al buscar localidad: ${error.message}`)
+    }
+}
+export{findAll, findOne, add, remove, update, sanitizeLocalidadInput, findLocalidadByName}

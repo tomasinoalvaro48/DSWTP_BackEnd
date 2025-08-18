@@ -5,7 +5,7 @@ import { orm } from '../shared/db/orm.js'
 import { Zona } from './zona.entity.js'
 import { ObjectId } from "mongodb";
 import { Localidad } from "./localidad.entity.js";
-
+import { findLocalidadByName } from "./localidad.controller.js";
 
 const em = orm.em
 
@@ -110,5 +110,20 @@ async function remove(req: Request, res: Response){
     }
 }
 
+async function findZonaByNameAndLocalidad(nombreZona: string,nombreLocalidad: string) {
+    try{
+        const localidadFound = await findLocalidadByName(nombreLocalidad)
+        if(localidadFound)
+        {
+            const zonaFound = await em.findOneOrFail(Zona,{ nombre: nombreZona, localidad: localidadFound })
+            return zonaFound
+        }
+    }
+    catch(error: any)
+    {
+        console.log(`Error al buscar zona: ${error.message}`)
+    }
+}
 
-export{findAll, findOne, add, remove, update, sanitizeZonaImput}
+
+export{findAll, findOne, add, remove, update, sanitizeZonaImput, findZonaByNameAndLocalidad}
