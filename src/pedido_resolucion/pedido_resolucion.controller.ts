@@ -2,8 +2,6 @@
 import { Request, Response, NextFunction } from "express";
 import { orm } from '../shared/db/orm.js'
 import { Pedido_Resolucion } from "./pedido_resolucion.entity.js";
-import { Zona } from "../localidad/zona.entity.js";
-import { Localidad } from "../localidad/localidad.entity.js";
 import { findZonaByNameAndLocalidad } from "../localidad/zona.controler.js";
 import {  buscarOCrearDenunciante } from "../denunciante/denunciante.controller.js";
 
@@ -23,7 +21,8 @@ function sanitizePedidoInput(
         descripcion: req.body.descripcion,
         comentario: req.body.comentario,
         zona: req.body.zona,
-        denunciante: req.body.denunciante        
+        denunciante: req.body.denunciante
+                 
     }
 
     Object.keys(req.body.sanitizePedidoInput).forEach((key)=>{
@@ -92,7 +91,6 @@ async function generarPedidosResolucion(req: Request, res: Response){
             .status(500)
             .json({message: error.message})
     }
-
 }
 
 async function findAll(req: Request, res: Response){
@@ -109,6 +107,24 @@ async function findAll(req: Request, res: Response){
     }
 }
 
+
+
+async function agregarTiposAnomalias(req: Request, res: Response) {
+    try{
+        
+        
+        const pedido_resolucion = 
+
+        res
+            .status(200)
+            .json({message: 'create pedido resolucion', data: pedido_resolucion})
+    }   
+    catch(error: any){
+        res
+            .status(500)
+            .json({message: error.message})
+    }
+}
 
 
 export{generarPedidosResolucion,findAll}

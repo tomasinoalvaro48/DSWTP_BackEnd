@@ -8,6 +8,7 @@ import {
   Collection,
   ManyToOne,
   Rel,
+  ManyToMany,
 } from '@mikro-orm/core'
 
 import { Zona } from '../localidad/zona.entity.js'
@@ -36,8 +37,8 @@ export class Pedido_Resolucion extends BaseEntity {
   @Property({nullable: false, onCreate: () => 'inconcluso'})
   resultado!: string
 
-  //@Property({nullable: false})  //VERRRRRRRRRRRRRRRRRRRRRRRRRRR
-  //dificultad!: string           //VERRRRRRRRRRRRRRRRRRRRRRRRRRR
+  @Property({nullable: true})  //VERRRRRRRRRRRRRRRRRRRRRRRRRRR
+  dificultad!: string          //VERRRRRRRRRRRRRRRRRRRRRRRRRRR
 
   @ManyToOne(( )=> Zona,{nullable:false })
   zona!: Rel<Zona>
@@ -47,7 +48,13 @@ export class Pedido_Resolucion extends BaseEntity {
 
   @ManyToOne(()=> Usuario, {nullable: true})
   cazador!: Rel<Usuario> 
+/*
+  @ManyToMany(()=>Tipo)
 
-  // FALTA TIPO ANOMALIA
 
+    @ManyToMany(() => Item, (item) => item.characters, {
+    cascade: [Cascade.ALL],
+    owner: true,
+  })
+  items = new Collection<Item>(this)*/
 }
