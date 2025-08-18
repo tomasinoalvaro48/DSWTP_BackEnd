@@ -14,5 +14,8 @@ export class Denunciante extends BaseEntity {
   telefono!: string
 
   @Property({ nullable: false })
+  mail_den!: string
+
+  @Property({ nullable: false })
   direccion_den!: string
 }

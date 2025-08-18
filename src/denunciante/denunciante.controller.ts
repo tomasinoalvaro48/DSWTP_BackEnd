@@ -9,10 +9,10 @@ function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunctio
     cod_den: req.body.cod_den,
     nombre_den: req.body.nombre_den,
     telefono: req.body.telefono,
+    mail_den: req.body.mail_den,
     direccion_den: req.body.direccion_den,
   }
-  //more checks here
-
+  //agregar validaciones
   Object.keys(req.body.sanitizedInput).forEach((key) => {
     if (req.body.sanitizedInput[key] === undefined) {
       delete req.body.sanitizedInput[key]

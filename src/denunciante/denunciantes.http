@@ -14,6 +14,7 @@ Content-Type: application/json
   "cod_den": 1,
   "nombre_den": "Juan Pepe",
   "telefono": "3413123456",
+  "mail_den": "jpepe@gmail.com",
   "direccion_den": "Corrientes 1400"
 }
 
@@ -26,6 +27,7 @@ Content-Type: application/json
   "cod_den": 2,
   "nombre_den": "Pepito",
   "telefono": "3415456789",
+  "mail_den": "pepito@gmail.com",
   "direccion_den": "Entre Rios 2000"
 }
 
@@ -36,7 +38,7 @@ Content-Type: application/json
 
 {
   "nombre_den": "Harry",
-  "direccion_den": "Paraguay 400"
+  "mail_den": "harryp@gmail.com",
 }
 
 
