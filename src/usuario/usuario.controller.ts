@@ -23,11 +23,11 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction)
         }
     }
     req.body.sanitizeUsuarioImput = {
-        codigo: req.body.codigo,
-        nombre: req.body.nombre,
-        mail: req.body.mail,
-        password: req.body.password,
-        tipo: req.body.tipo,
+       // codigo: req.body.codigo,
+        nombre_usuario: req.body.nombre_usuario,
+        email_usuario: req.body.email_usuario,
+        password_usuario: req.body.password_usuario,
+        tipo_usuario: req.body.tipo_usuario,
         zona: req.body.zona //Ver si sacar!!!!!!!!!!!!!!!!!!!!!
         
     }

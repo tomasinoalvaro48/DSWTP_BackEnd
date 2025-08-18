@@ -13,6 +13,21 @@ Content-Type: application/json
     "nombreZona":"Oeste" ,
     "nombreLocalidad": "CIUDAD DE Buenos Aires"
 }
+###
+POST  http://localHost:3000/api/pedido_resolucion/
+Content-Type: application/json
+
+{
+    "codigoDenunciante": "98765321",
+    "nombreDenunciante": "juan pablo",
+    "mailDenunciante": "juanpablo@mail.com",
+    "telefonoDenunciante": "341234567",
+    "descripicionPedido": "habkia una vez un codigo de producto que ropmpio todob el sistema xq no pagaron la suscripcion a disney",
+    "direccionPedido": "rulos 1234",
+    "nombreZona":"Oeste" ,
+    "nombreLocalidad": "CIUDAD DE Buenos Aires"
+}
+
 
 ###
 GET http://localHost:3000/api/pedido_resolucion/

@@ -11,8 +11,8 @@ function sanitizeLocalidadInput(
     next :NextFunction
 ){
     req.body.sanitizeLocalidadInput = {
-        codigo: req.body.codigo,
-        nombre: req.body.nombre,
+        codigo_localidad: req.body.codigo,
+        nombre_localidad: req.body.nombre,
         zonas: req.body.zonas
     }
 
@@ -103,9 +103,9 @@ async function remove(req: Request, res: Response){
 }
 
 
-async function findLocalidadByName(nombreLocalidad:string) {
+async function findLocalidadByName(nombre_localidad:string) {
     try{
-        const localidadFound = await em.findOneOrFail(Localidad,{nombre: nombreLocalidad})
+        const localidadFound = await em.findOneOrFail(Localidad,{nombre_localidad: nombre_localidad})
         return localidadFound
     }
     catch(error: any)
