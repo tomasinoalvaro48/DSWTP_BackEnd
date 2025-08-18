@@ -3,6 +3,7 @@ import { orm } from '../shared/db/orm.js'
 import { Usuario } from "./usuario.entity.js";
 import { ObjectId } from "mongodb";
 import { Zona } from "../localidad/zona.entity.js";
+import { Denunciante } from "../denunciante/denunciante.entity.js";
 
 const em = orm.em
 
@@ -110,7 +111,6 @@ async function remove(req: Request, res: Response){
         .status(500).json({message: error.message})
     }
 }
-
 
 
 export{findAll, findOne, add, remove, update, sanitizeUsuarioImput}

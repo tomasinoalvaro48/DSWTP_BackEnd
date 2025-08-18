@@ -1,0 +1,18 @@
+
+###
+POST  http://localHost:3000/api/pedido_resolucion/
+Content-Type: application/json
+
+{
+    "codigoDenunciante": "122345678",
+    "nombreDenunciante": "miguel",
+    "mailDenunciante": "miguelito@mail.com",
+    "telefonoDenunciante": "341234567",
+    "descripicionPedido": "holllllllllllllllllllllllllllllllllllllllllllll",
+    "direccionPedido": "beto 1234",
+    "nombreZona":"Oeste" ,
+    "nombreLocalidad": "CIUDAD DE Buenos Aires"
+}
+
+###
+GET http://localHost:3000/api/pedido_resolucion/

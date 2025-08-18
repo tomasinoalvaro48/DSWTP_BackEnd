@@ -9,7 +9,7 @@ function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunctio
     cod_den: req.body.cod_den,
     nombre_den: req.body.nombre_den,
     telefono: req.body.telefono,
-    direccion_den: req.body.direccion_den,
+    //direccion_den: req.body.direccion_den,
   }
   //more checks here
 
@@ -72,4 +72,32 @@ async function remove(req: Request, res: Response) {
   }
 }
 
-export { sanitizeDenuncianteInput, findAll, findOne, add, update, remove }
+
+async function buscarOCrearDenunciante(req: Request, res: Response) {
+  try{  
+    try{
+        const denunciante = await em.findOneOrFail(Denunciante,{ email: req.body.mailDenunciante })
+        return denunciante
+    }
+    catch{
+        req.body.sanitizedInput = {
+          cod_den: req.body.codigoDenunciante,
+          nombre_den: req.body.nombreDenunciante,
+          telefono: req.body.telefonoDenunciante,
+          email: req.body.mailDenunciante
+        }
+          
+        const denunciante = await add(req, res)  
+        return denunciante
+    }
+  }
+  catch(error: any)
+  {
+      console.log(`Error al buscar denunciante: ${error.message}`)
+  }
+}
+
+
+
+
+export { sanitizeDenuncianteInput, findAll, findOne, add, update, remove, buscarOCrearDenunciante }
