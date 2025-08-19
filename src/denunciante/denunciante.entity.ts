@@ -7,17 +7,18 @@ import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity
 
 @Entity()
 export class Denunciante extends BaseEntity {
+  /*
   @Property({ nullable: false, unique: true })
-  cod_den!: number
+  cod_den!: number*/
 
   @Property({ nullable: false })
-  nombre_den!: string
+  nombre_apellido_denunciante!: string
 
   @Property({ nullable: false })
-  telefono!: string
+   telefono_denunciante!: string
 
   @Property({ nullable: false })
-  email!: string
+   email_denunciante!: string
 
   
   @OneToMany(() => Pedido_Resolucion, (pedido_resolucion)=>pedido_resolucion.denunciante,{

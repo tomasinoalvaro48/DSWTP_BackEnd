@@ -5,17 +5,18 @@ import { orm } from '../shared/db/orm.js'
 const em = orm.em
 
 function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunction) {
-  req.body.sanitizedInput = {
-    cod_den: req.body.cod_den,
-    nombre_den: req.body.nombre_den,
-    telefono: req.body.telefono,
+  req.body.sanitizeDenuncianteInput = {
+    //cod_den: req.body.cod_den,
+    nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
+    telefono_denunciante: req.body. telefono_denunciante,
+    email_denunciante: req.body. telefono_denunciante
     //direccion_den: req.body.direccion_den,
   }
   //more checks here
 
-  Object.keys(req.body.sanitizedInput).forEach((key) => {
-    if (req.body.sanitizedInput[key] === undefined) {
-      delete req.body.sanitizedInput[key]
+  Object.keys(req.body.sanitizeDenuncianteInput).forEach((key) => {
+    if (req.body.sanitizeDenuncianteInput[key] === undefined) {
+      delete req.body.sanitizeDenuncianteInput[key]
     }
   })
   next()
@@ -42,7 +43,7 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    const denunciante = em.create(Denunciante, req.body.sanitizedInput)
+    const denunciante = em.create(Denunciante, req.body.sanitizeDenuncianteInput)
     await em.flush()
     res.status(201).json({ message: 'denunciante created', data: denunciante })
   } catch (error: any) {
@@ -54,7 +55,7 @@ async function update(req: Request, res: Response) {
   try {
     const id = req.params.id
     const denuncianteToUpdate = await em.findOneOrFail(Denunciante, { id })
-    em.assign(denuncianteToUpdate, req.body.sanitizedInput)
+    em.assign(denuncianteToUpdate, req.body.sanitizeDenuncianteInput)
     await em.flush()
     res.status(200).json({ message: 'denunciante updated', data: denuncianteToUpdate })
   } catch (error: any) {
@@ -76,15 +77,17 @@ async function remove(req: Request, res: Response) {
 async function buscarOCrearDenunciante(req: Request, res: Response) {
   try{  
     try{
-        const denunciante = await em.findOneOrFail(Denunciante,{ email: req.body.mailDenunciante })
+        const denunciante = await em.findOneOrFail(Denunciante,{email_denunciante: req.body.mailDenunciante })
         return denunciante
     }
     catch{
-        req.body.sanitizedInput = {
-          cod_den: req.body.codigoDenunciante,
-          nombre_den: req.body.nombreDenunciante,
-          telefono: req.body.telefonoDenunciante,
-          email: req.body.mailDenunciante
+        //sanitizeDenuncianteInput(req, res, next) VER COMO IMPLEMENTAR ESTO COMO GENERAL
+
+        req.body.sanitizeDenuncianteInput = {
+          //cod_den: req.body.codigoDenunciante,
+          nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
+          telefono_denunciante: req.body. telefono_denunciante,
+          email_denunciante: req.body. telefono_denunciante
         }
           
         const denunciante = await add(req, res)  
