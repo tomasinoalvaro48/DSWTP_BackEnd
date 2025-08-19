@@ -37,37 +37,6 @@ function sanitizePedidoInput(
     next()
 }
 
-/*
-Denunciante:
--nombre
--mail
--telefono
-
-Pedido:
--descripcion [0..1]
--direccion
-
-Zona:
--nombre
-
-Localdidad:
--nombre
-*/
-
-
-/*
-fecha       ++
-direccion
-descripcion 
-estado      ++ 
-comentario  
-resultado   ++
-dificultad  ???????????????////
-
-*/
-
-
-
 
 //PASO 1 CUU1
 async function generarPedidosResolucion(req: Request, res: Response){
@@ -86,7 +55,7 @@ async function generarPedidosResolucion(req: Request, res: Response){
         }
 
         const pedido_resolucion = em.create(Pedido_Resolucion, req.body.sanitizePedidoInput )
-       // await em.flush()//Cambiarrrrrrrrr
+        await em.flush()//Cambiarrrrrrrrr
         res
             .status(200)
             .json({message: 'create pedido resolucion', data: pedido_resolucion})
@@ -119,36 +88,29 @@ async function findAll(req: Request, res: Response){
 async function registrarPedido(req: Request, res: Response) {
     try
     {
+
+        // const pedidos_resolucion = em.findOneOrFail(Pedido_Resolucion, id_pedido_resolucion,{populate:['anomalias']})
         const id_pedido_resolucion = new ObjectId(req.params.id)
         const pedidos_resolucion = em.getReference(Pedido_Resolucion, id_pedido_resolucion)
-        const dificultad_pedido = 0
-        pedidos_resolucion.anomalias.forEach(anomalia => {//????????????????
+       
+        let dificultad_pedido = 0
+        for(const anomalia of pedidos_resolucion.anomalias){
             const dificultad_anomalia = anomalia.tipo_anomalia.dificultad_tipo_anomalia
             if (dificultad_anomalia>dificultad_pedido){
                 dificultad_pedido =  dificultad_anomalia
             }
-        });
+        };
 
+        req.body.sanitizePedidoInput= {
+            dificultad_pedido : dificultad_pedido,
 
-        const id_pedido_resolucion = new ObjectId(req.params.id);
-        const pedido = await em.findOneOrFail(Pedido_Resolucion, id_pedido_resolucion, {
-        populate: ['anomalias', 'anomalias.tipoAnomalia'], // importante
-        });
-
-        let dificultad_pedido = 0;
-
-        for (const anomalia of pedido.anomalias) {
-        const dificultad_anomalia = anomalia.tipoAnomalia.dificultad_tipo_anomalia;
-        if (dificultad_anomalia > dificultad_pedido) {
-            dificultad_pedido = dificultad_anomalia;
         }
-        }
-        
-        
-        
 
-
-
+        em.assign(pedidos_resolucion, req.body.sanitizePedidoInput)
+        await em.flush()
+        res
+            .status(200)
+            .json({message: 'pedido update'})
 
     }
     catch(error: any){
@@ -192,6 +154,6 @@ async function agregarTiposAnomalias(req: Request, res: Response) {
 }
 */
 
-export{generarPedidosResolucion,findAll}
+export{generarPedidosResolucion,findAll,registrarPedido}
 
 

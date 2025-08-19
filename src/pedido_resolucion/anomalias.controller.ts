@@ -21,7 +21,7 @@ async function agregarAnomalias(req: Request, res: Response){
             pedido_resolucion: pedido_resolucion
         }
         const anomalia = em.create(Anomalia, req.body.sanitizeAnomaliaInput )
-        //await em.flush()
+        await em.flush()
         return anomalia
     }
     catch(error: any){
