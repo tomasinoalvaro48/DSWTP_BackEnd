@@ -1,6 +1,7 @@
 import { Entity, ManyToMany, Property, Collection, OneToMany } from '@mikro-orm/core'
 import { BaseEntity } from '../shared/db/baseEntity.entity.js'
 import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
+import { Anomalia } from '../pedido_resolucion/anomalia.entity.js'
 
 @Entity()
 export class Tipo_Anomalia extends BaseEntity {
@@ -10,6 +11,7 @@ export class Tipo_Anomalia extends BaseEntity {
   @Property({ nullable: false })
   dificultad_tipo_anomalia!: number
 
-  @ManyToMany(() => Pedido_Resolucion, (pedido_resolucion) => pedido_resolucion.tipos_anomalia)
-  pedidos_resolucion = new Collection<Pedido_Resolucion>(this)
+  @OneToMany(() => Anomalia, (anomalia) => anomalia.tipo_anomalia)
+  anomalias = new Collection<Anomalia>(this)
+
 }

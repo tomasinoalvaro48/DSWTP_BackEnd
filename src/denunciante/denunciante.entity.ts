@@ -7,21 +7,20 @@ import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity
 
 @Entity()
 export class Denunciante extends BaseEntity {
-  @Property({ nullable: false, unique: true })
-  cod_den!: number
-
-  @Property({ nullable: false })
-  nombre_den!: string
-
-  @Property({ nullable: false })
-  telefono!: string
-
-  @Property({ nullable: false })
-  mail_den!: string
-
-  //@Property({ nullable: false })
-  //mail_den!: string
   /*
+  @Property({ nullable: false, unique: true })
+  cod_den!: number*/
+
+  @Property({ nullable: false })
+  nombre_apellido_denunciante!: string
+
+  @Property({ nullable: false })
+   telefono_denunciante!: string
+
+  @Property({ nullable: false })
+   email_denunciante!: string
+
+  
   @OneToMany(() => Pedido_Resolucion, (pedido_resolucion)=>pedido_resolucion.denunciante,{
     cascade: [Cascade.ALL]
   })
