@@ -36,10 +36,10 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    const nombre_tipo = req.params.nombre_tipo_anomalia
-    const tipo_nombre = await em.findOne(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
-    if (tipo_nombre) {
-      res.status(422).json({ message: 'nombre de tipo duplicado', data: tipo_nombre })
+    const nombre_tipo = req.body.sanitizedInput?.nombre_tipo_anomalia
+    const tipo_nombre = await em.find(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
+    if (tipo_nombre.length > 0) {
+      res.status(409).json({ message: 'nombre de tipo duplicado', data: tipo_nombre })
     } else {
       const tipo = em.create(Tipo_Anomalia, req.body.sanitizedInput)
       await em.flush()
