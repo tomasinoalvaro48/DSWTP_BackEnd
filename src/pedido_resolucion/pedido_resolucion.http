@@ -4,30 +4,63 @@ POST  http://localHost:3000/api/pedido_resolucion/
 Content-Type: application/json
 
 {
-    "codigoDenunciante": "122345678",
-    "nombreDenunciante": "miguel",
-    "mailDenunciante": "miguelito@mail.com",
-    "telefonoDenunciante": "341234567",
-    "descripicionPedido": "holllllllllllllllllllllllllllllllllllllllllllll",
-    "direccionPedido": "beto 1234",
-    "nombreZona":"Oeste" ,
-    "nombreLocalidad": "CIUDAD DE Buenos Aires"
+    //"codigoDenunciante": "122345678",
+    "nombre_apellido_denunciante": "miguel",
+    "email_denunciante": "miguelito@mail.com",
+    "telefono_denunciante": "341234567",
+    "descripcion_pedido_resolucion": "holllllllllllllllllllllllllllllllllllllllllllll",
+    "direccion_pedido_resolucion": "beto 1234",
+    "nombreZona":"Norte" ,
+    "nombreLocalidad": "Rosario"
 }
 ###
 POST  http://localHost:3000/api/pedido_resolucion/
 Content-Type: application/json
 
 {
-    "codigoDenunciante": "98765321",
-    "nombreDenunciante": "juan pablo",
-    "mailDenunciante": "juanpablo@mail.com",
-    "telefonoDenunciante": "341234567",
-    "descripicionPedido": "habkia una vez un codigo de producto que ropmpio todob el sistema xq no pagaron la suscripcion a disney",
-    "direccionPedido": "rulos 1234",
-    "nombreZona":"Oeste" ,
-    "nombreLocalidad": "CIUDAD DE Buenos Aires"
+    //"codigoDenunciante": "98765321",
+    "nombre_apellido_denunciante": "juan pablo",
+    "email_denunciante": "juanpablo@mail.com",
+    "telefono_denunciante": "341234567",
+    "descripcion_pedido_resolucion": "habkia una vez un codigo de producto que ropmpio todob el sistema xq no pagaron la suscripcion a disney",
+    "direccion_pedido_resolucion": "rulos 1234",
+    "nombreZona":"Este" ,
+    "nombreLocalidad": "Rosario"
+}
+
+
+### agregar anomalia 1
+PATCH http://localHost:3000/api/pedido_resolucion/agregarAnomalia/68a6030df79bcb7325157d3e
+Content-Type: application/json
+
+{
+    "tipo_anomalia":"68a5de3ca5149e8e291e622e"
+}
+
+### agregar anomalia 2
+PATCH http://localHost:3000/api/pedido_resolucion/agregarAnomalia/68a6030df79bcb7325157d3e
+Content-Type: application/json
+
+{
+    "tipo_anomalia":"68a5de43a5149e8e291e622f"
+}
+### agregar anomalia 3
+PATCH http://localHost:3000/api/pedido_resolucion/agregarAnomalia/68a6030df79bcb7325157d3e
+Content-Type: application/json
+
+{
+    "tipo_anomalia":"68a5de47a5149e8e291e6230"
 }
 
 
 ###
+PATCH http://localHost:3000/api/pedido_resolucion/registrarPedido/68a6030df79bcb7325157d3e
+
+{
+    
+}
+###
 GET http://localHost:3000/api/pedido_resolucion/
+
+###
+DELETE  http://localHost:3000/api/pedido_resolucion/68a6030df79bcb7325157d3e

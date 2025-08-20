@@ -9,11 +9,11 @@ POST http://localhost:3000/api/usuario/
 Content-Type: application/json
 
 {
-    "codigo": "20",
-    "nombre": "Pedro",
-    "mail": "pedro@gmail.com",
-    "password": "1234",
-    "tipo": "operador",
+    //"codigo": "20",
+    "nombre_usuario": "Pedro",
+    "email_usuario": "pedro@gmail.com",
+    "password_usuario": "1234",
+    "tipo_usuario": "operador",
     "zona": "68a1df3092d085a2634a06db"
 }
 
@@ -22,11 +22,11 @@ POST http://localhost:3000/api/usuario/
 Content-Type: application/json
 
 {
-    "codigo": "30",
-    "nombre": "Maximo",
-    "mail": "maximo@gmail.com",
-    "password": "7890",
-    "tipo": "cazador",
+    //"codigo": "30",
+    "nombre_usuario": "Maximo",
+    "email_usuario": "maximo@gmail.com",
+    "password_usuario": "7890",
+    "tipo_usuario": "cazador",
     "zona": "68a1df3092d085a2634a06db"
 }
 
@@ -35,11 +35,11 @@ POST http://localhost:3000/api/usuario/
 Content-Type: application/json
 
 {
-    "codigo": "40",
-    "nombre": "Juan",
-    "mail": "juan@gmail.com",
-    "password": "abdc",
-    "tipo": "cazador",
+    //"codigo": "40",
+    "nombre_usuario": "Juan",
+    "email_usuario": "juan@gmail.com",
+    "password_usuario": "abdc",
+    "tipo_usuario": "cazador",
     "zona": "68a1df3092d085a2634a06db"
 }
 
@@ -48,8 +48,8 @@ PUT http://localhost:3000/api/usuario/68a1e4066af269bb88016f1d
 Content-Type: application/json
 
 {
-  "codigo": "89999999",
-  "nombre": "vegetta"
+  //"codigo": "89999999",
+  "nombre_usuario": "vegetta"
 }
 
 
@@ -58,7 +58,7 @@ PATCH http://localhost:3000/api/usuario/68a1e4066af269bb88016f1d
 Content-Type: application/json
 
 {
-  "nombre": "JACKKKKKKKKKK"
+  "nombre_usuario": "JACKKKKKKKKKK"
 }
 
 ### Delete

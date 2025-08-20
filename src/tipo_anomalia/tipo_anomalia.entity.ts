@@ -16,7 +16,7 @@ export class Tipo_Anomalia extends BaseEntity {
   @Property({ nullable: false })
   dificultad_tipo_anomalia!: number
 
-  @OneToMany(() => Anomalia, (anomalia) => anomalia.tipo_anomalia)
+  @OneToMany(() => Anomalia, (anomalia) => anomalia.tipo_anomalia, {nullable: true})
   anomalias = new Collection<Anomalia>(this)
 
 }

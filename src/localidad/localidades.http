@@ -9,11 +9,9 @@ POST http://localHost:3000/api/localidad
 Content-Type: application/json
 
 {
-    "codigo": "1000",    
-    "nombre": "Buenos Aires"
+    "codigo_localidad": "1000",    
+    "nombre_localidad": "Buenos Aires"
 }
-
-
 
 ### Put 2
 
@@ -21,8 +19,8 @@ POST http://localHost:3000/api/localidad
 Content-Type: application/json
 
 {
-    "codigo": "2000",    
-    "nombre": "Rosario"
+    "codigo_localidad": "2000",    
+    "nombre_localidad": "Rosario"
 }
 
 ### Put 3
@@ -31,27 +29,27 @@ POST http://localHost:3000/api/localidad
 Content-Type: application/json
 
 {
-    "codigo": "99501",    
-    "nombre": "Anchorage"
+    "codigo_localidad": "99501",    
+    "nombre_localidad": "Anchorage"
 }
 
 ### Modificacion Parcial
-PATCH http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
+PATCH http://localHost:3000/api/localidad/68a5d0c4451193c766dd40a9
 Content-Type: application/json
 
 {  
-    "nombre": "CIUDAD DE Buenos Aires"
+    "nombre_localidad": "CIUDAD DE Buenos Aires"
 }
 
 ###
-PUT http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
+PUT http://localHost:3000/api/localidad/68a5d0c4451193c766dd40a9
 Content-Type: application/json
 
 {  
-    "codigo": "7777",
-    "nombre": "Cordoba"
+    "codigo_localidad": "7777",
+    "nombre_localidad": "Cordoba"
 }
 
 
 ### Remove
-DELETE http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
+DELETE http://localHost:3000/api/localidad/68a5d0c4451193c766dd40a9

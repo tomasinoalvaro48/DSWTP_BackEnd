@@ -11,7 +11,7 @@ import { Zona } from './zona.entity.js'
 @Entity()
 export class Localidad extends BaseEntity {
   @Property({ nullable: false, unique: true })
-  codigo_localidad!: number
+  codigo_localidad!: string
 
   @Property({ nullable: false})
   nombre_localidad!: string

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { Denunciante } from './denunciante.entity.js'
 import { orm } from '../shared/db/orm.js'
+import { ObjectId } from 'mongodb'
 
 const em = orm.em
 
@@ -33,8 +34,8 @@ async function findAll(req: Request, res: Response) {
 
 async function findOne(req: Request, res: Response) {
     try {
-    const id = req.params.id
-    const denunciante = await em.findOneOrFail(Denunciante, { id })
+    const id = new ObjectId(req.params.id) //Arreglado
+    const denunciante = await em.findOneOrFail(Denunciante, id )
     res.status(200).json({ message: 'found denunciante', data: denunciante })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
@@ -53,8 +54,8 @@ async function add(req: Request, res: Response) {
 
 async function update(req: Request, res: Response) {  
   try {
-    const id = req.params.id
-    const denuncianteToUpdate = await em.findOneOrFail(Denunciante, { id })
+    const id = new ObjectId(req.params.id) //Arreglado
+    const denuncianteToUpdate = await em.findOneOrFail(Denunciante, id )
     em.assign(denuncianteToUpdate, req.body.sanitizeDenuncianteInput)
     await em.flush()
     res.status(200).json({ message: 'denunciante updated', data: denuncianteToUpdate })
@@ -65,7 +66,7 @@ async function update(req: Request, res: Response) {
 
 async function remove(req: Request, res: Response) {
   try {
-    const id = req.params.id
+    const id = new ObjectId(req.params.id) //Arreglado
     const denunciante = em.getReference(Denunciante, id)
     await em.removeAndFlush(denunciante)
   } catch (error: any) {
@@ -88,10 +89,11 @@ async function buscarOCrearDenunciante(req: Request, res: Response) {
           nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
           telefono_denunciante: req.body. telefono_denunciante,
           email_denunciante: req.body. telefono_denunciante
-        }
+        };
           
-        const denunciante = await add(req, res)  
-        return denunciante
+        //const denunciante = await add(req, res)  
+        const denunciante =em.create(Denunciante, req.body.sanitizeDenuncianteInput)
+        return denunciante 
     }
   }
   catch(error: any)

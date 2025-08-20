@@ -3,7 +3,7 @@ GET http://localhost:3000/api/denunciantes
 
 
 ### obtener un denunciante
-GET http://localhost:3000/api/denunciantes/689a00bc208005874aea0fe0
+GET http://localhost:3000/api/denunciantes/68a5d249e44233a23cf67d8d
 
 
 ### crear un nuevo denunciante
@@ -11,22 +11,21 @@ POST http://localhost:3000/api/denunciantes
 Content-Type: application/json
 
 {
-  "cod_den": 1,
-  "nombre_den": "Juan Pepe",
-  "telefono": "3413123456",
-  "direccion_den": "Corrientes 1400"
+  "nombre_apellido_denunciante": "Juan Pepe",
+  "telefono_denunciante": "3413123456",
+  "email_denunciante": "juanPepe@gmail.com"
 }
 
 
 ### modificar un denunciante
-PUT http://localhost:3000/api/denunciantes/689a00bc208005874aea0fe0
+PUT http://localhost:3000/api/denunciantes/68a5d249e44233a23cf67d8d
 Content-Type: application/json
 
 {
-  "cod_den": 2,
-  "nombre_den": "Pepito",
-  "telefono": "3415456789",
-  "direccion_den": "Entre Rios 2000"
+  //"cod_den": 2,
+  "nombre_apellido_denunciante": "Pepito",
+  "telefono_denunciante": "3415456789",
+  "email_denunciante": "pepito@gmail.com"
 }
 
 
@@ -35,8 +34,8 @@ PATCH http://localhost:3000/api/denunciantes/689a00bc208005874aea0fe0
 Content-Type: application/json
 
 {
-  "nombre_den": "Harry",
-  "direccion_den": "Paraguay 400"
+  "nombre_apellido_denunciante": "Harry",
+  "email_denunciante": "harry@gmail.com"
 }
 
 

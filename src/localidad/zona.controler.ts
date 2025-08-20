@@ -26,7 +26,7 @@ function sanitizeZonaImput(req: Request, res: Response, next: NextFunction){
     }
     req.body.sanitizeZonaImput = {
        // codigo: req.body.codigo,
-        nombre_zona: req.body.nombre,
+        nombre_zona: req.body.nombre_zona,
         localidad: req.body.localidad//Ver si sacar!!!!!!!!!!!!!!!!!!!!!
         
     }
@@ -110,9 +110,9 @@ async function remove(req: Request, res: Response){
     }
 }
 
-async function findZonaByNameAndLocalidad(nombre_zona: string,nombreLocalidad: string) {
+async function findZonaByNameAndLocalidad(nombre_zona: string,nombre_localidad: string) {
     try{
-        const localidadFound = await findLocalidadByName(nombreLocalidad)
+        const localidadFound = await findLocalidadByName(nombre_localidad)
         if(localidadFound)
         {
             const zonaFound = await em.findOneOrFail(Zona,{ nombre_zona: nombre_zona, localidad: localidadFound })
