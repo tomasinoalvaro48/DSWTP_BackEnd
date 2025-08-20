@@ -20,7 +20,7 @@ app.use('/api/localidad', localidadRouter)
 app.use('/api/tipo_anomalia', tipoRouter)
 app.use('/api/zona', zonaRouter)
 app.use('/api/denunciantes', denuncianteRouter)
-app.use('/api/usuario',usuarioRouter)
+app.use('/api/usuario', usuarioRouter)
 app.use('/api/pedido_resolucion', pedidos_resolucion)
 
 app.use((_, res) => {
@@ -30,5 +30,5 @@ app.use((_, res) => {
 await syncSchema()
 
 app.listen(3000, () => {
-  console.log('Server is running on https://localhost:3000')
+  console.log('Server is running on http://localhost:3000')
 })

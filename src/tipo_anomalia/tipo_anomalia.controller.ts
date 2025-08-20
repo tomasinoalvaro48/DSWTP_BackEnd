@@ -6,7 +6,6 @@ const em = orm.em
 
 function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizedInput = {
-    //cod_anom: req.body.cod_anom,
     nombre_tipo_anomalia: req.body.nombre_tipo_anomalia,
     dificultad_tipo_anomalia: req.body.dificultad_tipo_anomalia,
   }
@@ -37,9 +36,15 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    const tipo = em.create(Tipo_Anomalia, req.body.sanitizedInput)
-    await em.flush()
-    res.status(201).json({ message: 'tipo de anomalia created', data: tipo })
+    const nombre_tipo = req.params.nombre_tipo_anomalia
+    const tipo_nombre = await em.findOne(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
+    if (tipo_nombre) {
+      res.status(422).json({ message: 'nombre de tipo duplicado', data: tipo_nombre })
+    } else {
+      const tipo = em.create(Tipo_Anomalia, req.body.sanitizedInput)
+      await em.flush()
+      res.status(201).json({ message: 'tipo de anomalia created', data: tipo })
+    }
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }

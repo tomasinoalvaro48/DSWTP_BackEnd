@@ -6,18 +6,14 @@ GET http://localhost:3000/api/tipo_anomalia
 ### Obtener 1
 GET http://localhost:3000/api/tipo_anomalia/3
 
-
-
 ### Crear Tipo anomalia 1
 POST http://localhost:3000/api/tipo_anomalia
 Content-Type: application/json
 
 {
-  //"cod_anom": 3,
-  "nombre_tipo_anomalia": "Moco Verde", 
-  "dificultad_tipo_anomalia": 2 
+  "nombre_tipo_anomalia": "Esqueleto Encantado", 
+  "dificultad_tipo_anomalia": 1 
 }
-
 
 ### Crear Tipo anomalia 2
 POST http://localhost:3000/api/tipo_anomalia
@@ -37,10 +33,6 @@ Content-Type: application/json
   "dificultad_tipo_anomalia": 3
 }
 
-
-
-
-
 ### Modificar entero
 PUT http://localhost:3000/api/tipo_anomalia/
 Content-Type: application/json
@@ -58,9 +50,6 @@ Content-Type: application/json
   "nombre_tipo_anomalia": "Muñeco Viviente", 
   "dificultad_tipo_anomalia": 1   
 }
-
-
-
 
 ### Eliminar 1
 DELETE http://localhost:3000/api/tipo_anomalia/
