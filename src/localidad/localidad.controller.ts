@@ -11,8 +11,8 @@ function sanitizeLocalidadInput(
     next :NextFunction
 ){
     req.body.sanitizeLocalidadInput = {
-        codigo_localidad: req.body.codigo,
-        nombre_localidad: req.body.nombre,
+        codigo_localidad: req.body.codigo_localidad,
+        nombre_localidad: req.body.nombre_localidad,
         zonas: req.body.zonas
     }
 

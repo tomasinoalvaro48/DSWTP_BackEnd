@@ -20,25 +20,25 @@ import { Anomalia } from './anomalia.entity.js'
 @Entity()
 export class Pedido_Resolucion extends BaseEntity {
   @Property({ nullable: false, onCreate: () => new Date()})
-  fecha!: Date
+  fecha_pedido_resolucion!: Date
 
   @Property({ nullable: false })
-  direccion!: string
+  direccion_pedido_resolucion!: string
 
   @Property({ nullable: true })
-  descripcion!: string
+  descripcion_pedido_resolucion!: string
 
   @Property({ nullable: false, onCreate: () => 'solicitado'})
-  estado!: string
+  estado_pedido_resolucion!: string
 
   @Property({ nullable: true})
-  comentario!: string
+  comentario_pedido_resolucion!: string
 
   @Property({nullable: false, onCreate: () => 'inconcluso'})
-  resultado!: string
+  resultado_pedido_resolucion!: string
 
   @Property({nullable: true})  //VERRRRRRRRRRRRRRRRRRRRRRRRRRR
-  dificultad!: string          //VERRRRRRRRRRRRRRRRRRRRRRRRRRR
+  dificultad_pedido_resolucion!: number          //VERRRRRRRRRRRRRRRRRRRRRRRRRRR
 
   @ManyToOne(( )=> Zona,{nullable:false })
   zona!: Rel<Zona>
@@ -49,6 +49,6 @@ export class Pedido_Resolucion extends BaseEntity {
   @ManyToOne(()=> Usuario, {nullable: true})
   cazador!: Rel<Usuario> 
 
-  @OneToMany(() => Anomalia, (anomalia) => anomalia.pedido_resolucion)
+  @OneToMany(() => Anomalia, (anomalia) => anomalia.pedido_resolucion,{eager: true, nullable: true})
   anomalias = new Collection<Anomalia>(this)
 }

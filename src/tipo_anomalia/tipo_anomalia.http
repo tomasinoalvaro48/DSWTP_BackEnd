@@ -19,6 +19,29 @@ Content-Type: application/json
   "dificultad_tipo_anomalia": 4
 }
 
+
+
+### Crear Tipo anomalia 1
+POST http://localhost:3000/api/tipo_anomalia
+Content-Type: application/json
+
+{
+  //"cod_anom": 3,
+  "nombre_tipo_anomalia": "Moco Verde", 
+  "dificultad_tipo_anomalia": 2 
+}
+
+
+### Crear Tipo anomalia 2
+POST http://localhost:3000/api/tipo_anomalia
+Content-Type: application/json
+
+{
+  "nombre_tipo_anomalia": "Cable Cortado", 
+  "dificultad_tipo_anomalia": 4
+}
+
+### Crear Tipo anomalia 3
 ### Crear Tipo anomalia 3
 POST http://localhost:3000/api/tipo_anomalia
 Content-Type: application/json
@@ -26,13 +49,22 @@ Content-Type: application/json
 {
   "nombre_tipo_anomalia": "Pérdida de Agua", 
   "dificultad_tipo_anomalia": 3
+  "nombre_tipo_anomalia": "Pérdida de Agua", 
+  "dificultad_tipo_anomalia": 3
 }
+
+
+
+
 
 ### Modificar entero
 PUT http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
+PUT http://localhost:3000/api/tipo_anomalia/
 Content-Type: application/json
 
 {
+  "nombre_tipo_anomalia": "Ejército de Zombies", 
+  "dificultad_tipo_anomalia": 3
   "nombre_tipo_anomalia": "Ejército de Zombies", 
   "dificultad_tipo_anomalia": 3
 }
@@ -47,11 +79,18 @@ Content-Type: application/json
 
 ###
 PATCH http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
+PATCH http://localhost:3000/api/tipo_anomalia/
 Content-Type: application/json
 
 {
   "dificultad_tipo_anomalia": 1
+  "nombre_tipo_anomalia": "Muñeco Viviente", 
+  "dificultad_tipo_anomalia": 1   
 }
+
+
+
 
 ### Eliminar 1
 DELETE http://localhost:3000/api/tipo_anomalia/68adbef3a29da26ee8479432
+DELETE http://localhost:3000/api/tipo_anomalia/

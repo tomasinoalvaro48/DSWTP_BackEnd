@@ -22,7 +22,8 @@ export class Denunciante extends BaseEntity {
 
   
   @OneToMany(() => Pedido_Resolucion, (pedido_resolucion)=>pedido_resolucion.denunciante,{
-    cascade: [Cascade.ALL]
+    cascade: [Cascade.ALL], 
+    nullable: true
   })
   pedidos_resolucion = new Collection<Pedido_Resolucion>(this)*/
 }

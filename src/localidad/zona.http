@@ -9,9 +9,8 @@ POST http://localhost:3000/api/zona/
 Content-Type: application/json
 
 {
-  "codigo": 5,
-  "nombre": "Oeste",
-  "localidad": "689d01428ca37388418ffc2f"
+  "nombre_zona": "Oeste",
+  "localidad": "68a5d0c0451193c766dd40a8"
 }
 
 ###Post 2
@@ -19,9 +18,8 @@ POST http://localhost:3000/api/zona/
 Content-Type: application/json
 
 {
-  "codigo": 2,
-  "nombre": "Norte",
-  "localidad": "689d01428ca37388418ffc2f"
+  "nombre_zona": "Norte",
+  "localidad": "68a5d0c0451193c766dd40a8"
 }
 
 ###Post 3
@@ -29,29 +27,27 @@ POST http://localhost:3000/api/zona/
 Content-Type: application/json
 
 {
-  "codigo": 20,
-  "nombre": "Este",
-  "localidad": "689d01428ca37388418ffc2f"
+  "nombre_zona": "Este",
+  "localidad": "68a5d0c0451193c766dd40a8"
 }
 
 ### Put
-PUT http://localhost:3000/api/zona/689d490f21ed66d1570cdc74
+PUT http://localhost:3000/api/zona/68a5d1e7e44233a23cf67d8a
 Content-Type: application/json
 
 {
-  "codigo": "89999999",
-  "nombre": "mordor"
+  "nombre_zona": "mordor"
 }
 
 
 
 ### Patch
-PATCH http://localhost:3000/api/zona/689d490f21ed66d1570cdc74
+PATCH http://localhost:3000/api/zona/68a5d1e7e44233a23cf67d8a
 Content-Type: application/json
 
 {
-  "nombre": "ODESA"
+  "nombre_zona": "ODESA"
 }
 
 ### Delete
-DELETE http://localhost:3000/api/zona/689d49d621ed66d1570cdc76
+DELETE http://localhost:3000/api/zona/68a5d1e7e44233a23cf67d8a

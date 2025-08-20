@@ -28,7 +28,8 @@ export class Zona extends BaseEntity {
 
   
   @OneToMany(() => Usuario, (usuario) => usuario.zona,{
-    cascade: [Cascade.ALL], nullable:true
+    cascade: [Cascade.ALL], 
+    nullable:true
   })
   usuarios = new Collection<Usuario>(this)
  

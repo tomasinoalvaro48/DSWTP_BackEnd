@@ -5,9 +5,7 @@ import { Pedido_Resolucion } from "./pedido_resolucion.entity.js";
 import { findZonaByNameAndLocalidad } from "../localidad/zona.controler.js";
 import {  buscarOCrearDenunciante } from "../denunciante/denunciante.controller.js";
 import { agregarAnomalias } from "./anomalias.controller.js";
-import { Anomalia } from "./anomalia.entity.js";
 import { ObjectId } from "mongodb";
-import { pedidos_resolucion } from "./pedido_resolucion.routes.js";
 
 const em = orm.em
 
@@ -21,9 +19,9 @@ function sanitizePedidoInput(
 
   
     req.body.sanitizePedidoInput = {
-        direccion: req.body.direccion,
-        descripcion: req.body.descripcion,
-        comentario: req.body.comentario,
+        direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
+        descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
+        comentario_pedido_resolucion: req.body.comentario_pedido_resolucion,
         zona: req.body.zona,
         denunciante: req.body.denunciante
                  
@@ -48,8 +46,8 @@ async function generarPedidosResolucion(req: Request, res: Response){
         
         //Como poner sanitize inpput
         req.body.sanitizePedidoInput = {
-            direccion: req.body.direccionPedido,
-            descripcion: req.body.descripicionPedido,
+            direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
+            descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
             zona: zona,
             denunciante: denunciante      
         }
@@ -69,10 +67,9 @@ async function generarPedidosResolucion(req: Request, res: Response){
 
 
 
-
 async function findAll(req: Request, res: Response){
     try{
-        const pedido_resolucion = await em.find(Pedido_Resolucion, {},{populate:['zona','denunciante','anomalias']})
+        const pedido_resolucion = await em.find(Pedido_Resolucion, {},{populate:['zona','denunciante','anomalias.tipo_anomalia']})
         res
             .status(200)
             .json({message: 'find all pedidos', data: pedido_resolucion})
@@ -85,66 +82,23 @@ async function findAll(req: Request, res: Response){
 }
 
 
-async function registrarPedido(req: Request, res: Response) {
-    try
-    {
 
-        // const pedidos_resolucion = em.findOneOrFail(Pedido_Resolucion, id_pedido_resolucion,{populate:['anomalias']})
-        const id_pedido_resolucion = new ObjectId(req.params.id)
-        const pedidos_resolucion = em.getReference(Pedido_Resolucion, id_pedido_resolucion)
-       
-        let dificultad_pedido = 0
-        for(const anomalia of pedidos_resolucion.anomalias){
-            const dificultad_anomalia = anomalia.tipo_anomalia.dificultad_tipo_anomalia
-            if (dificultad_anomalia>dificultad_pedido){
-                dificultad_pedido =  dificultad_anomalia
-            }
-        };
-
-        req.body.sanitizePedidoInput= {
-            dificultad_pedido : dificultad_pedido,
-
-        }
-
-        em.assign(pedidos_resolucion, req.body.sanitizePedidoInput)
-        await em.flush()
-        res
-            .status(200)
-            .json({message: 'pedido update'})
-
-    }
-    catch(error: any){
-        res
-            .status(500)
-            .json({message: error.message})
-    }
-}
-
-
-/*
 async function agregarTiposAnomalias(req: Request, res: Response) {
-    try{
-
-
-        
-
-        const anomalia = agregarAnomalias(req, res) // En caso de 
-
-        // OTRA POSIBLE OPCION
-        const id = new ObjectId(req.params.id)
-        const zonaToUpdate = em.getReference(Zona, id)
-        em.assign(zonaToUpdate, req.body.sanitizeZonaImput)
-        await em.flush()
-        
-
-        req.body.sanitizePedidoInput ={
-        
+    try{      
+        const id_pedidos_resolucion = new ObjectId(req.params.id)
+        const pedido_resolucion = await em.findOneOrFail(
+            Pedido_Resolucion, 
+            id_pedidos_resolucion,
+            {populate:['anomalias']})
+        const anomalia = agregarAnomalias(req, res) 
+        console.log(anomalia)
+        if(anomalia){
+           pedido_resolucion.anomalias.add(anomalia);
+           em.flush()
         }
-        const pedido_resolucion = 1
-        
         res
             .status(200)
-            .json({message: 'create pedido resolucion', data: pedido_resolucion})
+            .json({message: 'create agregar anomalia', data: pedido_resolucion})
     }   
     catch(error: any){
         res
@@ -152,8 +106,50 @@ async function agregarTiposAnomalias(req: Request, res: Response) {
             .json({message: error.message})
     }
 }
-*/
 
-export{generarPedidosResolucion,findAll,registrarPedido}
+
+async function registrarPedido(req: Request, res: Response) {
+  try {
+    const id_pedido_resolucion = new ObjectId(req.params.id)
+
+    const pedido_resolucion = await em.findOneOrFail(
+      Pedido_Resolucion,
+      id_pedido_resolucion,
+      { populate: ['anomalias.tipo_anomalia'] }
+    )
+
+    let dificultad_pedido = 0
+    for(const anomalia of pedido_resolucion.anomalias){
+        
+        const dificultad_anomalia = anomalia.tipo_anomalia.dificultad_tipo_anomalia
+        if (dificultad_anomalia>dificultad_pedido){
+            dificultad_pedido =  dificultad_anomalia
+        }
+    };
+    em.assign(pedido_resolucion, { dificultad_pedido_resolucion: dificultad_pedido })
+    await em.flush()
+
+    res.status(200).json({ message: 'pedido actualizado', data: pedido_resolucion })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+
+async function remove(req: Request, res: Response){
+    try{
+        const id = new ObjectId(req.params.id)
+        const pedido_resolucion_to_remove= em.getReference(Pedido_Resolucion, id)
+        await em.removeAndFlush(pedido_resolucion_to_remove)
+        res
+           .status(200)
+           .json({message: 'Remove pedido', data: pedido_resolucion_to_remove})
+    }catch(error: any){
+        res
+        .status(500).json({message: error.message})
+    }
+}
+
+export{generarPedidosResolucion,findAll,registrarPedido, agregarTiposAnomalias,remove}
 
 
