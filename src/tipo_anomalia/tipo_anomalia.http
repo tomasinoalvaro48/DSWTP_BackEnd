@@ -51,6 +51,7 @@ Content-Type: application/json
 
 ### Modificar entero
 PUT http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
+PUT http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
 PUT http://localhost:3000/api/tipo_anomalia/
 Content-Type: application/json
 
