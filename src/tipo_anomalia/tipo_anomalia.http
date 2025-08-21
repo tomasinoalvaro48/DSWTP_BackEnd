@@ -4,7 +4,7 @@
 GET http://localhost:3000/api/tipo_anomalia
 
 ### Obtener 1
-GET http://localhost:3000/api/tipo_anomalia/3
+GET http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
 
 ### Crear Tipo anomalia 1
 POST http://localhost:3000/api/tipo_anomalia
@@ -34,7 +34,7 @@ Content-Type: application/json
 }
 
 ### Modificar entero
-PUT http://localhost:3000/api/tipo_anomalia/
+PUT http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
 Content-Type: application/json
 
 {
@@ -43,13 +43,12 @@ Content-Type: application/json
 }
 
 ### modificar (PATCH - recurso parcial)
-PATCH http://localhost:3000/api/tipo_anomalia/
+PATCH http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
 Content-Type: application/json
 
 {
-  "nombre_tipo_anomalia": "Muñeco Viviente", 
-  "dificultad_tipo_anomalia": 1   
+  "nombre_tipo_anomalia": "Muñeco Viviente"
 }
 
 ### Eliminar 1
-DELETE http://localhost:3000/api/tipo_anomalia/
+DELETE http://localhost:3000/api/tipo_anomalia/68a646221d26f864e87d8b9b
