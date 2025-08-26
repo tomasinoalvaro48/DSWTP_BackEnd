@@ -38,9 +38,8 @@ async function findOne(req: Request, res: Response) {
 async function add(req: Request, res: Response) {
   try {
     const nombre_tipo = req.body.sanitizeTipoInput.nombre_tipo_anomalia
-    const tipo_nombre = await em.find(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
-    if (tipo_nombre.length > 0) {
-      res.status(409).json({ message: 'nombre de tipo duplicado', data: tipo_nombre })
+    if (await validateName(nombre_tipo)) {
+      res.status(409).json({ message: 'nombre de tipo duplicado', data: nombre_tipo })
     } else {
       const tipo = em.create(Tipo_Anomalia, req.body.sanitizeTipoInput)
       await em.flush()
@@ -55,9 +54,14 @@ async function update(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
     const tipoToUpdate = await em.findOneOrFail(Tipo_Anomalia, id)
-    em.assign(tipoToUpdate, req.body.sanitizeTipoInput)
-    await em.flush()
-    res.status(200).json({ message: 'tipo de anomalia updated', data: tipoToUpdate })
+    const nombre_tipo = req.body.sanitizeTipoInput.nombre_tipo_anomalia
+    if (nombre_tipo && (await validateName(nombre_tipo))) {
+      res.status(409).json({ message: 'nombre de tipo duplicado', data: tipoToUpdate })
+    } else {
+      em.assign(tipoToUpdate, req.body.sanitizeTipoInput)
+      await em.flush()
+      res.status(200).json({ message: 'tipo de anomalia updated', data: tipoToUpdate })
+    }
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -72,6 +76,12 @@ async function remove(req: Request, res: Response) {
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
+}
+
+async function validateName(nombre_tipo: string) {
+  const tipo_nombre = await em.find(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
+  if (tipo_nombre.length > 0) return true
+  return false
 }
 
 export { sanitizeTipoInput, findAll, findOne, add, update, remove }

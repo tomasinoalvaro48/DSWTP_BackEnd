@@ -10,11 +10,6 @@ GET http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
 POST http://localhost:3000/api/tipo_anomalia
 Content-Type: application/json
 
-{
-  "nombre_tipo_anomalia": "Michelín Gigante", 
-  "dificultad_tipo_anomalia": 1 
-}
-
 ### Crear Tipo anomalia 2
 POST http://localhost:3000/api/tipo_anomalia
 Content-Type: application/json
@@ -47,7 +42,15 @@ PATCH http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
 Content-Type: application/json
 
 {
-  "nombre_tipo_anomalia": "Muñeco Viviente"
+  "nombre_tipo_anomalia": "Fantasma de Ricardo Fort"
+}
+
+###
+PATCH http://localhost:3000/api/tipo_anomalia/68a646261d26f864e87d8b9c
+Content-Type: application/json
+
+{
+  "dificultad_tipo_anomalia": 1
 }
 
 ### Eliminar 1
