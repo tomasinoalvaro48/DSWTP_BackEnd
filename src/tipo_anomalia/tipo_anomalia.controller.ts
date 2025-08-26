@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express'
 import { Tipo_Anomalia } from './tipo_anomalia.entity.js'
 import { orm } from '../shared/db/orm.js'
+import { ObjectId } from 'mongodb'
 
 const em = orm.em
 
 function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizedInput = {
-    //cod_anom: req.body.cod_anom,
     nombre_tipo_anomalia: req.body.nombre_tipo_anomalia,
     dificultad_tipo_anomalia: req.body.dificultad_tipo_anomalia,
   }
@@ -27,8 +27,8 @@ async function findAll(req: Request, res: Response) {
 
 async function findOne(req: Request, res: Response) {
   try {
-    const id = req.params.id
-    const tipo = await em.findOneOrFail(Tipo_Anomalia, { id })
+    const id = new ObjectId(req.params.id)
+    const tipo = await em.findOneOrFail(Tipo_Anomalia, id)
     res.status(200).json({ message: 'found tipo de anomalia', data: tipo })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
@@ -37,9 +37,15 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    const tipo = em.create(Tipo_Anomalia, req.body.sanitizedInput)
-    await em.flush()
-    res.status(201).json({ message: 'tipo de anomalia created', data: tipo })
+    const nombre_tipo = req.body.sanitizedInput?.nombre_tipo_anomalia
+    const tipo_nombre = await em.find(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
+    if (tipo_nombre.length > 0) {
+      res.status(409).json({ message: 'nombre de tipo duplicado', data: tipo_nombre })
+    } else {
+      const tipo = em.create(Tipo_Anomalia, req.body.sanitizeTipoInput)
+      await em.flush()
+      res.status(201).json({ message: 'tipo de anomalia created', data: tipo })
+    }
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -47,8 +53,8 @@ async function add(req: Request, res: Response) {
 
 async function update(req: Request, res: Response) {
   try {
-    const id = req.params.id
-    const tipoToUpdate = await em.findOneOrFail(Tipo_Anomalia, { id })
+    const id = new ObjectId(req.params.id)
+    const tipoToUpdate = await em.findOneOrFail(Tipo_Anomalia, id)
     em.assign(tipoToUpdate, req.body.sanitizedInput)
     await em.flush()
     res.status(200).json({ message: 'tipo de anomalia updated', data: tipoToUpdate })
@@ -59,7 +65,7 @@ async function update(req: Request, res: Response) {
 
 async function remove(req: Request, res: Response) {
   try {
-    const id = req.params.id
+    const id = new ObjectId(req.params.id)
     const tipo = em.getReference(Tipo_Anomalia, id)
     await em.removeAndFlush(tipo)
     res.status(200).json({ message: 'tipo de anomalia deleted' })
