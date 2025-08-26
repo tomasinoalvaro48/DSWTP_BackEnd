@@ -8,6 +8,7 @@ import { orm, syncSchema } from './shared/db/orm.js'
 import { RequestContext } from '@mikro-orm/core'
 import { usuarioRouter } from './usuario/usuario.routes.js'
 import { pedidos_resolucion } from './pedido_resolucion/pedido_resolucion.routes.js'
+import cors from 'cors'
 
 const app = express()
 app.use(express.json())
