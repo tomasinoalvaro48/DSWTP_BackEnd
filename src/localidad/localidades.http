@@ -1,6 +1,6 @@
 ###GetAll localides
 GET http://localHost:3000/api/localidad
- 
+
 ### GetOne 
 GET http://localHost:3000/api/localidad/689d01428ca37388418ffc2f
 
