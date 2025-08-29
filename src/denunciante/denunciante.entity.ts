@@ -16,7 +16,7 @@ export class Denunciante extends BaseEntity {
   @Property({ nullable: false })
   telefono_denunciante!: string
 
-  @Property({ nullable: false })
+  @Property({ nullable: false, unique: true })
   email_denunciante!: string
 
   @OneToMany(() => Pedido_Resolucion, (pedido_resolucion) => pedido_resolucion.denunciante, {

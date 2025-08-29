@@ -9,9 +9,8 @@ function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunctio
   req.body.sanitizeDenuncianteInput = {
     //cod_den: req.body.cod_den,
     nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
-    telefono_denunciante: req.body. telefono_denunciante,
-    email_denunciante: req.body. telefono_denunciante
-    //direccion_den: req.body.direccion_den,
+    telefono_denunciante: req.body.telefono_denunciante,
+    email_denunciante: req.body.email_denunciante
   }
   //more checks here
 
@@ -101,8 +100,6 @@ async function buscarOCrearDenunciante(req: Request, res: Response) {
       console.log(`Error al buscar denunciante: ${error.message}`)
   }
 }
-
-
 
 
 export { sanitizeDenuncianteInput, findAll, findOne, add, update, remove, buscarOCrearDenunciante }
