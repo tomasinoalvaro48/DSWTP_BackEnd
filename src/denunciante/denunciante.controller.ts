@@ -12,7 +12,18 @@ function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunctio
     telefono_denunciante: req.body.telefono_denunciante,
     email_denunciante: req.body.email_denunciante
   }
-  //more checks here
+
+  if (req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante)) {
+    res.status(400).json({ message: "El nombre no puede tener números" })
+  }
+
+  if (req.body.sanitizeDenuncianteInput.telefono_denunciante && !/^[0-9]+$/.test(req.body.sanitizeDenuncianteInput.telefono_denunciante)) {
+    res.status(400).json({ message: "El teléfono no puede tener letras ni espacios" })
+  }
+
+  if (req.body.sanitizeDenuncianteInput.email_denunciante && !/.*@.*/.test(req.body.sanitizeDenuncianteInput.email_denunciante)) {
+    res.status(400).json({ message: "El email tiene que tener @" })
+  }
 
   Object.keys(req.body.sanitizeDenuncianteInput).forEach((key) => {
     if (req.body.sanitizeDenuncianteInput[key] === undefined) {
@@ -68,6 +79,7 @@ async function remove(req: Request, res: Response) {
     const id = new ObjectId(req.params.id) //Arreglado
     const denunciante = em.getReference(Denunciante, id)
     await em.removeAndFlush(denunciante)
+    res.status(200).json({ message: 'denunciante deleted', data: denunciante })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
