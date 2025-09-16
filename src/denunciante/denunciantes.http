@@ -13,7 +13,8 @@ Content-Type: application/json
 {
   "nombre_apellido_denunciante": "Juan Pepe",
   "telefono_denunciante": "3413123456",
-  "email_denunciante": "juanPepe@gmail.com"
+  "email_denunciante": "juanPepe@gmail.com",
+  "password_denunciante": "jpepe123"
 }
 
 
@@ -25,7 +26,8 @@ Content-Type: application/json
   //"cod_den": 2,
   "nombre_apellido_denunciante": "Pepito",
   "telefono_denunciante": "3415456789",
-  "email_denunciante": "pepito@gmail.com"
+  "email_denunciante": "pepito@gmail.com",
+  "password_denunciante": "pepito123"
 }
 
 

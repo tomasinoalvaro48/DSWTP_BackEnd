@@ -19,6 +19,9 @@ export class Denunciante extends BaseEntity {
   @Property({ nullable: false, unique: true })
   email_denunciante!: string
 
+  @Property({ nullable: false })
+  password_denunciante!: string
+
   @OneToMany(() => Pedido_Resolucion, (pedido_resolucion) => pedido_resolucion.denunciante, {
     cascade: [Cascade.ALL],
     nullable: true,
