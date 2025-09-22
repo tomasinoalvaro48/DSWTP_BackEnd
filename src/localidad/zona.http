@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "nombre_zona": "Oeste",
-  "localidad": "68a5d0c0451193c766dd40a8"
+  "localidad": "68b1837c3a53299465765cb6"
 }
 
 ###Post 2
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 {
   "nombre_zona": "Norte",
-  "localidad": "68a5d0c0451193c766dd40a8"
+  "localidad": "68b1837c3a53299465765cb6"
 }
 
 ###Post 3
@@ -32,11 +32,11 @@ Content-Type: application/json
 }
 
 ### Put
-PUT http://localhost:3000/api/zona/68a5d1e7e44233a23cf67d8a
+PUT http://localhost:3000/api/zona/68b35c3e53da70f4da1ec96e
 Content-Type: application/json
 
 {
-  "nombre_zona": "mordor"
+  "nombre_zona": "Ala"
 }
 
 
