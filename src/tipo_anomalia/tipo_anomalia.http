@@ -16,7 +16,7 @@ Content-Type: application/json
 
 {
   "nombre_tipo_anomalia": "Cable Cortado", 
-  "dificultad_tipo_anomalia": 4
+  "dificultad_tipo_anomalia": 2
 }
 
 ### Crear Tipo anomalia 1
@@ -33,8 +33,8 @@ POST http://localhost:3000/api/tipo_anomalia
 Content-Type: application/json
 
 {
-  "nombre_tipo_anomalia": "Cable Cortado", 
-  "dificultad_tipo_anomalia": 4
+  "nombre_tipo_anomalia": "Zombie", 
+  "dificultad_tipo_anomalia": 3
 }
 
 ### Crear Tipo anomalia 3

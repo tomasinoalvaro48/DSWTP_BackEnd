@@ -25,7 +25,6 @@ function sanitizeZonaImput(req: Request, res: Response, next: NextFunction){
         }
     }
     req.body.sanitizeZonaImput = {
-       // codigo: req.body.codigo,
         nombre_zona: req.body.nombre_zona,
         localidad: req.body.localidad//Ver si sacar!!!!!!!!!!!!!!!!!!!!!
         
@@ -109,7 +108,7 @@ async function remove(req: Request, res: Response){
         .status(500).json({message: error.message})
     }
 }
-
+/*
 async function findZonaByNameAndLocalidad(nombre_zona: string,nombre_localidad: string) {
     try{
         const localidadFound = await findLocalidadByName(nombre_localidad)
@@ -123,7 +122,9 @@ async function findZonaByNameAndLocalidad(nombre_zona: string,nombre_localidad: 
     {
         console.log(`Error al buscar zona: ${error.message}`)
     }
-}
+}*/
 
 
-export{findAll, findOne, add, remove, update, sanitizeZonaImput, findZonaByNameAndLocalidad}
+
+
+export{findAll, findOne, add, remove, update, sanitizeZonaImput}

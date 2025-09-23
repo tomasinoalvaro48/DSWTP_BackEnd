@@ -1,5 +1,6 @@
 {
   "prettier.singleQuote": true,
   "javascript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.preferences.importModuleSpecifierEnding": "js"
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "editor.tabSize": 2
 }

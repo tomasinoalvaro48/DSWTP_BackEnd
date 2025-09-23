@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "nombre_zona": "Oeste",
-  "localidad": "68b1837c3a53299465765cb6"
+  "localidad": "68d2e033a55f7d39d31ae66d"
 }
 
 ###Post 2
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 {
   "nombre_zona": "Norte",
-  "localidad": "68b1837c3a53299465765cb6"
+  "localidad": "68d2e033a55f7d39d31ae66d"
 }
 
 ###Post 3
@@ -28,7 +28,7 @@ Content-Type: application/json
 
 {
   "nombre_zona": "Este",
-  "localidad": "68a5d0c0451193c766dd40a8"
+  "localidad": "68d2e033a55f7d39d31ae66d"
 }
 
 ### Put

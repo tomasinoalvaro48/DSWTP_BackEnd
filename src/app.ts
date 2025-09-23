@@ -7,7 +7,8 @@ import 'reflect-metadata'
 import { orm, syncSchema } from './shared/db/orm.js'
 import { RequestContext } from '@mikro-orm/core'
 import { usuarioRouter } from './usuario/usuario.routes.js'
-import { pedidos_resolucion } from './pedido_resolucion/pedido_resolucion.routes.js'
+import { pedidos_resolucion_router } from './pedido_resolucion/pedido_resolucion.routes.js'
+import { anomaliaRouter } from './pedido_resolucion/anomalia.router.js'
 import cors from 'cors'
 
 const app = express()
@@ -23,7 +24,8 @@ app.use('/api/tipo_anomalia', tipoRouter)
 app.use('/api/zona', zonaRouter)
 app.use('/api/denunciantes', denuncianteRouter)
 app.use('/api/usuario', usuarioRouter)
-app.use('/api/pedido_resolucion', pedidos_resolucion)
+app.use('/api/pedido_resolucion', pedidos_resolucion_router)
+app.use('/api/anomalia',anomaliaRouter)
 
 app.use((_, res) => {
   res.status(404).send({ mesagge: 'Resourse not found' })
