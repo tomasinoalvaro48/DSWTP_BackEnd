@@ -6,7 +6,10 @@ import {  buscarOCrearDenunciante } from "../denunciante/denunciante.controller.
 import { ObjectId } from "mongodb";
 import { Zona } from "../localidad/zona.entity.js";
 import { Denunciante } from "../denunciante/denunciante.entity.js";
-
+import { Anomalia } from "./anomalia.entity.js";
+import { get } from "http";
+import { Usuario } from "../usuario/usuario.entity.js";
+import { findOne } from "../localidad/localidad.controller.js";
 const em = orm.em
 
 
@@ -54,7 +57,7 @@ async function remove(req: Request, res: Response){
 
 async function findAll(req: Request, res: Response){
     try{
-        const pedido_resolucion = await em.find(Pedido_Resolucion, {},{populate:['zona','denunciante','anomalias.tipo_anomalia']})
+        const pedido_resolucion = await em.find(Pedido_Resolucion, {},{populate:['zona','denunciante','anomalias.tipo_anomalia','cazador']})
         res
             .status(200)
             .json({message: 'find all pedidos', data: pedido_resolucion})
@@ -102,6 +105,71 @@ async function generarPedidosResolucion(req: Request, res: Response) {
             .status(500)
             .json({message: error.message})
     }
+}
+/*
+
+
+async function calcularDificultad(req: Request, res: Response) {
+    try{
+        const id_pedido_resolucion = new ObjectId(req.params.id)
+        const pedido_ref = await em.findOneOrFail(Pedido_Resolucion, id_pedido_resolucion,{ populate: ['anomalias.tipo_anomalia']})
+        if (pedido_ref){
+            var difucultad = 0;
+            pedido_ref.anomalias.forEach(anomalia => {
+                difucultad += anomalia.tipo_anomalia.dificultad_tipo_anomalia;                
+            });
+            
+            var sanitizePedido = {
+                difucultad_pedido : difucultad,
+                estado_pedido : 'solcitado'
+
+
+            }
+            em.assign(pedido_ref, sanitizePedido)
+            em.flush()
+            
+
+        } 
+
+
+    }
+    catch(error: any){
+        res
+            .status(500)
+            .json({message: error.message})
+    }
+    
+}
+*/
+
+async function calcularDificultad(req: Request, res: Response) {
+  try {
+    const id_pedido_resolucion = new ObjectId(req.params.id)
+    const pedido_ref = await em.findOneOrFail(
+      Pedido_Resolucion,
+      id_pedido_resolucion,
+      { populate: ['anomalias.tipo_anomalia'] }
+    )
+
+    let dificultad = 0
+    const anomalias = pedido_ref.anomalias.getItems()
+    anomalias.forEach((anomalia) => {
+      dificultad += anomalia.tipo_anomalia.dificultad_tipo_anomalia
+    })
+
+    em.assign(pedido_ref, {
+      dificultad_pedido_resolucion: dificultad,
+      estado_pedido_resolucion: 'solicitado'
+    })
+
+    await em.flush()
+
+    res
+      .status(200)
+      .json({ message: 'Dificultad calculada', data: pedido_ref })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
 }
 
 
@@ -202,4 +270,4 @@ async function registrarPedido(req: Request, res: Response) {
 export{generarPedidosResolucion,findAll,registrarPedido, agregarTiposAnomalias,remove}
 */
 
-export{generarPedidosResolucion,findAll,remove}
+export{generarPedidosResolucion,findAll,remove, calcularDificultad}

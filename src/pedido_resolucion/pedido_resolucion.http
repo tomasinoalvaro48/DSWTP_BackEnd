@@ -19,7 +19,7 @@ POST http://localHost:3000/api/anomalia/
 Content-Type: application/json
 
 {
-  "pedido_resolucion": "68d2e6a0c6aaf849b83c4eea",
+  "pedido_resolucion": "68d41ae1ffd3762dbe06844e",
   "tipo_anomalia": "68d2e0a8a55f7d39d31ae673"
 }
 
@@ -28,10 +28,21 @@ POST http://localHost:3000/api/anomalia/
 Content-Type: application/json
 
 {
-  "pedido_resolucion": "68d2e6a0c6aaf849b83c4eea",
+  "pedido_resolucion": "68d41ae1ffd3762dbe06844e",
   "tipo_anomalia": "68d2e0a8a55f7d39d31ae673"
 }
 
 
 ###
-DELETE  http://localHost:3000/api/pedido_resolucion/68a6030df79bcb7325157d3e
+DELETE  http://localHost:3000/api/pedido_resolucion/68d2e6a0c6aaf849b83c4eea
+
+###
+GET http://localHost:3000/api/anomalia/
+
+
+###
+DELETE http://localHost:3000/api/anomalia/68d2e701dc9146303ebb148b
+
+
+###
+PATCH http://localHost:3000/api/pedido_resolucion/68d41ae1ffd3762dbe06844e
