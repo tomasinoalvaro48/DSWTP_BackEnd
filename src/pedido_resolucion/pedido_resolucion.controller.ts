@@ -10,6 +10,7 @@ import { Anomalia } from "./anomalia.entity.js";
 import { get } from "http";
 import { Usuario } from "../usuario/usuario.entity.js";
 import { findOne } from "../localidad/localidad.controller.js";
+import { Tipo_Anomalia } from "../tipo_anomalia/tipo_anomalia.entity.js";
 const em = orm.em
 
 
@@ -106,41 +107,7 @@ async function generarPedidosResolucion(req: Request, res: Response) {
             .json({message: error.message})
     }
 }
-/*
 
-
-async function calcularDificultad(req: Request, res: Response) {
-    try{
-        const id_pedido_resolucion = new ObjectId(req.params.id)
-        const pedido_ref = await em.findOneOrFail(Pedido_Resolucion, id_pedido_resolucion,{ populate: ['anomalias.tipo_anomalia']})
-        if (pedido_ref){
-            var difucultad = 0;
-            pedido_ref.anomalias.forEach(anomalia => {
-                difucultad += anomalia.tipo_anomalia.dificultad_tipo_anomalia;                
-            });
-            
-            var sanitizePedido = {
-                difucultad_pedido : difucultad,
-                estado_pedido : 'solcitado'
-
-
-            }
-            em.assign(pedido_ref, sanitizePedido)
-            em.flush()
-            
-
-        } 
-
-
-    }
-    catch(error: any){
-        res
-            .status(500)
-            .json({message: error.message})
-    }
-    
-}
-*/
 
 async function calcularDificultad(req: Request, res: Response) {
   try {
@@ -174,100 +141,75 @@ async function calcularDificultad(req: Request, res: Response) {
 
 
 
-// CUU 1 - REGISTRAS PEDIDO RESOLUCION
 
 
 
 
-/*
-
-//PASO 1 CUU1
-async function generarPedidosResolucion(req: Request, res: Response){
+async function generarPedidosResolucionUnicoPaso(req: Request, res: Response) {
     try{
-        
-        const denunciante = await buscarOCrearDenunciante(req, res)   //Cambiar por secion, hacer get refence por ha
+        //Cuando ande mover a zona
+        const idZona = new ObjectId(req.body.zona)
+        const zonaReferenciada = em.getReference(Zona, idZona)
+        //-----------------------
+        const idDenunciante = new ObjectId(req.body.denunciante)
+        const denuncianteRef = em.getReference(Denunciante, idDenunciante)
+        //----------------  
+        let dificultad = 0;
+        let anomalias:Anomalia[] = [];
 
-        const zona = await findZonaByNameAndLocalidad(req.body.nombreZona, req.body.nombreLocalidad) // ver como funciona en FRONT
-        
-        //Como poner sanitize inpput
+        for (const anomaliaInput of req.body.anomalias) {
+            const id_tipo_anomalia = new ObjectId(anomaliaInput.tipo_anomalia)
+            const tipo_anomalia = await em.findOneOrFail(Tipo_Anomalia, id_tipo_anomalia)
+
+            if(tipo_anomalia){
+                req.body.sanitizeAnomaliaInput = {
+                    tipo_anomalia: tipo_anomalia,
+                }
+
+                dificultad += tipo_anomalia.dificultad_tipo_anomalia
+
+                const nuevaAnomalia = em.create(Anomalia,  req.body.sanitizeAnomaliaInput )
+
+                anomalias.push(nuevaAnomalia)
+            }
+
+//            dificultad += (tipo_anomalia as any).dificultad_tipo_anomalia
+            
+            console.log('dentro loop')
+            console.log(dificultad)
+        }
+        //----------------
+        console.log('fuera loop')
+        console.log(dificultad)
+
         req.body.sanitizePedidoInput = {
             direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
             descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
-            zona: zona,
-            denunciante: denunciante      
+            zona: zonaReferenciada,
+            denunciante: denuncianteRef,
+            anomalias: anomalias,
+            dificultad_pedido_resolucion: dificultad,
+            estado_pedido_resolucion: 'solicitado'
         }
 
         const pedido_resolucion = em.create(Pedido_Resolucion, req.body.sanitizePedidoInput )
-        await em.flush()//Cambiarrrrrrrrr
+        await em.flush()
+
+                
         res
-            .status(200)
-            .json({message: 'create pedido resolucion', data: pedido_resolucion})
+           .status(200)
+           .json({message: 'create pedido resolucion', data:pedido_resolucion})
+                 
     }
+     
     catch(error: any){
         res
             .status(500)
             .json({message: error.message})
     }
+
+    
 }
 
 
-
-async function agregarTiposAnomalias(req: Request, res: Response) {
-    try{      
-        const id_pedidos_resolucion = new ObjectId(req.params.id)
-        const pedido_resolucion = await em.findOneOrFail(
-            Pedido_Resolucion, 
-            id_pedidos_resolucion,
-            {populate:['anomalias']})
-        const anomalia = agregarAnomalias(req, res) 
-        console.log(anomalia)
-        if(anomalia){
-           pedido_resolucion.anomalias.add(anomalia);
-           em.flush()
-        }
-        res
-            .status(200)
-            .json({message: 'create agregar anomalia', data: pedido_resolucion})
-    }   
-    catch(error: any){
-        res
-            .status(500)
-            .json({message: error.message})
-    }
-}
-
-
-async function registrarPedido(req: Request, res: Response) {
-  try {
-    const id_pedido_resolucion = new ObjectId(req.params.id)
-
-    const pedido_resolucion = await em.findOneOrFail(
-      Pedido_Resolucion,
-      id_pedido_resolucion,
-      { populate: ['anomalias.tipo_anomalia'] }
-    )
-
-    let dificultad_pedido = 0
-    for(const anomalia of pedido_resolucion.anomalias){
-        
-        const dificultad_anomalia = anomalia.tipo_anomalia.dificultad_tipo_anomalia
-        if (dificultad_anomalia>dificultad_pedido){
-            dificultad_pedido =  dificultad_anomalia
-        }
-    };
-    em.assign(pedido_resolucion, { dificultad_pedido_resolucion: dificultad_pedido })
-    await em.flush()
-
-    res.status(200).json({ message: 'pedido actualizado', data: pedido_resolucion })
-  } catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
-}
-
-
-
-
-export{generarPedidosResolucion,findAll,registrarPedido, agregarTiposAnomalias,remove}
-*/
-
-export{generarPedidosResolucion,findAll,remove, calcularDificultad}
+export{generarPedidosResolucion,findAll,remove, calcularDificultad,generarPedidosResolucionUnicoPaso}

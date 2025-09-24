@@ -67,7 +67,7 @@ async function findAll(req: Request, res: Response){
             .json({message: error.message})
     }
 }
-/*
+
 
 function agregarAnomaliaArray(req: Request, res: Response){
     
@@ -92,7 +92,7 @@ function agregarAnomaliaArray(req: Request, res: Response){
             .status(500)
             .json({message: error.message})
     }
-}*/
+}
 
 
 export{agregarAnomalia,findAll, remove}

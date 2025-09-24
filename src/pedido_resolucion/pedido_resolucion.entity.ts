@@ -49,6 +49,6 @@ export class Pedido_Resolucion extends BaseEntity {
   @ManyToOne(()=> Usuario, {nullable: true})
   cazador!: Rel<Usuario> 
 
-  @OneToMany(() => Anomalia, (anomalia) => anomalia.pedido_resolucion,{eager: true, nullable: true})
+  @OneToMany(() => Anomalia, (anomalia) => anomalia.pedido_resolucion,{eager: true, nullable: true,orphanRemoval: true, cascade:[Cascade.ALL]})
   anomalias = new Collection<Anomalia>(this)
 }

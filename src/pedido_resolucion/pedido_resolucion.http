@@ -34,15 +34,39 @@ Content-Type: application/json
 
 
 ###
-DELETE  http://localHost:3000/api/pedido_resolucion/68d2e6a0c6aaf849b83c4eea
-
-###
 GET http://localHost:3000/api/anomalia/
 
 
 ###
-DELETE http://localHost:3000/api/anomalia/68d2e701dc9146303ebb148b
+DELETE http://localHost:3000/api/anomalia/68d431c3d0ee68007147c73e
+
+###
+DELETE http://localHost:3000/api/anomalia/68d431c3d0ee68007147c73f
 
 
 ###
 PATCH http://localHost:3000/api/pedido_resolucion/68d41ae1ffd3762dbe06844e
+
+
+
+### Crear pedido con anomalías en un solo paso
+POST http://localhost:3000/api/pedido_resolucion/
+Content-Type: application/json
+
+{
+  "direccion_pedido_resolucion": "texto direccion 9999",
+  "descripcion_pedido_resolucion": "texto descripcion",
+  "zona": "68d2e063a55f7d39d31ae66f",
+  "denunciante": "68d2e178a55f7d39d31ae674",
+  "anomalias": [
+    {
+      "tipo_anomalia": "68d2e0a8a55f7d39d31ae673"
+    },
+    {
+      "tipo_anomalia": "68d2e0a8a55f7d39d31ae673"
+    }
+  ]
+}
+
+###
+DELETE  http://localHost:3000/api/pedido_resolucion/68d431c3d0ee68007147c740
