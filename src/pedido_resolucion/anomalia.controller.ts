@@ -7,6 +7,8 @@ import { Pedido_Resolucion } from "./pedido_resolucion.entity.js";
 
 const em = orm.em
 
+
+/*
 async function agregarAnomalia(req: Request, res: Response){
     
     try{
@@ -35,7 +37,7 @@ async function agregarAnomalia(req: Request, res: Response){
             .json({message: error.message})
     }
 }
-
+*/
 
 async function remove(req: Request, res: Response){
     try{
@@ -69,30 +71,6 @@ async function findAll(req: Request, res: Response){
 }
 
 
-function agregarAnomaliaArray(req: Request, res: Response){
-    
-    try{
-        const id_tipo_anomalia = new ObjectId(req.body.tipo_anomalia)
-        const tipo_anomalia = em.getReference(Anomalia, id_tipo_anomalia)
-
-        const id_pedido_resolucion = new ObjectId(req.body.pedido_resolucion)
-        const pedido_resolucion = em.getReference(Pedido_Resolucion, id_pedido_resolucion)
-
-        req.body.sanitizeAnomaliaInput = {
-            tipo_anomalia: tipo_anomalia,
-            pedido_resolucion: pedido_resolucion
-        }
-        const anomalia = em.create(Anomalia, req.body.sanitizeAnomaliaInput )
-
-        return anomalia
-
-    }
-    catch(error: any){
-        res
-            .status(500)
-            .json({message: error.message})
-    }
-}
 
 
-export{agregarAnomalia,findAll, remove}
+export{findAll, remove}

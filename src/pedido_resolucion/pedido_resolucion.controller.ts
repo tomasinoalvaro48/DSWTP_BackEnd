@@ -2,15 +2,12 @@
 import { Request, Response, NextFunction } from "express";
 import { orm } from '../shared/db/orm.js'
 import { Pedido_Resolucion } from "./pedido_resolucion.entity.js";
-import {  buscarOCrearDenunciante } from "../denunciante/denunciante.controller.js";
 import { ObjectId } from "mongodb";
 import { Zona } from "../localidad/zona.entity.js";
 import { Denunciante } from "../denunciante/denunciante.entity.js";
 import { Anomalia } from "./anomalia.entity.js";
-import { get } from "http";
-import { Usuario } from "../usuario/usuario.entity.js";
-import { findOne } from "../localidad/localidad.controller.js";
 import { Tipo_Anomalia } from "../tipo_anomalia/tipo_anomalia.entity.js";
+import { Usuario } from "../usuario/usuario.entity.js";
 const em = orm.em
 
 
@@ -58,7 +55,40 @@ async function remove(req: Request, res: Response){
 
 async function findAll(req: Request, res: Response){
     try{
-        const pedido_resolucion = await em.find(Pedido_Resolucion, {},{populate:['zona','denunciante','anomalias.tipo_anomalia','cazador']})
+
+        let filter:{
+            estado_pedido_resolucion?:string} = {}
+        if(req.query.estado_pedido_resolucion)
+        {
+            filter.estado_pedido_resolucion = req.query.estado_pedido_resolucion as string
+            
+        }
+        const pedido_resolucion = await em.find(Pedido_Resolucion, filter,{populate:['zona.localidad','denunciante','anomalias.tipo_anomalia','cazador']})
+        res
+            .status(200)
+            .json({message: 'find all pedidos', data: pedido_resolucion})
+    }
+    catch(error: any){
+        res
+            .status(500)
+            .json({message: error.message})
+    }
+
+}
+
+
+
+async function mostrarPosiblesAnomalias(req: Request, res: Response){
+    try{
+
+        let filter:{
+            estado_pedido_resolucion?:string} = {}
+        if(req.query.estado_pedido_resolucion)
+        {
+            filter.estado_pedido_resolucion = req.query.estado_pedido_resolucion as string
+            
+        }
+        const pedido_resolucion = await em.find(Pedido_Resolucion, filter,{populate:['zona.localidad','denunciante','anomalias.tipo_anomalia','cazador']})
         res
             .status(200)
             .json({message: 'find all pedidos', data: pedido_resolucion})
@@ -71,78 +101,18 @@ async function findAll(req: Request, res: Response){
 }
 
 
-
-async function generarPedidosResolucion(req: Request, res: Response) {
+async function CUU_2_paso_2_tomarPedidoResolucion(req: Request, res: Response) {
     try{
-        //Cuando ande mover a zona
-        const idZona = new ObjectId(req.body.zona)
-        const zonaReferenciada = em.getReference(Zona, idZona)
-        //-----------------------
-        const idDenunciante = new ObjectId(req.body.denunciante)
-        const denuncianteRef = em.getReference(Denunciante, idDenunciante)
-        //----------------  
-        
-        //----------------
-        
-
-        req.body.sanitizePedidoInput = {
-            direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
-            descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
-            zona: zonaReferenciada,
-            denunciante: denuncianteRef
-        }
-
-        const pedido_resolucion = em.create(Pedido_Resolucion, req.body.sanitizePedidoInput )
-        await em.flush()
-
-        res
-           .status(200)
-           .json({message: 'create pedido resolucion', data:pedido_resolucion})
-                 
-    }
-     
-    catch(error: any){
-        res
-            .status(500)
-            .json({message: error.message})
-    }
-}
-
-
-async function calcularDificultad(req: Request, res: Response) {
-  try {
-    const id_pedido_resolucion = new ObjectId(req.params.id)
-    const pedido_ref = await em.findOneOrFail(
-      Pedido_Resolucion,
-      id_pedido_resolucion,
-      { populate: ['anomalias.tipo_anomalia'] }
-    )
-
-    let dificultad = 0
-    const anomalias = pedido_ref.anomalias.getItems()
-    anomalias.forEach((anomalia) => {
-      dificultad += anomalia.tipo_anomalia.dificultad_tipo_anomalia
-    })
-
-    em.assign(pedido_ref, {
-      dificultad_pedido_resolucion: dificultad,
-      estado_pedido_resolucion: 'solicitado'
-    })
-
-    await em.flush()
-
+        const idCazador = new ObjectId(req.params.id)
+        const cazadorRef= em.getReference(Usuario, idCazador)
     res
-      .status(200)
-      .json({ message: 'Dificultad calculada', data: pedido_ref })
-  } catch (error: any) {
-    res.status(500).json({ message: error.message })
-  }
+        .status(200)
+        .json({message: 'Remove pedido', data: ""})
+    }catch(error: any){
+        res
+        .status(500).json({message: error.message})
+    }
 }
-
-
-
-
-
 
 
 async function generarPedidosResolucionUnicoPaso(req: Request, res: Response) {
@@ -172,8 +142,6 @@ async function generarPedidosResolucionUnicoPaso(req: Request, res: Response) {
 
                 anomalias.push(nuevaAnomalia)
             }
-
-//            dificultad += (tipo_anomalia as any).dificultad_tipo_anomalia
             
             console.log('dentro loop')
             console.log(dificultad)
@@ -189,7 +157,6 @@ async function generarPedidosResolucionUnicoPaso(req: Request, res: Response) {
             denunciante: denuncianteRef,
             anomalias: anomalias,
             dificultad_pedido_resolucion: dificultad,
-            estado_pedido_resolucion: 'solicitado'
         }
 
         const pedido_resolucion = em.create(Pedido_Resolucion, req.body.sanitizePedidoInput )
@@ -212,4 +179,4 @@ async function generarPedidosResolucionUnicoPaso(req: Request, res: Response) {
 }
 
 
-export{generarPedidosResolucion,findAll,remove, calcularDificultad,generarPedidosResolucionUnicoPaso}
+export{findAll,remove,generarPedidosResolucionUnicoPaso,mostrarPosiblesAnomalias}

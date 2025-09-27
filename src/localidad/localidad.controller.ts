@@ -30,7 +30,7 @@ const em = orm.em
 async function findAll(req: Request, res: Response){
     try{
         let filter:{nombre_localidad?:string} = {}
-        console.log(req.query)
+        
         if(req.query.nombre)
         {
             filter.nombre_localidad = req.query.nombre as string
