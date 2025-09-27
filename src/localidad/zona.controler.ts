@@ -64,35 +64,69 @@ async function findOne(req: Request, res: Response){
         res.status(500).json({message: error.message})
     }
 }
-async function add(req: Request, res: Response){
-    try{
-        const zona = em.create(Zona, req.body.sanitizeZonaImput)
+
+async function add(req: Request, res: Response) {
+    try {
+        const { nombre_zona, localidad } = req.body.sanitizeZonaImput
+        const localidadRef = em.getReference(Localidad, (localidad as any).id ?? localidad)
+
+        const zonaExistente = await em.findOne(Zona, {
+            nombre_zona,
+            localidad: localidadRef
+        })
+
+        if (zonaExistente) {
+            res.status(400).json({ message: 'Ya existe esa zona en esta localidad.' })
+            return
+        }
+
+        const zona = em.create(Zona, {
+            nombre_zona,
+            localidad: localidadRef
+        })
+
         await em.flush()
         res
            .status(200)
            .json({message: 'create zona', data: zona})
-    }catch(error: any){
+    } catch(error: any) {
         res 
         .status(500).json({message: error.message})
     }
 }
 
 async function update(req:Request, res:Response){
-    try{
+    try {
         const id = new ObjectId(req.params.id)
+        const { nombre_zona, localidad } = req.body.sanitizeZonaImput
+        const localidadRef = em.getReference(Localidad, (localidad as any).id ?? localidad)
+
+        const zonaExistente = await em.findOne(Zona, {
+            nombre_zona,
+            localidad: localidadRef
+        })
+
+        if (zonaExistente && zonaExistente.id !== id.toHexString()) {
+            res.status(400).json({ message: 'Ya existe esa zona en esta localidad.' })
+            return
+        }
+
         const zonaToUpdate = em.getReference(Zona, id)
-        em.assign(zonaToUpdate, req.body.sanitizeZonaImput)
+        em.assign(zonaToUpdate, {
+            nombre_zona,
+            localidad: localidadRef
+        })
+
         await em.flush()
         res
             .status(200)
             .json({message: 'zona update'})
     }
-    catch(error: any){
+    catch(error: any) {
         res
             .status(500)
             .json({message: error.message})
     }
-
 }
 
 async function remove(req: Request, res: Response){

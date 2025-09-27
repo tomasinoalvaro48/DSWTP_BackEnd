@@ -17,7 +17,7 @@ export class Localidad extends BaseEntity {
   nombre_localidad!: string
     
   @OneToMany(() => Zona, (zona) => zona.localidad, {
-    cascade: [Cascade.ALL], nullable :true
+    nullable: true, orphanRemoval: true, cascade: [Cascade.ALL]
   })
   zonas = new Collection<Zona>(this)
 }
