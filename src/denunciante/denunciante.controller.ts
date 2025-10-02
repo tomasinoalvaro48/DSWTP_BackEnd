@@ -17,7 +17,6 @@ const JWT_SECRET = process.env.JWT_SECRET*/
 
 function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizeDenuncianteInput = {
-    //cod_den: req.body.cod_den,
     nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
     telefono_denunciante: req.body.telefono_denunciante,
     email_denunciante: req.body.email_denunciante,
@@ -112,9 +111,9 @@ const register: RequestHandler = async (req, res, next) => {
       password_denunciante: hashedPass
     })
     await em.persistAndFlush(nuevo)
-    res.status(201).json({ message: "Registro exitoso", data: nuevo })
+      res.status(201).json({ message: "Registro exitoso", data: nuevo })
   } catch (err: any) {
-    res.status(500).json({ message: err.message })
+      res.status(500).json({ message: err.message })
   }
 }
 
@@ -131,6 +130,7 @@ const login: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: "Contraseña incorrecta" })
       return
     }
+
     const token = jwt.sign({ id: denunciante.id, email }, JWT_SECRET, { expiresIn: "1h" })
     res.status(200).json({ message: "Login exitoso", token })
   } catch (err: any) {
@@ -139,33 +139,4 @@ const login: RequestHandler = async (req, res, next) => {
 }
 
 
-async function buscarOCrearDenunciante(req: Request, res: Response) {
-  try{  
-    try{
-        const denunciante = await em.findOneOrFail(Denunciante,{email_denunciante: req.body.mailDenunciante })
-        return denunciante
-    }
-    catch{
-        //sanitizeDenuncianteInput(req, res, next) VER COMO IMPLEMENTAR ESTO COMO GENERAL
-
-        req.body.sanitizeDenuncianteInput = {
-          //cod_den: req.body.cod_den,
-          nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
-          telefono_denunciante: req.body.telefono_denunciante,
-          email_denunciante: req.body.email_denunciante,
-          password_denunciante: req.body.password_denunciante
-        };
-          
-        //const denunciante = await add(req, res)  
-        const denunciante =em.create(Denunciante, req.body.sanitizeDenuncianteInput)
-        return denunciante 
-    }
-  }
-  catch(error: any)
-  {
-      console.log(`Error al buscar denunciante: ${error.message}`)
-  }
-}
-
-
-export { sanitizeDenuncianteInput, findAll, findOne, add, update, remove, register, login, buscarOCrearDenunciante }
+export { sanitizeDenuncianteInput, findAll, findOne, add, update, remove, register, login }
