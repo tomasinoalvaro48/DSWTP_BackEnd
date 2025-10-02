@@ -98,7 +98,10 @@ async function update(req:Request, res:Response){
 async function remove(req: Request, res: Response){
     try{
         const id = new ObjectId(req.params.id)
-        const localidadToDelete = em.getReference(Localidad, id)
+        const localidadToDelete = await em.findOneOrFail(Localidad, id, { populate: ['zonas'] })
+        for (const zona of localidadToDelete.zonas) {
+            await em.removeAndFlush(zona)
+        }
         await em.removeAndFlush(localidadToDelete)
         res
            .status(200)
