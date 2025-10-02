@@ -19,7 +19,7 @@ export class Usuario extends BaseEntity {
   @Property({ nullable: false})
   nombre_usuario!: string
 
-  @Property({ nullable: false})
+  @Property({ nullable: false, unique: true})
   email_usuario!: string
 
   @Property({ nullable: false})

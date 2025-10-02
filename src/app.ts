@@ -10,6 +10,8 @@ import { usuarioRouter } from './usuario/usuario.routes.js'
 import { pedidos_resolucion_router } from './pedido_resolucion/pedido_resolucion.routes.js'
 import { anomaliaRouter } from './pedido_resolucion/anomalia.router.js'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import { authRouter } from './auth/auth.routes.js'
 
 const app = express()
 
@@ -19,6 +21,9 @@ app.use((req, res, next) => {
   RequestContext.create(orm.em, next)
 })
 
+app.use(cookieParser())
+
+app.use('/api/auth',authRouter)
 app.use('/api/localidad', localidadRouter)
 app.use('/api/tipo_anomalia', tipoRouter)
 app.use('/api/zona', zonaRouter)

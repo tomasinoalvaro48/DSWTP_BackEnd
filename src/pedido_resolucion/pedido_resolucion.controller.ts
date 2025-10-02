@@ -8,10 +8,13 @@ import { Denunciante } from "../denunciante/denunciante.entity.js";
 import { Anomalia } from "./anomalia.entity.js";
 import { Tipo_Anomalia } from "../tipo_anomalia/tipo_anomalia.entity.js";
 import { Usuario } from "../usuario/usuario.entity.js";
+import jwt from 'jsonwebtoken'
+import { JWT_SECRET } from '../auth/auth.controller.js'
+
 const em = orm.em
 
 
-
+/*
 function sanitizePedidoInput(
     req: Request, 
     res: Response, 
@@ -35,6 +38,9 @@ function sanitizePedidoInput(
     }) 
     next()
 }
+*/
+
+
 
 async function remove(req: Request, res: Response){
     try{
@@ -91,7 +97,7 @@ async function mostrarPosiblesAnomalias(req: Request, res: Response){
         const pedido_resolucion = await em.find(Pedido_Resolucion, filter,{populate:['zona.localidad','denunciante','anomalias.tipo_anomalia','cazador']})
         res
             .status(200)
-            .json({message: 'find all pedidos', data: pedido_resolucion})
+            .json({message: 'find all pedidos???????', data: pedido_resolucion})
     }
     catch(error: any){
         res
@@ -121,52 +127,61 @@ async function generarPedidosResolucionUnicoPaso(req: Request, res: Response) {
         const idZona = new ObjectId(req.body.zona)
         const zonaReferenciada = em.getReference(Zona, idZona)
         //-----------------------
-        const idDenunciante = new ObjectId(req.body.denunciante)
-        const denuncianteRef = em.getReference(Denunciante, idDenunciante)
-        //----------------  
-        let dificultad = 0;
-        let anomalias:Anomalia[] = [];
 
-        for (const anomaliaInput of req.body.anomalias) {
-            const id_tipo_anomalia = new ObjectId(anomaliaInput.tipo_anomalia)
-            const tipo_anomalia = await em.findOneOrFail(Tipo_Anomalia, id_tipo_anomalia)
+        const authHeader = req.headers['authorization'] 
+        if (!authHeader) {
+            res.status(401).json({ message: "Token requerido" })
+        }
+        else{
+        // extraer solo el token (si viene con "Bearer ...")
+            const token = authHeader.split(" ")[1]
+          
+            const denuncianteByToken = jwt.verify(token, JWT_SECRET) as { id: string, email: string }
+            const idDenunciante = new ObjectId(denuncianteByToken.id)
+            const denuncianteRef = em.getReference(Denunciante, idDenunciante)
+        
 
-            if(tipo_anomalia){
-                req.body.sanitizeAnomaliaInput = {
-                    tipo_anomalia: tipo_anomalia,
+            //----------------  
+            let dificultad = 0;
+            let anomalias:Anomalia[] = [];
+
+            for (const anomaliaInput of req.body.anomalias) {
+                const id_tipo_anomalia = new ObjectId(anomaliaInput.tipo_anomalia)
+                const tipo_anomalia = await em.findOneOrFail(Tipo_Anomalia, id_tipo_anomalia)
+
+                if(tipo_anomalia){
+                    req.body.sanitizeAnomaliaInput = {
+                        tipo_anomalia: tipo_anomalia,
+                    }
+
+                    dificultad += tipo_anomalia.dificultad_tipo_anomalia
+
+                    const nuevaAnomalia = em.create(Anomalia,  req.body.sanitizeAnomaliaInput )
+
+                    anomalias.push(nuevaAnomalia)
                 }
-
-                dificultad += tipo_anomalia.dificultad_tipo_anomalia
-
-                const nuevaAnomalia = em.create(Anomalia,  req.body.sanitizeAnomaliaInput )
-
-                anomalias.push(nuevaAnomalia)
-            }
-            
-            console.log('dentro loop')
-            console.log(dificultad)
-        }
-        //----------------
-        console.log('fuera loop')
-        console.log(dificultad)
-
-        req.body.sanitizePedidoInput = {
-            direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
-            descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
-            zona: zonaReferenciada,
-            denunciante: denuncianteRef,
-            anomalias: anomalias,
-            dificultad_pedido_resolucion: dificultad,
-        }
-
-        const pedido_resolucion = em.create(Pedido_Resolucion, req.body.sanitizePedidoInput )
-        await em.flush()
-
                 
-        res
-           .status(200)
-           .json({message: 'create pedido resolucion', data:pedido_resolucion})
-                 
+            }
+            //----------------
+
+            req.body.sanitizePedidoInput = {
+                direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
+                descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
+                zona: zonaReferenciada,
+                denunciante: denuncianteRef,
+                anomalias: anomalias,
+                dificultad_pedido_resolucion: dificultad,
+            }
+
+            const pedido_resolucion = em.create(Pedido_Resolucion, req.body.sanitizePedidoInput )
+            await em.flush()
+
+                    
+            res
+            .status(200)
+            .json({message: 'create pedido resolucion', data:pedido_resolucion})
+                    
+        }
     }
      
     catch(error: any){
