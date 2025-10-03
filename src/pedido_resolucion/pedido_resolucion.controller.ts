@@ -5,10 +5,11 @@ import { ObjectId } from 'mongodb'
 import { Denunciante } from '../denunciante/denunciante.entity.js'
 import { Anomalia } from './anomalia.entity.js'
 import { Tipo_Anomalia } from '../tipo_anomalia/tipo_anomalia.entity.js'
+import { Zona } from '../localidad/zona.entity.js'
 import { Usuario } from '../usuario/usuario.entity.js'
 import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../auth/auth.controller.js'
-import { Zona } from '../localidad/zona.entity.js'
+import { OnInit } from '@mikro-orm/core'
 
 const em = orm.em
 
@@ -53,10 +54,26 @@ async function findAll(req: Request, res: Response) {
   try {
     let filter: {
       estado_pedido_resolucion?: string
+      dificultad_pedido_resolucion?: number
+      zona?: any
     } = {}
+
     if (req.query.estado_pedido_resolucion) {
       filter.estado_pedido_resolucion = req.query.estado_pedido_resolucion as string
     }
+    if (req.query.dificultad_pedido_resolucion) {
+      // dificultad especifica
+      filter.dificultad_pedido_resolucion = parseInt(req.query.dificultad_pedido_resolucion as string)
+    }
+
+    if (req.query.zonas) {
+      const zonasQuery = Array.isArray(req.query.zonas) ? req.query.zonas : [req.query.zonas]
+
+      const zonasObjectIds = zonasQuery.map((zonaIdString) => new ObjectId(zonaIdString as string))
+
+      filter.zona = { $in: zonasObjectIds }
+    }
+
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
       populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador'],
     })
@@ -77,7 +94,7 @@ async function mostrarPosiblesAnomalias(req: Request, res: Response) {
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
       populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador'],
     })
-    res.status(200).json({ message: 'find all pedidos???????', data: pedido_resolucion })
+    res.status(200).json({ message: 'find all pedidos', data: pedido_resolucion })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -85,9 +102,30 @@ async function mostrarPosiblesAnomalias(req: Request, res: Response) {
 
 async function CUU_2_paso_2_tomarPedidoResolucion(req: Request, res: Response) {
   try {
-    const idCazador = new ObjectId(req.params.id)
-    const cazadorRef = em.getReference(Usuario, idCazador)
-    res.status(200).json({ message: 'Remove pedido', data: '' })
+    const idPedidoResolucion = new ObjectId(req.params.id)
+    const pedidoResolucionRef = em.getReference(Pedido_Resolucion, idPedidoResolucion)
+
+    const authHeader = req.headers['authorization']
+    if (!authHeader) {
+      res.status(401).json({ message: 'Token requerido' })
+      return
+    } else {
+      // extraer solo el token (si viene con "Bearer ...")
+      const token = authHeader.split(' ')[1]
+
+      const cazadorByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string }
+      const idCazador = new ObjectId(cazadorByToken.id)
+      const cazadorRef = em.getReference(Usuario, idCazador)
+
+      const elementosActualizar = {
+        estado_pedido_resolucion: 'aceptado',
+        cazador: cazadorRef,
+      }
+
+      em.assign(pedidoResolucionRef, elementosActualizar)
+      await em.flush()
+    }
+    res.status(200).json({ message: 'Pedido tomado' })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -160,4 +198,4 @@ async function generarPedidoResolucion(req: Request, res: Response) {
   }
 }
 
-export { findAll, remove, generarPedidoResolucion, mostrarPosiblesAnomalias }
+export { findAll, remove, generarPedidoResolucion, mostrarPosiblesAnomalias, CUU_2_paso_2_tomarPedidoResolucion }
