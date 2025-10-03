@@ -63,13 +63,36 @@ async function remove(req: Request, res: Response){
 async function findAll(req: Request, res: Response){
     try{
 
-        let filter:{
-            estado_pedido_resolucion?:string} = {}
+        let filter: {
+            estado_pedido_resolucion?: string,
+            dificultad_pedido_resolucion?: number,
+            zona?: any
+        } = {};
+        
+
         if(req.query.estado_pedido_resolucion)
         {
             filter.estado_pedido_resolucion = req.query.estado_pedido_resolucion as string
-            
+        }  
+        if(req.query.dificultad_pedido_resolucion) // dificultad especifica
+        {
+            filter.dificultad_pedido_resolucion = parseInt(req.query.dificultad_pedido_resolucion as string);
+ 
         }
+
+        if (req.query.zonas) 
+        {
+            const zonasQuery = Array.isArray(req.query.zonas)
+                ? req.query.zonas
+                : [req.query.zonas];
+
+            const zonasObjectIds = zonasQuery.map((zonaIdString) => new ObjectId(zonaIdString as string));
+            
+            filter.zona = { $in: zonasObjectIds }; 
+        }
+
+
+
         const pedido_resolucion = await em.find(Pedido_Resolucion, filter,{populate:['zona.localidad','denunciante','anomalias.tipo_anomalia','cazador']})
         res
             .status(200)
