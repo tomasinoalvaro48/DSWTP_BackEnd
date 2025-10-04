@@ -17,7 +17,7 @@ export class Pedido_Resolucion extends BaseEntity {
   @Property({ nullable: true })
   descripcion_pedido_resolucion!: string
 
-  @Property({ nullable: false, onCreate: () => 'libre' })
+  @Property({ nullable: false, onCreate: () => 'solicitado' })
   estado_pedido_resolucion!: string
 
   @Property({ nullable: true })

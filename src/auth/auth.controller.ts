@@ -10,7 +10,7 @@ import { ObjectId } from 'mongodb'
 const em = orm.em
 
 export const JWT_SECRET = process.env.JWT_SECRET || 'claveSecreta123'
-//lo ideal sería tener la clave en un .env y usar el código comentado abajo
+// Lo ideal sería tener la clave en un .env y usar el código comentado abajo
 
 /*if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET no está definida. Definila en las variables de entorno.")
@@ -18,14 +18,16 @@ export const JWT_SECRET = process.env.JWT_SECRET || 'claveSecreta123'
 const JWT_SECRET = process.env.JWT_SECRET*/
 
 function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunction) {
-  /*
+  /* Modelo del body:
+
   req.body.sanitizeUsuarioAuthInput = {
-    nombre_usuario: req.body.nombre_usuario,
-    email_usuario: req.body.email_usuario,
-    password_usuario: req.body.password_usuario,
-    confir_password : req.body.confir_password, 
-    zona: req.body.zona
-  }*/
+    nombre_usuario
+    email_usuario
+    password_usuario
+    confirm_password
+    zona
+  }
+  */
 
   if (req.body.nombre_usuario && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.nombre_usuario)) {
     res.status(400).json({ message: 'El nombre no puede tener números' })
@@ -35,7 +37,7 @@ function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunctio
     res.status(400).json({ message: 'El email debe tener @' })
   }
 
-  if (req.body.confir_password !== req.body.password_usuario) {
+  if (req.body.confirm_password !== req.body.password_usuario) {
     console.log('algo')
     res.status(400).json({ message: 'Las contraseñas ingresadas no coinciden' })
     return
