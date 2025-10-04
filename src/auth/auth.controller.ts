@@ -226,41 +226,47 @@ const login: RequestHandler = async (req, res, next) => {
 
     const usuario = await em.findOne(Usuario, { email_usuario: email })
     if (!usuario) {
+      // Si no es usuario, busca si es denunciante
       const denunciante = await em.findOne(Denunciante, { email_denunciante: email })
       if (!denunciante) {
+        // Significa que no existe el mail
         res.status(400).json({ message: 'Email no registrado' })
         return
       } else {
+        // Comparamos passwords
         const validDenunciante = await bcrypt.compare(password, denunciante.password_denunciante)
         if (!validDenunciante) {
           res.status(400).json({ message: 'Contraseña incorrecta' })
           return
         }
-
-        const token = jwt.sign({ id: denunciante.id, email }, JWT_SECRET, { expiresIn: '1h' })
+        // Es denunciante: creamos token con id, email y rol, y enviamos
+        const token = jwt.sign({ id: denunciante.id, email, rol: 'denunciante' }, JWT_SECRET, { expiresIn: '1h' })
         res
           .status(200)
-          .json({ message: 'Login exitoso', token }) // No creo que le login se pase por aca
+          .json({ message: 'Login exitoso', token, rol: 'denunciante' }) // No creo que le login se pase por aca
           .cookie('access_token', token)
+          .cookie('rol', 'denunciante')
         return
       }
     } else {
+      // Si es usuario, comparamos passwords
       const validUsuario = await bcrypt.compare(password, usuario.password_usuario)
       if (!validUsuario) {
         res.status(400).json({ message: 'Contraseña incorrecta' })
         return
       }
-
-      const token = jwt.sign({ id: usuario.id, email }, JWT_SECRET, { expiresIn: '1h' })
+      // Es usuario: creamos token con id, email y rol, y enviamos
+      const token = jwt.sign({ id: usuario.id, email, rol: usuario.tipo_usuario }, JWT_SECRET, { expiresIn: '1h' })
       res
         .status(200)
-        .json({ message: 'Login exitoso', token }) // No creo que le login se pase por aca
+        .json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario }) // No creo que le login se pase por aca
         .cookie('access_token', token, {
           // httpOnly: true,
           // secure: true,
           // sameSite: 'strict',
           // maxAge: 1000 * 60 * 60
         }) //AGRAGAR CONFIGURACIONES DE SEGURIDAD des este video en 1h:24min https://youtu.be/UqnnhAZxRac?si=g1LXnShg0ZO0xh64
+        .cookie('rol', usuario.tipo_usuario)
       return
     }
   } catch (err: any) {
