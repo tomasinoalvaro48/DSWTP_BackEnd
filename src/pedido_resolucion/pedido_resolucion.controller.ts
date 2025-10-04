@@ -9,7 +9,6 @@ import { Zona } from '../localidad/zona.entity.js'
 import { Usuario } from '../usuario/usuario.entity.js'
 import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../auth/auth.controller.js'
-import { OnInit } from '@mikro-orm/core'
 
 const em = orm.em
 
@@ -113,7 +112,7 @@ async function CUU_2_paso_2_tomarPedidoResolucion(req: Request, res: Response) {
       // extraer solo el token (si viene con "Bearer ...")
       const token = authHeader.split(' ')[1]
 
-      const cazadorByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string }
+      const cazadorByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string; rol: string }
       const idCazador = new ObjectId(cazadorByToken.id)
       const cazadorRef = em.getReference(Usuario, idCazador)
 
@@ -144,7 +143,7 @@ async function generarPedidoResolucion(req: Request, res: Response) {
       console.log('Token proporcionado')
       const token = authHeader.split(' ')[1] // Extraer solo el token (si viene con "Bearer ...")
       // Verificar y decodificar el token
-      const denuncianteByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string }
+      const denuncianteByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string; rol: string }
       const idDenunciante = new ObjectId(denuncianteByToken.id)
       const denuncianteRef = await em.getReference(Denunciante, idDenunciante)
       console.log('Denucniante logueado')
