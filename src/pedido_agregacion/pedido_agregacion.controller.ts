@@ -8,24 +8,6 @@ import { Tipo_Anomalia } from "../tipo_anomalia/tipo_anomalia.entity.js";
 
 const em = orm.em
 
-function sanitizePedidoInput(req: Request, res: Response, next :NextFunction) {
-  req.body.sanitizePedidoInput = {
-      descripcion_pedido_agregacion: req.body.descripcion_pedido_agregacion,
-      dificultad_pedido_agregacion: req.body.dificultad_pedido_agregacion,
-      estado_pedido_agregacion: req.body.estado_pedido_agregacion,
-      tipo_anomalia: req.body.tipo_anomalia,
-      cazador: req.body.cazador,
-      evidencias: req.body.evidencias
-  }
-  Object.keys(req.body.sanitizePedidoInput).forEach((key)=> {
-      if(req.body.sanitizePedidoInput[key] === undefined) {
-          delete req.body.sanitizePedidoInput[key]
-      }
-  }) 
-  next()
-}
-
-
 async function remove(req: Request, res: Response) {
     try {
         const id = new ObjectId(req.params.id)
@@ -50,34 +32,34 @@ async function findAll(req: Request, res: Response) {
 
 async function generarPedidosAgregacion(req: Request, res: Response) {
   try {
-    const { descripcion_pedido_agregacion, dificultad_pedido_agregacion, cazador, tipo_anomalia, evidencias } = req.body
-    const cazadorRef = cazador ? em.getReference(Usuario, new ObjectId(cazador)) : null
-    const tipoAnomaliaRef = tipo_anomalia ? em.getReference(Tipo_Anomalia, new ObjectId(tipo_anomalia)) : null
+    const evidencias = [] as Evidencia[]
 
-    const pedido = em.create(Pedido_Agregacion, {
-      descripcion_pedido_agregacion,
-      dificultad_pedido_agregacion,
-      estado_pedido_agregacion: "pendiente",
-      cazador: cazadorRef,
-      tipo_anomalia: tipoAnomaliaRef
-    })
-
-    evidencias.forEach((ev: any) => {
-      if (ev.url_evidencia?.trim() || ev.archivo_evidencia?.trim()) {
-        const nuevaEv = em.create(Evidencia, {
-          url_evidencia: ev.url_evidencia,
-          archivo_evidencia: ev.archivo_evidencia,
-          pedido_agregacion: pedido
-        })
-        pedido.evidencias.add(nuevaEv)
+    const evidenciaInput = req.body.evidencias as { url_evidencia?: string; archivo_evidencia?: string }[] || []
+    for (const e of evidenciaInput) {
+      if (e.url_evidencia?.trim() || e.archivo_evidencia?.trim()) {
+        req.body.sanitizeEvidenciaInput = {
+          url_evidencia: e.url_evidencia,
+          archivo_evidencia: e.archivo_evidencia,
+        }
+        const nuevaEvidencia = em.create(Evidencia, req.body.sanitizeEvidenciaInput)
+        evidencias.push(nuevaEvidencia)
       }
-    })
+    }
+
+    req.body.sanitizePedidoInput = {
+      descripcion_pedido_agregacion: req.body.descripcion_pedido_agregacion,
+      dificultad_pedido_agregacion: req.body.dificultad_pedido_agregacion,
+      estado_pedido_agregacion: "pendiente",
+      evidencias: evidencias,
+    }
+
+    const pedido_agregacion = await em.create(Pedido_Agregacion, req.body.sanitizePedidoInput)
     
-    await em.persistAndFlush(pedido)
-    res.status(201).json({ message: "pedido de agregación created", data: pedido })
+    await em.flush()
+    res.status(201).json({ message: "pedido de agregación created", data: pedido_agregacion })
   } catch (err: any) {
     res.status(500).json({ message: err.message })
   }
 }
 
-export { sanitizePedidoInput, remove, findAll, generarPedidosAgregacion }
+export { remove, findAll, generarPedidosAgregacion }

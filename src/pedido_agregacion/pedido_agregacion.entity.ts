@@ -18,7 +18,12 @@ export class Pedido_Agregacion extends BaseEntity {
   @ManyToOne(()=> Usuario, {nullable: true})
   cazador?: Rel<Usuario>
 
-  @OneToMany(() => Evidencia, (evidencia) => evidencia.pedido_agregacion, {eager: true, nullable: false, cascade: [Cascade.ALL]})
+  @OneToMany(() => Evidencia, (evidencia) => evidencia.pedido_agregacion, {
+    eager: true,
+    nullable: true,
+    orphanRemoval: true,
+    cascade: [Cascade.ALL]
+  })
   evidencias = new Collection<Evidencia>(this)
 
   @OneToOne(()=> Tipo_Anomalia, {nullable: true})
