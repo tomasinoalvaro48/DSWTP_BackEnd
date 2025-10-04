@@ -83,16 +83,35 @@ async function findAll(req: Request, res: Response) {
   }
 }
 
-async function mostrarPosiblesAnomalias(req: Request, res: Response) {
+async function showMisPedidos(req: Request, res: Response) {
   try {
+
+
+
     let filter: {
-      estado_pedido_resolucion?: string
+        estado_pedido_resolucion?: string,
+        cazador?: any
+
     } = {}
-    if (req.query.estado_pedido_resolucion) {
-      filter.estado_pedido_resolucion = req.query.estado_pedido_resolucion as string
+
+
+
+    const authHeader = req.headers['authorization']
+    if (!authHeader) {
+      res.status(401).json({ message: 'Token requerido' })
+      return
+    } else {
+      // extraer solo el token (si viene con "Bearer ...")
+      const token = authHeader.split(' ')[1]
+
+      const cazadorByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string }
+      filter.cazador = new ObjectId(cazadorByToken.id)
     }
+
+
+
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
-      populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador'],
+      populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador','inspecciones'],
     })
     res.status(200).json({ message: 'find all pedidos', data: pedido_resolucion })
   } catch (error: any) {
@@ -198,4 +217,4 @@ async function generarPedidoResolucion(req: Request, res: Response) {
   }
 }
 
-export { findAll, remove, generarPedidoResolucion, mostrarPosiblesAnomalias, CUU_2_paso_2_tomarPedidoResolucion }
+export { findAll, remove, generarPedidoResolucion, showMisPedidos, CUU_2_paso_2_tomarPedidoResolucion }

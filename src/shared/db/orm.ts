@@ -14,6 +14,7 @@ export const orm = await MikroORM.init({
     'dist/**/anomalia.entity.js',
     'dist/**/pedido_agregacion.entity.js',
     'dist/**/evidencia.entity.js',
+    'dist/**/inspeccion.entity.js'
   ],
   entitiesTs: [
     'src/**/zona.entity.ts',
@@ -25,6 +26,7 @@ export const orm = await MikroORM.init({
     'src/**/anomalia.entity.ts',
     'src/**/pedido_agregacion.entity.ts',
     'src/**/evidencia.entity.ts',
+    'src/**/inspeccion.entity.ts'
   ],
   dbName: 'datecAnomalias',
   clientUrl: 'mongodb://localhost:27017',

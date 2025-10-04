@@ -1,0 +1,26 @@
+
+###
+GET http://localHost:3000/api/inspeccion/
+
+
+###
+POST http://localHost:3000/api/inspeccion/
+Content-Type: application/json
+
+{
+  "pedido_resolucion": "68d434463afe5cd51d99c950"
+}
+
+
+###
+POST http://localHost:3000/api/inspeccion/
+Content-Type: application/json
+
+{
+  "pedido_resolucion": "68d434463afe5cd51d99c950",
+  "comentario_inspeccion":"Todo ok 2"
+}
+
+
+###
+DELETE http://localHost:3000/api/inspeccion/68e158c10dc60d25101f92b8

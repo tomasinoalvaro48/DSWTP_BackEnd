@@ -13,6 +13,7 @@ import { anomaliaRouter } from './pedido_resolucion/anomalia.router.js'
 import cookieParser from 'cookie-parser'
 import { authRouter } from './auth/auth.routes.js'
 import { pedidos_agregacion_router } from './pedido_agregacion/pedido_agregacion.routes.js'
+import { inspeccionRouter } from './pedido_resolucion/inspeccion.router.js'
 
 const app = express()
 
@@ -33,6 +34,7 @@ app.use('/api/usuario', usuarioRouter)
 app.use('/api/pedido_resolucion', pedidos_resolucion_router)
 app.use('/api/anomalia',anomaliaRouter)
 app.use('/api/pedido_agregacion', pedidos_agregacion_router)
+app.use('/api/inspeccion',inspeccionRouter)
 
 app.use((_, res) => {
   res.status(404).send({ mesagge: 'Resourse not found' })
