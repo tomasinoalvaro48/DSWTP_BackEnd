@@ -62,4 +62,53 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
   }
 }
 
-export { remove, findAll, generarPedidosAgregacion }
+
+async function tomarPedidosAgregacion(req: Request, res: Response) {
+  try {
+    const idPedidoAgregacion = new ObjectId(req.params.id)
+    const accion = req.body.accion;
+
+    const pedido_agregacion = await em.findOneOrFail(Pedido_Agregacion,
+      { _id: idPedidoAgregacion, estado_pedido_agregacion: "pendiente" }//,
+      //{ populate: ['cazador'] }
+    )
+
+    /*if (pedido_agregacion.cazador) {
+      res.status(400).json({ message: "El pedido ya ha sido tomado por otro cazador" })
+      return
+    }
+    const cazadorId = new ObjectId(req.body.cazadorId)
+    const cazador = await em.findOneOrFail(Usuario, { _id: cazadorId })*/
+
+    if (accion === "rechazar") {
+      pedido_agregacion.estado_pedido_agregacion = "rechazado";
+      //pedido_agregacion.cazador = cazador;
+      await em.flush();
+      res.status(200).json({ message: "Pedido de agregación rechazado", data: pedido_agregacion });
+      return;
+    }
+
+    if (accion === "aceptar") {
+      pedido_agregacion.estado_pedido_agregacion = "aceptado";
+      //pedido_agregacion.cazador = cazador;
+
+      const nueva_anomalia = em.create(Tipo_Anomalia, {
+        nombre_tipo_anomalia: pedido_agregacion.descripcion_pedido_agregacion,
+        dificultad_tipo_anomalia: pedido_agregacion.dificultad_pedido_agregacion
+      });
+
+      await em.flush();
+      res.status(200).json({ 
+        message: "Pedido de agregación aceptado y nueva anomalía creada",
+        pedido: pedido_agregacion,
+        anomalia: nueva_anomalia
+      });
+      return;
+    }
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+
+export { remove, findAll, generarPedidosAgregacion, tomarPedidosAgregacion }
