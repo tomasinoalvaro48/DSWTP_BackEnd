@@ -83,7 +83,8 @@ async function findAll(req: Request, res: Response) {
   }
 }
 
-async function showMisPedidos(req: Request, res: Response) {
+
+async function showMisPedidos(req: Request, res: Response) { //Posiblemente a incluir en el finD ALL
   try {
 
 
@@ -94,6 +95,10 @@ async function showMisPedidos(req: Request, res: Response) {
 
     } = {}
 
+    if (req.query.estado_pedido_resolucion) {
+      filter.estado_pedido_resolucion = req.query.estado_pedido_resolucion as string
+    }
+    
 
 
     const authHeader = req.headers['authorization']
@@ -108,12 +113,14 @@ async function showMisPedidos(req: Request, res: Response) {
       filter.cazador = new ObjectId(cazadorByToken.id)
     }
 
-
+    
 
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
       populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador','inspecciones'],
+      orderBy: { fecha_pedido_resolucion: 'DESC' },
+
     })
-    res.status(200).json({ message: 'find all pedidos', data: pedido_resolucion })
+    res.status(200).json({ message: 'find mis pedidos', data: pedido_resolucion })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
