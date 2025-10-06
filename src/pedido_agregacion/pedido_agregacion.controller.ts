@@ -5,26 +5,10 @@ import { Pedido_Agregacion } from "./pedido_agregacion.entity.js";
 import { Evidencia } from "./evidencia.entity.js";
 import { Usuario } from "../usuario/usuario.entity.js";
 import { Tipo_Anomalia } from "../tipo_anomalia/tipo_anomalia.entity.js";
+import jwt from 'jsonwebtoken'
+import { JWT_SECRET } from '../auth/auth.controller.js'
 
 const em = orm.em
-
-function sanitizePedidoInput(req: Request, res: Response, next :NextFunction) {
-  req.body.sanitizePedidoInput = {
-      descripcion_pedido_agregacion: req.body.descripcion_pedido_agregacion,
-      dificultad_pedido_agregacion: req.body.dificultad_pedido_agregacion,
-      estado_pedido_agregacion: req.body.estado_pedido_agregacion,
-      tipo_anomalia: req.body.tipo_anomalia,
-      cazador: req.body.cazador,
-      evidencias: req.body.evidencias
-  }
-  Object.keys(req.body.sanitizePedidoInput).forEach((key)=> {
-      if(req.body.sanitizePedidoInput[key] === undefined) {
-          delete req.body.sanitizePedidoInput[key]
-      }
-  }) 
-  next()
-}
-
 
 async function remove(req: Request, res: Response) {
     try {
@@ -40,8 +24,33 @@ async function remove(req: Request, res: Response) {
 
 async function findAll(req: Request, res: Response) {
     try {
-      const pedidos_agregacion = await em.find(Pedido_Agregacion, {}, {populate: ['evidencias','cazador']})
-      res.status(200).json({message: 'found all pedidos agregacion', data: pedidos_agregacion})
+      const authHeader = req.headers['authorization']
+
+      if (!authHeader) {
+        console.log('Token no proporcionado')
+        res.status(401).json({ message: 'Token requerido' })
+        return
+      } else {
+        console.log('Token proporcionado')
+        const token = authHeader.split(' ')[1]
+        const usuarioByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string; rol: string }
+        let pedidos_agregacion
+
+        if (usuarioByToken.rol === 'operador') {
+          pedidos_agregacion = await em.find(Pedido_Agregacion,
+            {},
+            { populate: ['evidencias', 'cazador'] }
+          )
+        } else {
+          const idCazador = new ObjectId(usuarioByToken.id)
+
+          pedidos_agregacion = await em.find(Pedido_Agregacion,
+            {cazador: idCazador},
+            {populate: ['evidencias','cazador']}
+          )
+        }
+        res.status(200).json({message: 'found all pedidos agregacion', data: pedidos_agregacion})
+      }
     } catch(error: any) {
       res.status(500).json({message: error.message})
     }
@@ -50,34 +59,89 @@ async function findAll(req: Request, res: Response) {
 
 async function generarPedidosAgregacion(req: Request, res: Response) {
   try {
-    const { descripcion_pedido_agregacion, dificultad_pedido_agregacion, cazador, tipo_anomalia, evidencias } = req.body
-    const cazadorRef = cazador ? em.getReference(Usuario, new ObjectId(cazador)) : null
-    const tipoAnomaliaRef = tipo_anomalia ? em.getReference(Tipo_Anomalia, new ObjectId(tipo_anomalia)) : null
-
-    const pedido = em.create(Pedido_Agregacion, {
-      descripcion_pedido_agregacion,
-      dificultad_pedido_agregacion,
-      estado_pedido_agregacion: "pendiente",
-      cazador: cazadorRef,
-      tipo_anomalia: tipoAnomaliaRef
-    })
-
-    evidencias.forEach((ev: any) => {
-      if (ev.url_evidencia?.trim() || ev.archivo_evidencia?.trim()) {
-        const nuevaEv = em.create(Evidencia, {
-          url_evidencia: ev.url_evidencia,
-          archivo_evidencia: ev.archivo_evidencia,
-          pedido_agregacion: pedido
-        })
-        pedido.evidencias.add(nuevaEv)
-      }
-    })
+    const authHeader = req.headers['authorization']
     
-    await em.persistAndFlush(pedido)
-    res.status(201).json({ message: "pedido de agregación created", data: pedido })
+    if (!authHeader) {
+      console.log('Token no proporcionado')
+      res.status(401).json({ message: 'Token requerido' })
+      return
+    } else {
+      console.log('Token proporcionado')
+      const token = authHeader.split(' ')[1]
+      const cazadorByToken = jwt.verify(token, JWT_SECRET) as { id: string; email: string; rol: string }
+      const idCazador = new ObjectId(cazadorByToken.id)
+      const cazadorRef = await em.getReference(Usuario, idCazador)
+      console.log('Cazador logueado')
+
+      const evidencias = [] as Evidencia[]
+
+      const evidenciaInput = req.body.evidencias as { url_evidencia?: string; archivo_evidencia?: string }[] || []
+      for (const e of evidenciaInput) {
+        if (e.url_evidencia?.trim() || e.archivo_evidencia?.trim()) {
+          req.body.sanitizeEvidenciaInput = {
+            url_evidencia: e.url_evidencia,
+            archivo_evidencia: e.archivo_evidencia,
+          }
+          const nuevaEvidencia = em.create(Evidencia, req.body.sanitizeEvidenciaInput)
+          evidencias.push(nuevaEvidencia)
+        }
+      }
+
+      req.body.sanitizePedidoInput = {
+        descripcion_pedido_agregacion: req.body.descripcion_pedido_agregacion,
+        dificultad_pedido_agregacion: req.body.dificultad_pedido_agregacion,
+        estado_pedido_agregacion: "pendiente",
+        cazador: cazadorRef,
+        evidencias: evidencias,
+      }
+
+      const pedido_agregacion = await em.create(Pedido_Agregacion, req.body.sanitizePedidoInput)
+      
+      await em.flush()
+      res.status(201).json({ message: "pedido de agregación created", data: pedido_agregacion })
+    }
   } catch (err: any) {
     res.status(500).json({ message: err.message })
   }
 }
 
-export { sanitizePedidoInput, remove, findAll, generarPedidosAgregacion }
+
+async function tomarPedidosAgregacion(req: Request, res: Response) {
+  try {
+    const idPedidoAgregacion = new ObjectId(req.params.id)
+    const accion = req.body.accion;
+
+    const pedido_agregacion = await em.findOneOrFail(Pedido_Agregacion,
+      { _id: idPedidoAgregacion, estado_pedido_agregacion: "pendiente" }
+    )
+
+    if (accion === "rechazar") {
+      pedido_agregacion.estado_pedido_agregacion = "rechazado";
+      await em.flush();
+      res.status(200).json({ message: "Pedido de agregación rechazado", data: pedido_agregacion });
+      return;
+    }
+
+    if (accion === "aceptar") {
+      pedido_agregacion.estado_pedido_agregacion = "aceptado";
+
+      const nueva_anomalia = em.create(Tipo_Anomalia, {
+        nombre_tipo_anomalia: pedido_agregacion.descripcion_pedido_agregacion,
+        dificultad_tipo_anomalia: pedido_agregacion.dificultad_pedido_agregacion
+      });
+
+      await em.flush();
+      res.status(200).json({ 
+        message: "Pedido de agregación aceptado y nueva anomalía creada",
+        pedido: pedido_agregacion,
+        anomalia: nueva_anomalia
+      });
+      return;
+    }
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+
+export { remove, findAll, generarPedidosAgregacion, tomarPedidosAgregacion }
