@@ -10,6 +10,22 @@ function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
     nombre_tipo_anomalia: req.body.nombre_tipo_anomalia,
     dificultad_tipo_anomalia: req.body.dificultad_tipo_anomalia,
   }
+
+  if (!req.body.sanitizeTipoInput.nombre_tipo_anomalia || req.body.sanitizeTipoInput.nombre_tipo_anomalia.trim().length === 0) {
+    res.status(400).json({ message: "El nombre no puede estar vacío" })
+    return
+  }
+
+  if (req.body.sanitizeTipoInput.nombre_tipo_anomalia && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeTipoInput.nombre_tipo_anomalia)) {
+    res.status(400).json({ message: "El nombre no puede tener números" })
+    return
+  }
+
+  if (req.body.sanitizeTipoInput.dificultad_tipo_anomalia && !/^[1-3]$/.test(req.body.sanitizeTipoInput.dificultad_tipo_anomalia)) {
+    res.status(400).json({ message: "La dificultad tiene que ser 1, 2 o 3" })
+    return
+  }
+
   Object.keys(req.body.sanitizeTipoInput).forEach((key) => {
     if (req.body.sanitizeTipoInput[key] === undefined) delete req.body.sanitizeTipoInput[key]
   })
