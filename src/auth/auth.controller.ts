@@ -9,13 +9,57 @@ import { ObjectId } from 'mongodb'
 
 const em = orm.em
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'claveSecreta123'
-// Lo ideal sería tener la clave en un .env y usar el código comentado abajo
-
-/*if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET no está definida. Definila en las variables de entorno.")
+interface JwtPayload {
+  id: string | undefined | ObjectId
+  email: string
+  rol: string
 }
-const JWT_SECRET = process.env.JWT_SECRET*/
+
+// export const JWT_SECRET = process.env.JWT_SECRET || 'claveSecreta123'
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET no está definida. Definila en las variables de entorno.')
+}
+export const JWT_SECRET = process.env.JWT_SECRET
+
+// Middleware para autorizar según roles
+const authorizeRoles = (...allowedRoles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // req.body.user viene de verifyToken
+    if (!allowedRoles.includes(req.body.user.rol)) {
+      res.status(403).json({ message: 'Access denied: insufficient permissions' })
+    }
+    next()
+  }
+}
+
+// Middleware para verificar el token JWT
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  // Leer el token del encabezado Authorization
+  const authHeader = req.headers['authorization']
+
+  // El token viene en el formato "Bearer <token>", así que hay que dormatearlo para el jwt.verify
+  if (authHeader && authHeader.startsWith('Bearer')) {
+    console.log('Token proporcionado')
+    const token = authHeader.split(' ')[1]
+
+    if (!token) {
+      res.status(401).json({ message: 'Token required, authorization denied' })
+      return
+    }
+
+    // Verificar el token
+    try {
+      const decodedUser = jwt.verify(token, JWT_SECRET) as JwtPayload
+      console.log('Token verificado')
+      req.body.user = decodedUser
+      next()
+    } catch (err) {
+      res.status(400).json({ message: 'Invalid token' })
+      return
+    }
+  }
+}
 
 function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunction) {
   /* Modelo del body:
@@ -240,10 +284,15 @@ const login: RequestHandler = async (req, res, next) => {
           return
         }
         // Es denunciante: creamos token con id, email y rol, y enviamos
-        const token = jwt.sign({ id: denunciante.id, email, rol: 'denunciante' }, JWT_SECRET, { expiresIn: '1h' })
+        const payload: JwtPayload = {
+          id: denunciante.id,
+          email: email,
+          rol: 'denunciante',
+        }
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
         res
           .status(200)
-          .json({ message: 'Login exitoso', token, rol: 'denunciante' }) // No creo que le login se pase por aca
+          .json({ message: 'Login exitoso', token, rol: 'denunciante' })
           .cookie('access_token', token)
           .cookie('rol', 'denunciante')
         return
@@ -256,10 +305,15 @@ const login: RequestHandler = async (req, res, next) => {
         return
       }
       // Es usuario: creamos token con id, email y rol, y enviamos
-      const token = jwt.sign({ id: usuario.id, email, rol: usuario.tipo_usuario }, JWT_SECRET, { expiresIn: '1h' })
+      const payload: JwtPayload = {
+        id: usuario.id,
+        email: email,
+        rol: usuario.tipo_usuario,
+      }
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
       res
         .status(200)
-        .json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario }) // No creo que le login se pase por aca
+        .json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
         .cookie('access_token', token, {
           // httpOnly: true,
           // secure: true,
@@ -275,4 +329,12 @@ const login: RequestHandler = async (req, res, next) => {
   }
 }
 
-export { registerDenunciante, registerUsuario, login, sanitizeUsuarioAuthInput, sanitizeDenuncianteAuthInput }
+export {
+  registerDenunciante,
+  registerUsuario,
+  login,
+  sanitizeUsuarioAuthInput,
+  sanitizeDenuncianteAuthInput,
+  verifyToken,
+  authorizeRoles,
+}

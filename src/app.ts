@@ -25,16 +25,16 @@ app.use((req, res, next) => {
 
 app.use(cookieParser())
 
-app.use('/api/auth',authRouter)
+app.use('/api/auth', authRouter)
 app.use('/api/localidad', localidadRouter)
 app.use('/api/tipo_anomalia', tipoRouter)
 app.use('/api/zona', zonaRouter)
 app.use('/api/denunciantes', denuncianteRouter)
 app.use('/api/usuario', usuarioRouter)
 app.use('/api/pedido_resolucion', pedidos_resolucion_router)
-app.use('/api/anomalia',anomaliaRouter)
+app.use('/api/anomalia', anomaliaRouter)
 app.use('/api/pedido_agregacion', pedidos_agregacion_router)
-app.use('/api/inspeccion',inspeccionRouter)
+app.use('/api/inspeccion', inspeccionRouter)
 
 app.use((_, res) => {
   res.status(404).send({ mesagge: 'Resourse not found' })

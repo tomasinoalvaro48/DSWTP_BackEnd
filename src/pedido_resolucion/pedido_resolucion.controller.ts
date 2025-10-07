@@ -8,7 +8,11 @@ import { Tipo_Anomalia } from '../tipo_anomalia/tipo_anomalia.entity.js'
 import { Zona } from '../localidad/zona.entity.js'
 import { Usuario } from '../usuario/usuario.entity.js'
 import jwt from 'jsonwebtoken'
-import { JWT_SECRET } from '../auth/auth.controller.js'
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET no está definida. Definila en las variables de entorno.')
+}
+const JWT_SECRET = process.env.JWT_SECRET
 
 const em = orm.em
 
@@ -82,23 +86,17 @@ async function findAll(req: Request, res: Response) {
   }
 }
 
-
-async function showMisPedidos(req: Request, res: Response) { //Posiblemente a incluir en el finD ALL
+async function showMisPedidos(req: Request, res: Response) {
+  //Posiblemente a incluir en el finD ALL
   try {
-
-
-
     let filter: {
-        estado_pedido_resolucion?: string,
-        cazador?: any
-
+      estado_pedido_resolucion?: string
+      cazador?: any
     } = {}
 
     if (req.query.estado_pedido_resolucion) {
       filter.estado_pedido_resolucion = req.query.estado_pedido_resolucion as string
     }
-    
-
 
     const authHeader = req.headers['authorization']
     if (!authHeader) {
@@ -112,12 +110,9 @@ async function showMisPedidos(req: Request, res: Response) { //Posiblemente a in
       filter.cazador = new ObjectId(cazadorByToken.id)
     }
 
-    
-
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
-      populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador','inspecciones'],
+      populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador', 'inspecciones'],
       orderBy: { fecha_pedido_resolucion: 'DESC' },
-
     })
     res.status(200).json({ message: 'find mis pedidos', data: pedido_resolucion })
   } catch (error: any) {
