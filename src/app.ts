@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import 'reflect-metadata'
@@ -9,11 +10,11 @@ import { denuncianteRouter } from './denunciante/denunciante.routes.js'
 import { tipoRouter } from './tipo_anomalia/tipo_anomalia.routes.js'
 import { usuarioRouter } from './usuario/usuario.routes.js'
 import { pedidos_resolucion_router } from './pedido_resolucion/pedido_resolucion.routes.js'
-import { anomaliaRouter } from './pedido_resolucion/anomalia.router.js'
+import { anomaliaRouter } from './pedido_resolucion/anomalia.routes.js'
 import cookieParser from 'cookie-parser'
 import { authRouter } from './auth/auth.routes.js'
 import { pedidos_agregacion_router } from './pedido_agregacion/pedido_agregacion.routes.js'
-import { inspeccionRouter } from './pedido_resolucion/inspeccion.router.js'
+import { inspeccionRouter } from './pedido_resolucion/inspeccion.routes.js'
 
 const app = express()
 

@@ -3,47 +3,58 @@ import { Denunciante } from './denunciante.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
 
-
-
 const em = orm.em
-
-
 
 function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizeDenuncianteInput = {
     nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
     telefono_denunciante: req.body.telefono_denunciante,
     email_denunciante: req.body.email_denunciante,
-    password_denunciante: req.body.password_denunciante
+    password_denunciante: req.body.password_denunciante,
   }
 
-  if (!req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante || req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante.trim().length === 0) {
-    res.status(400).json({ message: "El nombre no puede estar vacío" })
+  if (
+    !req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante ||
+    req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante.trim().length === 0
+  ) {
+    res.status(400).json({ message: 'El nombre no puede estar vacío' })
     return
   }
 
-  if (req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante)) {
-    res.status(400).json({ message: "El nombre no puede tener números" })
+  if (
+    req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante &&
+    !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante)
+  ) {
+    res.status(400).json({ message: 'El nombre no puede tener números' })
     return
   }
 
-  if (!req.body.sanitizeDenuncianteInput.telefono_denunciante || req.body.sanitizeDenuncianteInput.telefono_denunciante.trim().length === 0) {
-    res.status(400).json({ message: "El teléfono no puede estar vacío" })
+  if (
+    !req.body.sanitizeDenuncianteInput.telefono_denunciante ||
+    req.body.sanitizeDenuncianteInput.telefono_denunciante.trim().length === 0
+  ) {
+    res.status(400).json({ message: 'El teléfono no puede estar vacío' })
     return
   }
 
-  if (req.body.sanitizeDenuncianteInput.telefono_denunciante && !/^[0-9]+$/.test(req.body.sanitizeDenuncianteInput.telefono_denunciante)) {
-    res.status(400).json({ message: "El teléfono no puede tener letras ni espacios" })
+  if (
+    req.body.sanitizeDenuncianteInput.telefono_denunciante &&
+    !/^[0-9]+$/.test(req.body.sanitizeDenuncianteInput.telefono_denunciante)
+  ) {
+    res.status(400).json({ message: 'El teléfono no puede tener letras ni espacios' })
     return
   }
 
   if (req.body.sanitizeDenuncianteInput.email_denunciante && !/.*@.*/.test(req.body.sanitizeDenuncianteInput.email_denunciante)) {
-    res.status(400).json({ message: "El email tiene que tener @" })
+    res.status(400).json({ message: 'El email tiene que tener @' })
     return
   }
 
-  if (!req.body.sanitizeDenuncianteInput.password_denunciante || req.body.sanitizeDenuncianteInput.password_denunciante.length < 6) {
-    res.status(400).json({ message: "La contraseña tiene que tener mínimo 6 caracteres" })
+  if (
+    !req.body.sanitizeDenuncianteInput.password_denunciante ||
+    req.body.sanitizeDenuncianteInput.password_denunciante.length < 6
+  ) {
+    res.status(400).json({ message: 'La contraseña tiene que tener mínimo 6 caracteres' })
     return
   }
 
@@ -65,16 +76,16 @@ async function findAll(req: Request, res: Response) {
 }
 
 async function findOne(req: Request, res: Response) {
-    try {
-    const id = new ObjectId(req.params.id) //Arreglado
-    const denunciante = await em.findOneOrFail(Denunciante, id )
+  try {
+    const id = new ObjectId(req.params.id)
+    const denunciante = await em.findOneOrFail(Denunciante, id)
     res.status(200).json({ message: 'found denunciante', data: denunciante })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
 }
 
-async function add(req: Request, res: Response) {
+/* async function add(req: Request, res: Response) {
   try {
     const denunciante = em.create(Denunciante, req.body.sanitizeDenuncianteInput)
     await em.flush()
@@ -82,12 +93,13 @@ async function add(req: Request, res: Response) {
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
-}
+} 
+  */
 
-async function update(req: Request, res: Response) {  
+async function update(req: Request, res: Response) {
   try {
-    const id = new ObjectId(req.params.id) //Arreglado
-    const denuncianteToUpdate = await em.findOneOrFail(Denunciante, id )
+    const id = new ObjectId(req.params.id)
+    const denuncianteToUpdate = await em.findOneOrFail(Denunciante, id)
     em.assign(denuncianteToUpdate, req.body.sanitizeDenuncianteInput)
     await em.flush()
     res.status(200).json({ message: 'denunciante updated', data: denuncianteToUpdate })
@@ -98,7 +110,7 @@ async function update(req: Request, res: Response) {
 
 async function remove(req: Request, res: Response) {
   try {
-    const id = new ObjectId(req.params.id) //Arreglado
+    const id = new ObjectId(req.params.id)
     const denunciante = em.getReference(Denunciante, id)
     await em.removeAndFlush(denunciante)
     res.status(200).json({ message: 'denunciante deleted', data: denunciante })
@@ -107,6 +119,4 @@ async function remove(req: Request, res: Response) {
   }
 }
 
-
-
-export { sanitizeDenuncianteInput, findAll, findOne, add, update, remove } 
+export { sanitizeDenuncianteInput, findAll, findOne, update, remove }

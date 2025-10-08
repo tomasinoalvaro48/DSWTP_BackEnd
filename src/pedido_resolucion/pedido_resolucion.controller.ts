@@ -120,7 +120,7 @@ async function showMisPedidos(req: Request, res: Response) {
   }
 }
 
-async function CUU_2_paso_2_tomarPedidoResolucion(req: Request, res: Response) {
+async function tomarPedidoResolucion(req: Request, res: Response) {
   try {
     const idPedidoResolucion = new ObjectId(req.params.id)
     const pedidoResolucionRef = em.getReference(Pedido_Resolucion, idPedidoResolucion)
@@ -218,4 +218,4 @@ async function generarPedidoResolucion(req: Request, res: Response) {
   }
 }
 
-export { findAll, remove, generarPedidoResolucion, showMisPedidos, CUU_2_paso_2_tomarPedidoResolucion }
+export { findAll, remove, generarPedidoResolucion, showMisPedidos, tomarPedidoResolucion }

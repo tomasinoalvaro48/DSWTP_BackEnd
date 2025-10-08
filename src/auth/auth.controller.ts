@@ -23,11 +23,12 @@ if (!process.env.JWT_SECRET) {
 export const JWT_SECRET = process.env.JWT_SECRET
 
 // Middleware para autorizar según roles
-const authorizeRoles = (...allowedRoles: string[]) => {
+const authorizeRoles = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // req.body.user viene de verifyToken
     if (!allowedRoles.includes(req.body.user.rol)) {
       res.status(403).json({ message: 'Access denied: insufficient permissions' })
+      return
     }
     next()
   }
@@ -37,6 +38,7 @@ const authorizeRoles = (...allowedRoles: string[]) => {
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   // Leer el token del encabezado Authorization
   const authHeader = req.headers['authorization']
+  console.log('Auth Header:', authHeader) // Ver qué llega
 
   // El token viene en el formato "Bearer <token>", así que hay que dormatearlo para el jwt.verify
   if (authHeader && authHeader.startsWith('Bearer')) {
@@ -50,14 +52,27 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
     // Verificar el token
     try {
+      console.log('=== VERIFICANDO TOKEN ===')
+      console.log('Token recibido:', token)
+      console.log('JWT_SECRET usado para VERIFICAR:', JWT_SECRET)
+
       const decodedUser = jwt.verify(token, JWT_SECRET) as JwtPayload
-      console.log('Token verificado')
+      console.log('Token verificado exitosasmente')
+      if (!req.body) {
+        req.body = {}
+      }
       req.body.user = decodedUser
       next()
-    } catch (err) {
+    } catch (err: any) {
+      console.error('❌ Error al verificar token:', err.message)
+      console.error('Nombre del error:', err.name)
       res.status(400).json({ message: 'Invalid token' })
       return
     }
+  } else {
+    // Si no hay token, enviar error
+    res.status(401).json({ message: 'No token provided, authorization denied' })
+    return
   }
 }
 
@@ -106,10 +121,7 @@ function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunctio
 }
 
 const sanitizeDenuncianteAuthInput: RequestHandler = (req, res, next) => {
-  if (
-    req.body.nombre_apellido_denunciante &&
-    !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.nombre_apellido_denunciante)
-  ) {
+  if (req.body.nombre_apellido_denunciante && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.nombre_apellido_denunciante)) {
     res.status(400).json({ message: 'El nombre no puede tener números' })
     return
   }
@@ -144,6 +156,7 @@ const sanitizeDenuncianteAuthInput: RequestHandler = (req, res, next) => {
   next()
 }
 
+/*
 function sanitizeDenuncianteAuthInput2(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizeDenuncianteAuthInput = {
     nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
@@ -164,7 +177,8 @@ function sanitizeDenuncianteAuthInput2(req: Request, res: Response, next: NextFu
     return res.status(400).json({ message: 'El teléfono no puede tener letras ni espacios' })
   }
 
-  if (req.body.email_denunciante && !/.*@.*/.test(req.body.email_denunciante)) {
+  if (req.body.email_denunciante && !/.*@.*/
+/*.test(req.body.email_denunciante)) {
     res.status(400).json({ message: 'El email tiene que tener @' })
     return
   }
@@ -192,6 +206,7 @@ function sanitizeDenuncianteAuthInput2(req: Request, res: Response, next: NextFu
   })
   next()
 }
+*/
 
 const registerUsuario: RequestHandler = async (req, res, next) => {
   try {
@@ -285,16 +300,12 @@ const login: RequestHandler = async (req, res, next) => {
         }
         // Es denunciante: creamos token con id, email y rol, y enviamos
         const payload: JwtPayload = {
-          id: denunciante.id,
+          id: denunciante.id?.toString(),
           email: email,
           rol: 'denunciante',
         }
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
-        res
-          .status(200)
-          .json({ message: 'Login exitoso', token, rol: 'denunciante' })
-          .cookie('access_token', token)
-          .cookie('rol', 'denunciante')
+        res.status(200).json({ message: 'Login exitoso', token, rol: 'denunciante' })
         return
       }
     } else {
@@ -311,16 +322,7 @@ const login: RequestHandler = async (req, res, next) => {
         rol: usuario.tipo_usuario,
       }
       const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
-      res
-        .status(200)
-        .json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
-        .cookie('access_token', token, {
-          // httpOnly: true,
-          // secure: true,
-          // sameSite: 'strict',
-          // maxAge: 1000 * 60 * 60
-        }) //AGRAGAR CONFIGURACIONES DE SEGURIDAD des este video en 1h:24min https://youtu.be/UqnnhAZxRac?si=g1LXnShg0ZO0xh64
-        .cookie('rol', usuario.tipo_usuario)
+      res.status(200).json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
       return
     }
   } catch (err: any) {
