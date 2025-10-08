@@ -17,16 +17,34 @@ function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunctio
     password_denunciante: req.body.password_denunciante
   }
 
+  if (!req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante || req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante.trim().length === 0) {
+    res.status(400).json({ message: "El nombre no puede estar vacío" })
+    return
+  }
+
   if (req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeDenuncianteInput.nombre_apellido_denunciante)) {
     res.status(400).json({ message: "El nombre no puede tener números" })
+    return
+  }
+
+  if (!req.body.sanitizeDenuncianteInput.telefono_denunciante || req.body.sanitizeDenuncianteInput.telefono_denunciante.trim().length === 0) {
+    res.status(400).json({ message: "El teléfono no puede estar vacío" })
+    return
   }
 
   if (req.body.sanitizeDenuncianteInput.telefono_denunciante && !/^[0-9]+$/.test(req.body.sanitizeDenuncianteInput.telefono_denunciante)) {
     res.status(400).json({ message: "El teléfono no puede tener letras ni espacios" })
+    return
   }
 
   if (req.body.sanitizeDenuncianteInput.email_denunciante && !/.*@.*/.test(req.body.sanitizeDenuncianteInput.email_denunciante)) {
     res.status(400).json({ message: "El email tiene que tener @" })
+    return
+  }
+
+  if (!req.body.sanitizeDenuncianteInput.password_denunciante || req.body.sanitizeDenuncianteInput.password_denunciante.length < 6) {
+    res.status(400).json({ message: "La contraseña tiene que tener mínimo 6 caracteres" })
+    return
   }
 
   Object.keys(req.body.sanitizeDenuncianteInput).forEach((key) => {

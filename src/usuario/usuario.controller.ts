@@ -31,6 +31,32 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction)
         zona: req.body.zona //Ver si sacar!!!!!!!!!!!!!!!!!!!!!
         
     }
+
+    if (!req.body.sanitizeUsuarioImput.nombre_usuario || req.body.sanitizeUsuarioImput.nombre_usuario.trim().length === 0) {
+        res.status(400).json({ message: "El nombre no puede estar vacío" })
+        return
+    }
+
+    if (req.body.sanitizeUsuarioImput.nombre_usuario && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeUsuarioImput.nombre_usuario)) {
+        res.status(400).json({ message: "El nombre no puede tener números" })
+        return
+    }
+
+    if (req.body.sanitizeUsuarioImput.email_usuario && !/.*@.*/.test(req.body.sanitizeUsuarioImput.email_usuario)) {
+        res.status(400).json({ message: "El email tiene que tener @" })
+        return
+    }
+
+    if (!req.body.sanitizeUsuarioImput.password_usuario || req.body.sanitizeUsuarioImput.password_usuario.length < 6) {
+        res.status(400).json({ message: "La contraseña tiene que tener mínimo 6 caracteres" })
+        return
+    }
+
+    if (req.body.sanitizeUsuarioImput.tipo_usuario && !['operador', 'cazador'].includes(req.body.sanitizeUsuarioImput.tipo_usuario)) {
+        res.status(400).json({ message: "El tipo de usuario tiene que ser operador o cazador" })
+        return
+    }
+
     Object.keys(req.body.sanitizeUsuarioImput).forEach((key)=>{
     if(req.body.sanitizeUsuarioImput[key]===undefined){
         delete req.body.sanitizeUsuarioImput[key]

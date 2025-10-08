@@ -23,6 +23,17 @@ function sanitizeZonaImput(req: Request, res: Response, next: NextFunction) {
     nombre_zona: req.body.nombre_zona,
     localidad: req.body.localidad, //Ver si sacar!!!!!!!!!!!!!!!!!!!!!
   }
+
+  if (!req.body.sanitizeZonaImput.nombre_zona || req.body.sanitizeZonaImput.nombre_zona.trim().length === 0) {
+    res.status(400).json({ message: "El nombre no puede estar vacío" })
+    return
+  }
+  
+  if (req.body.sanitizeZonaImput.nombre_zona && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeZonaImput.nombre_zona)) {
+    res.status(400).json({ message: "El nombre no puede tener números" })
+    return
+  }
+
   Object.keys(req.body.sanitizeZonaImput).forEach((key) => {
     if (req.body.sanitizeZonaImput[key] === undefined) {
       delete req.body.sanitizeZonaImput[key]
