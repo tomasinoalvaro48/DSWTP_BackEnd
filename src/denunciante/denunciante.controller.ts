@@ -2,6 +2,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express'
 import { Denunciante } from './denunciante.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
+import { Usuario } from '../usuario/usuario.entity.js'
 
 const em = orm.em
 
@@ -98,6 +99,23 @@ async function findOne(req: Request, res: Response) {
 
 async function update(req: Request, res: Response) {
   try {
+    //Valida que no exista como usuario
+    const email_usuario = req.body.sanitizeDenuncianteInput.email_denunciante
+    const existeUsuario = await em.findOne(Usuario, { email_usuario })
+    if (existeUsuario) {
+      res.status(400).json({ message: 'El email ya está registrado como usuario' })
+      return
+    }
+
+    //Valida que no exista como denunciante
+    const email_denunciante = req.body.sanitizeDenuncianteAuthInput.email_denunciante
+    const existeDenunciante = await em.findOne(Denunciante, { email_denunciante })
+
+    if (existeDenunciante) {
+      res.status(400).json({ message: 'El email ya está registrado como denunciante' })
+      return
+    }
+
     const id = new ObjectId(req.params.id)
     const denuncianteToUpdate = await em.findOneOrFail(Denunciante, id)
     em.assign(denuncianteToUpdate, req.body.sanitizeDenuncianteInput)

@@ -17,6 +17,7 @@ import { pedidos_agregacion_router } from './pedido_agregacion/pedido_agregacion
 import { inspeccionRouter } from './pedido_resolucion/inspeccion.routes.js'
 
 const app = express()
+const port = process.env.PORT ?? 3000
 
 app.use(express.json(), cors())
 
@@ -43,6 +44,6 @@ app.use((_, res) => {
 
 await syncSchema()
 
-app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000')
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`)
 })

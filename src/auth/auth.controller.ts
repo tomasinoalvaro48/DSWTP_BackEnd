@@ -15,8 +15,6 @@ interface JwtPayload {
   rol: string
 }
 
-// export const JWT_SECRET = process.env.JWT_SECRET || 'claveSecreta123'
-
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET no está definida. Definila en las variables de entorno.')
 }
@@ -38,11 +36,9 @@ const authorizeRoles = (allowedRoles: string[]) => {
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   // Leer el token del encabezado Authorization
   const authHeader = req.headers['authorization']
-  console.log('Auth Header:', authHeader) // Ver qué llega
 
   // El token viene en el formato "Bearer <token>", así que hay que dormatearlo para el jwt.verify
   if (authHeader && authHeader.startsWith('Bearer')) {
-    console.log('Token proporcionado')
     const token = authHeader.split(' ')[1]
 
     if (!token) {
@@ -52,21 +48,14 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
     // Verificar el token
     try {
-      console.log('=== VERIFICANDO TOKEN ===')
-      console.log('Token recibido:', token)
-      console.log('JWT_SECRET usado para VERIFICAR:', JWT_SECRET)
-
       const decodedUser = jwt.verify(token, JWT_SECRET) as JwtPayload
-      console.log('Token verificado exitosasmente')
       if (!req.body) {
         req.body = {}
       }
       req.body.user = decodedUser
       next()
     } catch (err: any) {
-      console.error('❌ Error al verificar token:', err.message)
-      console.error('Nombre del error:', err.name)
-      res.status(400).json({ message: 'Invalid token' })
+      res.status(400).json({ message: 'Token error' })
       return
     }
   } else {

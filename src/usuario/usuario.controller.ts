@@ -9,7 +9,7 @@ const em = orm.em
 
 function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
   if (req.body.zona !== undefined) {
-    const idZona = new ObjectId(req.body.zona)
+    const idZona = new ObjectId(req.body.zona.id)
     const zonaRef = em.getReference(Zona, idZona)
     req.body.sanitizeUsuarioImput = {
       zona: zonaRef,
@@ -69,7 +69,7 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
 
 async function findAll(req: Request, res: Response) {
   try {
-    const usuarios = await em.find(Usuario, {}, { populate: ['zona'] })
+    const usuarios = await em.find(Usuario, {}, { populate: ['zona', 'zona.localidad'] })
     res.status(200).json({ message: 'find all usuarios', data: usuarios })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
@@ -79,7 +79,7 @@ async function findAll(req: Request, res: Response) {
 async function findOne(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
-    const usuario = await em.findOneOrFail(Usuario, id, { populate: ['zona'] })
+    const usuario = await em.findOneOrFail(Usuario, id, { populate: ['zona', 'zona.localidad'] })
     res.status(200).json({ message: 'find one usuario', data: usuario })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
@@ -100,6 +100,23 @@ async function add(req: Request, res: Response) {
 
 async function update(req: Request, res: Response) {
   try {
+    //Valida que no exista como usuario
+    const email_usuario = req.body.sanitizeDenuncianteAuthInput.email_denunciante
+    const existeUsuario = await em.findOne(Usuario, { email_usuario })
+    if (existeUsuario) {
+      res.status(400).json({ message: 'El email ya está registrado como usuario' })
+      return
+    }
+
+    //Valida que no exista como denunciante
+    const email_denunciante = req.body.sanitizeDenuncianteAuthInput.email_denunciante
+    const existeDenunciante = await em.findOne(Denunciante, { email_denunciante })
+
+    if (existeDenunciante) {
+      res.status(400).json({ message: 'El email ya está registrado como denunciante' })
+      return
+    }
+
     const id = new ObjectId(req.params.id)
     const usuarioToUpdate = em.getReference(Usuario, id)
     em.assign(usuarioToUpdate, req.body.sanitizeUsuarioImput)
