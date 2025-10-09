@@ -9,13 +9,61 @@ import { ObjectId } from 'mongodb'
 
 const em = orm.em
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'claveSecreta123'
-// Lo ideal sería tener la clave en un .env y usar el código comentado abajo
-
-/*if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET no está definida. Definila en las variables de entorno.")
+interface JwtPayload {
+  id: string | undefined | ObjectId
+  email: string
+  rol: string
 }
-const JWT_SECRET = process.env.JWT_SECRET*/
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET no está definida. Definila en las variables de entorno.')
+}
+export const JWT_SECRET = process.env.JWT_SECRET
+
+// Middleware para autorizar según roles
+const authorizeRoles = (allowedRoles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // req.body.user viene de verifyToken
+    if (!allowedRoles.includes(req.body.user.rol)) {
+      res.status(403).json({ message: 'Access denied: insufficient permissions' })
+      return
+    }
+    next()
+  }
+}
+
+// Middleware para verificar el token JWT
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  // Leer el token del encabezado Authorization
+  const authHeader = req.headers['authorization']
+
+  // El token viene en el formato "Bearer <token>", así que hay que dormatearlo para el jwt.verify
+  if (authHeader && authHeader.startsWith('Bearer')) {
+    const token = authHeader.split(' ')[1]
+
+    if (!token) {
+      res.status(401).json({ message: 'Token required, authorization denied' })
+      return
+    }
+
+    // Verificar el token
+    try {
+      const decodedUser = jwt.verify(token, JWT_SECRET) as JwtPayload
+      if (!req.body) {
+        req.body = {}
+      }
+      req.body.user = decodedUser
+      next()
+    } catch (err: any) {
+      res.status(400).json({ message: 'Token error' })
+      return
+    }
+  } else {
+    // Si no hay token, enviar error
+    res.status(401).json({ message: 'No token provided, authorization denied' })
+    return
+  }
+}
 
 function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunction) {
   /* Modelo del body:
@@ -62,10 +110,7 @@ function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunctio
 }
 
 const sanitizeDenuncianteAuthInput: RequestHandler = (req, res, next) => {
-  if (
-    req.body.nombre_apellido_denunciante &&
-    !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.nombre_apellido_denunciante)
-  ) {
+  if (req.body.nombre_apellido_denunciante && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.nombre_apellido_denunciante)) {
     res.status(400).json({ message: 'El nombre no puede tener números' })
     return
   }
@@ -100,6 +145,7 @@ const sanitizeDenuncianteAuthInput: RequestHandler = (req, res, next) => {
   next()
 }
 
+/*
 function sanitizeDenuncianteAuthInput2(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizeDenuncianteAuthInput = {
     nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
@@ -120,7 +166,8 @@ function sanitizeDenuncianteAuthInput2(req: Request, res: Response, next: NextFu
     return res.status(400).json({ message: 'El teléfono no puede tener letras ni espacios' })
   }
 
-  if (req.body.email_denunciante && !/.*@.*/.test(req.body.email_denunciante)) {
+  if (req.body.email_denunciante && !/.*@.*/
+/*.test(req.body.email_denunciante)) {
     res.status(400).json({ message: 'El email tiene que tener @' })
     return
   }
@@ -148,6 +195,7 @@ function sanitizeDenuncianteAuthInput2(req: Request, res: Response, next: NextFu
   })
   next()
 }
+*/
 
 const registerUsuario: RequestHandler = async (req, res, next) => {
   try {
@@ -240,12 +288,13 @@ const login: RequestHandler = async (req, res, next) => {
           return
         }
         // Es denunciante: creamos token con id, email y rol, y enviamos
-        const token = jwt.sign({ id: denunciante.id, email, rol: 'denunciante' }, JWT_SECRET, { expiresIn: '1h' })
-        res
-          .status(200)
-          .json({ message: 'Login exitoso', token, rol: 'denunciante' }) // No creo que le login se pase por aca
-          .cookie('access_token', token)
-          .cookie('rol', 'denunciante')
+        const payload: JwtPayload = {
+          id: denunciante.id?.toString(),
+          email: email,
+          rol: 'denunciante',
+        }
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
+        res.status(200).json({ message: 'Login exitoso', token, rol: 'denunciante' })
         return
       }
     } else {
@@ -256,17 +305,13 @@ const login: RequestHandler = async (req, res, next) => {
         return
       }
       // Es usuario: creamos token con id, email y rol, y enviamos
-      const token = jwt.sign({ id: usuario.id, email, rol: usuario.tipo_usuario }, JWT_SECRET, { expiresIn: '1h' })
-      res
-        .status(200)
-        .json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario }) // No creo que le login se pase por aca
-        .cookie('access_token', token, {
-          // httpOnly: true,
-          // secure: true,
-          // sameSite: 'strict',
-          // maxAge: 1000 * 60 * 60
-        }) //AGRAGAR CONFIGURACIONES DE SEGURIDAD des este video en 1h:24min https://youtu.be/UqnnhAZxRac?si=g1LXnShg0ZO0xh64
-        .cookie('rol', usuario.tipo_usuario)
+      const payload: JwtPayload = {
+        id: usuario.id,
+        email: email,
+        rol: usuario.tipo_usuario,
+      }
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
+      res.status(200).json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
       return
     }
   } catch (err: any) {
@@ -275,4 +320,12 @@ const login: RequestHandler = async (req, res, next) => {
   }
 }
 
-export { registerDenunciante, registerUsuario, login, sanitizeUsuarioAuthInput, sanitizeDenuncianteAuthInput }
+export {
+  registerDenunciante,
+  registerUsuario,
+  login,
+  sanitizeUsuarioAuthInput,
+  sanitizeDenuncianteAuthInput,
+  verifyToken,
+  authorizeRoles,
+}

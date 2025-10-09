@@ -16,6 +16,26 @@ function sanitizeLocalidadInput(
         zonas: req.body.zonas
     }
 
+    if (!req.body.sanitizeLocalidadInput.codigo_localidad || req.body.sanitizeLocalidadInput.codigo_localidad.trim().length === 0) {
+        res.status(400).json({ message: "El código no puede estar vacío" })
+        return
+    }
+
+    if (req.body.sanitizeLocalidadInput.codigo_localidad && !/^[0-9]+$/.test(req.body.sanitizeLocalidadInput.codigo_localidad)) {
+        res.status(400).json({ message: "El código no puede tener letras" })
+        return
+    }
+
+    if (!req.body.sanitizeLocalidadInput.nombre_localidad || req.body.sanitizeLocalidadInput.nombre_localidad.trim().length === 0) {
+        res.status(400).json({ message: "El nombre no puede estar vacío" })
+        return
+    }
+
+    if (req.body.sanitizeLocalidadInput.nombre_localidad && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeLocalidadInput.nombre_localidad)) {
+        res.status(400).json({ message: "El nombre no puede tener números" })
+        return
+    }
+
     Object.keys(req.body.sanitizeLocalidadInput).forEach((key)=>{
         if(req.body.sanitizeLocalidadInput[key]===undefined){
             delete req.body.sanitizeLocalidadInput[key]
