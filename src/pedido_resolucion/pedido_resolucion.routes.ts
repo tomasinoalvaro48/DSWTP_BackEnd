@@ -4,13 +4,19 @@ import {
   remove,
   generarPedidoResolucion,
   showMisPedidos,
-  CUU_2_paso_2_tomarPedidoResolucion,
+  tomarPedidoResolucion,
 } from './pedido_resolucion.controller.js'
+import { verifyToken, authorizeRoles } from '../auth/auth.controller.js'
 
 export const pedidos_resolucion_router = Router()
 
-pedidos_resolucion_router.get('/', findAll)
-pedidos_resolucion_router.post('/', generarPedidoResolucion)
-pedidos_resolucion_router.get('/mis_pedidos', showMisPedidos)
-pedidos_resolucion_router.patch('/tomar-pedido-resolucion/:id', CUU_2_paso_2_tomarPedidoResolucion)
-pedidos_resolucion_router.delete('/:id', remove)
+pedidos_resolucion_router.get('/', verifyToken, authorizeRoles(['cazador', 'operador', 'denunciante']), findAll)
+pedidos_resolucion_router.get('/mis_pedidos', verifyToken, authorizeRoles(['cazador', 'operador', 'denunciante']), showMisPedidos)
+pedidos_resolucion_router.post('/', verifyToken, authorizeRoles(['operador', 'denunciante']), generarPedidoResolucion)
+pedidos_resolucion_router.patch(
+  '/tomar-pedido-resolucion/:id',
+  verifyToken,
+  authorizeRoles(['cazador', 'operador']),
+  tomarPedidoResolucion
+)
+pedidos_resolucion_router.delete('/:id', verifyToken, authorizeRoles(['operador', 'denunciante']), remove)
