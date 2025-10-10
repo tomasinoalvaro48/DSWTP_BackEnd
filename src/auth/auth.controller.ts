@@ -25,6 +25,7 @@ const authorizeRoles = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // req.body.user viene de verifyToken
     if (!allowedRoles.includes(req.body.user.rol)) {
+      console.log('Access denied: insufficient permissions')
       res.status(403).json({ message: 'Access denied: insufficient permissions' })
       return
     }
@@ -42,6 +43,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     const token = authHeader.split(' ')[1]
 
     if (!token) {
+      console.log('Token required, authorization denied')
       res.status(401).json({ message: 'Token required, authorization denied' })
       return
     }
@@ -55,11 +57,13 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
       req.body.user = decodedUser
       next()
     } catch (err: any) {
+      console.log('Token error:', err.message)
       res.status(400).json({ message: 'Token error' })
       return
     }
   } else {
     // Si no hay token, enviar error
+    console.log('No token provided, authorization denied')
     res.status(401).json({ message: 'No token provided, authorization denied' })
     return
   }
@@ -310,7 +314,7 @@ const login: RequestHandler = async (req, res, next) => {
         email: email,
         rol: usuario.tipo_usuario,
       }
-      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
+      const token = jwt.sign(payload, JWT_SECRET)
       res.status(200).json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
       return
     }
