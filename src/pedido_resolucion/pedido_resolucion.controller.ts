@@ -148,24 +148,40 @@ async function showMisPedidos(req: Request, res: Response) {
 
 async function tomarPedidoResolucion(req: Request, res: Response) {
   try {
-    const idPedidoResolucion = new ObjectId(req.params.id);
-    const pedidoResolucionRef = em.getReference(
-      Pedido_Resolucion,
-      idPedidoResolucion
-    );
-
     const idCazador = new ObjectId(req.body.user.id);
-    const cazadorRef = em.getReference(Usuario, idCazador);
 
-    const elementosActualizar = {
+    const pedidoExistente = await em.findOne(Pedido_Resolucion, {
+      cazador: idCazador,
       estado_pedido_resolucion: 'aceptado',
-      cazador: cazadorRef,
-    };
+    });
 
-    em.assign(pedidoResolucionRef, elementosActualizar);
-    await em.flush();
+    if (pedidoExistente) {
+      res
+        .status(400)
+        .json({
+          message:
+            'No podés tomar el pedido porque todavía tenés uno pendiente por resolver.',
+        });
+      return;
+    } else {
+      const idPedidoResolucion = new ObjectId(req.params.id);
+      const pedidoResolucionRef = em.getReference(
+        Pedido_Resolucion,
+        idPedidoResolucion
+      );
+      const cazadorRef = em.getReference(Usuario, idCazador);
 
-    res.status(200).json({ message: 'Pedido tomado' });
+      const elementosActualizar = {
+        estado_pedido_resolucion: 'aceptado',
+        cazador: cazadorRef,
+      };
+
+      em.assign(pedidoResolucionRef, elementosActualizar);
+      await em.flush();
+
+      res.status(200).json({ message: 'Pedido tomado' });
+      return;
+    }
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
