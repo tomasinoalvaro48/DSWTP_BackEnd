@@ -4,6 +4,7 @@ import { Usuario } from './usuario.entity.js'
 import { ObjectId } from 'mongodb'
 import { Zona } from '../localidad/zona.entity.js'
 import { Denunciante } from '../denunciante/denunciante.entity.js'
+import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
 const em = orm.em
 
@@ -129,7 +130,14 @@ async function update(req: Request, res: Response) {
 
 async function remove(req: Request, res: Response) {
   try {
+    // Validamos que no tenga denuncias asociadas
     const id = new ObjectId(req.params.id)
+    const denunciasAsociadas = await em.count(Pedido_Resolucion, { cazador: id })
+    if (denunciasAsociadas > 0) {
+      res.status(400).json({ message: 'No se puede eliminar el usuario porque tiene denuncias asociadas' })
+      return
+    }
+
     const usuarioToUsuario = em.getReference(Usuario, id)
     await em.removeAndFlush(usuarioToUsuario)
     res.status(200).json({ message: 'Remove usuario', data: usuarioToUsuario })
