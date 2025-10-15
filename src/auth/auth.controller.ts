@@ -322,11 +322,16 @@ const login: RequestHandler = async (req, res, next) => {
 
 const changePassword: RequestHandler = async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword, confirmNewPassword } = req.body;
     const { id, rol } = req.body.user;
 
-    if (!currentPassword || !newPassword) {
-      res.status(400).json({ message: 'Debe ingresar la contraseña actual y la nueva' });
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      res.status(400).json({ message: 'Debe completar todos los campos' });
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      res.status(400).json({ message: 'Las contraseñas nuevas no coinciden' });
       return;
     }
 
