@@ -320,6 +320,65 @@ const login: RequestHandler = async (req, res, next) => {
   }
 }
 
+const changePassword: RequestHandler = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const { id, rol } = req.body.user;
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ message: 'Debe ingresar la contraseña actual y la nueva' });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ message: 'La contraseña nueva debe tener mínimo 6 caracteres' });
+      return;
+    }
+
+    if (rol === 'denunciante') {
+      const denunciante = await em.findOne(Denunciante, { _id: new ObjectId(id) })
+      if (!denunciante) {
+        res.status(404).json({ message: 'Denunciante no encontrado' })
+        return
+      }
+
+      const valid = await bcrypt.compare(currentPassword, denunciante.password_denunciante)
+      if (!valid) {
+        res.status(400).json({ message: 'La contraseña actual es incorrecta' })
+        return
+      }
+
+      denunciante.password_denunciante = await bcrypt.hash(newPassword, 10)
+      await em.flush()
+      res.status(200).json({ message: 'Contraseña cambiada correctamente' })
+      return
+    }
+
+    if (rol === 'cazador' || rol === 'operador') {
+      const user = await em.findOne(Usuario, { _id: new ObjectId(id) })
+      if (!user) {
+        res.status(404).json({ message: 'Usuario no encontrado' })
+        return
+      }
+
+      const valid = await bcrypt.compare(currentPassword, user.password_usuario)
+      if (!valid) {
+        res.status(400).json({ message: 'La contraseña actual es incorrecta' })
+        return
+      }
+
+      user.password_usuario = await bcrypt.hash(newPassword, 10)
+      await em.flush()
+      res.status(200).json({ message: 'Contraseña cambiada correctamente' })
+      return
+    }
+
+    res.status(400).json({ message: 'Rol no reconocido para cambio de contraseña' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export {
   registerDenunciante,
   registerUsuario,
@@ -328,4 +387,5 @@ export {
   sanitizeDenuncianteAuthInput,
   verifyToken,
   authorizeRoles,
+  changePassword,
 }
