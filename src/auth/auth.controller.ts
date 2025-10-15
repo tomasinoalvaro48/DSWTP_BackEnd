@@ -388,6 +388,103 @@ const changePassword: RequestHandler = async (req, res) => {
   }
 };
 
+const updatePerfil: RequestHandler = async (req, res) => {
+  try {
+    const { id, rol } = req.body.user
+
+    if (rol === 'denunciante') {
+      const denunciante = await em.findOne(Denunciante, { _id: new ObjectId(id) })
+
+      if (!denunciante) {
+        res.status(404).json({ message: 'Denunciante no encontrado' })
+        return
+      }
+
+      const { nombre_apellido_denunciante, telefono_denunciante } = req.body
+
+      if (nombre_apellido_denunciante && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre_apellido_denunciante)) {
+        res.status(400).json({ message: 'El nombre no puede tener números' })
+        return
+      }
+      if (telefono_denunciante && !/^[0-9]+$/.test(telefono_denunciante)) {
+        res.status(400).json({ message: 'El teléfono debe tener sólo números' })
+        return
+      }
+
+      denunciante.nombre_apellido_denunciante = nombre_apellido_denunciante ?? denunciante.nombre_apellido_denunciante
+      denunciante.telefono_denunciante = telefono_denunciante ?? denunciante.telefono_denunciante
+      await em.flush()
+      res.status(200).json({ message: 'Perfil de denunciante actualizado correctamente', data: denunciante })
+      return
+    }
+
+    if (rol === 'cazador' || rol === 'operador') {
+      const usuario = await em.findOne(Usuario, { _id: new ObjectId(id) })
+
+      if (!usuario) {
+        res.status(404).json({ message: 'Usuario no encontrado' })
+        return
+      }
+
+      const { nombre_usuario, apellido_usuario, zona } = req.body
+
+      if (nombre_usuario && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre_usuario)) {
+        res.status(400).json({ message: 'El nombre no puede tener números' })
+        return
+      }
+      if (apellido_usuario && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(apellido_usuario)) {
+        res.status(400).json({ message: 'El apellido no puede tener números' })
+        return
+      }
+
+      usuario.nombre_usuario = nombre_usuario ?? usuario.nombre_usuario
+
+      if (zona) {
+        const zonaRef = em.getReference(Zona, new ObjectId(zona))
+        usuario.zona = zonaRef
+      }
+
+      await em.flush()
+      res.status(200).json({ message: 'Perfil de usuario actualizado correctamente', data: usuario })
+      return
+    }
+
+    res.status(400).json({ message: 'Rol no reconocido para actualización de perfil' })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+const getPerfil: RequestHandler = async (req, res) => {
+  try {
+    const { id, rol } = req.body.user
+
+    if (rol === 'denunciante') {
+      const denunciante = await em.findOne(Denunciante, { _id: new ObjectId(id) })
+      if (!denunciante) {
+        res.status(404).json({ message: 'Denunciante no encontrado' })
+        return
+      }
+      res.status(200).json({ data: denunciante })
+      return
+    }
+
+    if (rol === 'cazador' || rol === 'operador') {
+      const usuario = await em.findOne(Usuario, { _id: new ObjectId(id) }, { populate: ['zona'] })
+      if (!usuario) {
+        res.status(404).json({ message: 'Usuario no encontrado' })
+        return
+      }
+      res.status(200).json({ data: usuario })
+      return
+    }
+
+    res.status(400).json({ message: 'Rol no reconocido' })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
 export {
   registerDenunciante,
   registerUsuario,
@@ -397,4 +494,6 @@ export {
   verifyToken,
   authorizeRoles,
   changePassword,
+  updatePerfil,
+  getPerfil,
 }
