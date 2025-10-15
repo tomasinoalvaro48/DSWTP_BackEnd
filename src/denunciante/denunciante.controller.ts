@@ -3,6 +3,7 @@ import { Denunciante } from './denunciante.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
 import { Usuario } from '../usuario/usuario.entity.js'
+import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
 const em = orm.em
 
@@ -110,7 +111,6 @@ async function update(req: Request, res: Response) {
     //Valida que no exista como denunciante
     const email_denunciante = req.body.sanitizeDenuncianteAuthInput.email_denunciante
     const existeDenunciante = await em.findOne(Denunciante, { email_denunciante })
-
     if (existeDenunciante) {
       res.status(400).json({ message: 'El email ya está registrado como denunciante' })
       return
@@ -128,7 +128,14 @@ async function update(req: Request, res: Response) {
 
 async function remove(req: Request, res: Response) {
   try {
+    // Validamos que no tenga denuncias asociadas
     const id = new ObjectId(req.params.id)
+    const denunciasAsociadas = await em.count(Pedido_Resolucion, { denunciante: id })
+    if (denunciasAsociadas > 0) {
+      res.status(400).json({ message: 'No se puede eliminar el denunciante porque tiene denuncias asociadas' })
+      return
+    }
+
     const denunciante = em.getReference(Denunciante, id)
     await em.removeAndFlush(denunciante)
     res.status(200).json({ message: 'denunciante deleted', data: denunciante })
