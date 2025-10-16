@@ -485,6 +485,72 @@ const getPerfil: RequestHandler = async (req, res) => {
   }
 }
 
+const deleteAccount: RequestHandler = async (req, res) => {
+  try {
+    const { id, rol } = req.body.user
+
+    if (!id || !rol) {
+      res.status(400).json({ message: 'Faltan datos de autenticación' })
+      return
+    }
+
+    if (rol === 'denunciante') {
+      const denunciante = await em.findOne(Denunciante, { _id: new ObjectId(id) })
+      if (!denunciante) {
+        res.status(404).json({ message: 'Denunciante no encontrado' })
+        return
+      }
+
+      const denuncias = await em.count('Pedido_Resolucion', { denunciante: new ObjectId(id) })
+      if (denuncias > 0) {
+        res.status(400).json({ message: 'No se puede eliminar la cuenta porque tiene denuncias asociadas que no están finalizadas.' })
+        return
+      }
+
+      await em.removeAndFlush(denunciante)
+      res.status(200).json({ message: 'Cuenta de denunciante eliminada correctamente' })
+      return
+    }
+
+    if (rol === 'cazador') {
+      const usuario = await em.findOne(Usuario, { _id: new ObjectId(id) })
+      if (!usuario) {
+        res.status(404).json({ message: 'Usuario no encontrado' })
+        return
+      }
+
+      // Verificar si tiene pedidos de resolución NO finalizados
+      const pedidosResolPendientes = await em.count('Pedido_Resolucion', {
+        cazador: new ObjectId(id),
+        estado_pedido_resolucion: { $ne: 'resuelto' },
+      })
+
+      const pedidosAgregPendientes = await em.count('Pedido_Agregacion', {
+        cazador: new ObjectId(id),
+        estado_pedido_agregacion: { $in: 'pendiente' },
+      })
+
+      if (pedidosResolPendientes > 0) {
+        res.status(400).json({ message: 'No se puede eliminar la cuenta porque tiene pedidos en curso que no están finalizados.' })
+        return
+      }
+
+      if (pedidosAgregPendientes > 0) {
+        res.status(400).json({ message: 'No se puede eliminar la cuenta porque tiene pedidos de agregación de anomalías pendientes.' })
+        return
+      }
+
+      await em.removeAndFlush(usuario)
+      res.status(200).json({ message: 'Cuenta de cazador eliminada correctamente' })
+      return
+    }
+
+    res.status(400).json({ message: 'Rol no reconocido o sin permiso para eliminar su cuenta' })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
 export {
   registerDenunciante,
   registerUsuario,
@@ -496,4 +562,5 @@ export {
   changePassword,
   updatePerfil,
   getPerfil,
+  deleteAccount,
 }
