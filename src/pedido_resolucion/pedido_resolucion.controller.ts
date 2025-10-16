@@ -14,32 +14,6 @@ if (!process.env.JWT_SECRET) {
 
 const em = orm.em
 
-/*
-function sanitizePedidoInput(
-    req: Request, 
-    res: Response, 
-    next :NextFunction
-){
-
-  
-    req.body.sanitizePedidoInput = {
-        direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
-        descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
-        comentario_pedido_resolucion: req.body.comentario_pedido_resolucion,
-        zona: req.body.zona,
-        denunciante: req.body.denunciante
-                 
-    }
-
-    Object.keys(req.body.sanitizePedidoInput).forEach((key)=>{
-        if(req.body.sanitizePedidoInput[key]===undefined){
-            delete req.body.sanitizePedidoInput[key]
-        }
-    }) 
-    next()
-}
-*/
-
 async function remove(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
@@ -89,6 +63,8 @@ async function showMisPedidos(req: Request, res: Response) {
   try {
     let filter: {
       estado_pedido_resolucion?: string
+      dificultad_pedido_resolucion?: number
+      zona?: any
       cazador?: any
     } = {}
 
@@ -97,6 +73,19 @@ async function showMisPedidos(req: Request, res: Response) {
     }
 
     filter.cazador = new ObjectId(req.body.user.id)
+
+    if (req.query.dificultad_pedido_resolucion) {
+      // dificultad especifica
+      filter.dificultad_pedido_resolucion = parseInt(req.query.dificultad_pedido_resolucion as string)
+    }
+
+    if (req.query.zonas) {
+      const zonasQuery = Array.isArray(req.query.zonas) ? req.query.zonas : [req.query.zonas]
+
+      const zonasObjectIds = zonasQuery.map((zonaIdString) => new ObjectId(zonaIdString as string))
+
+      filter.zona = { $in: zonasObjectIds }
+    }
 
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
       populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia', 'cazador', 'inspecciones'],
