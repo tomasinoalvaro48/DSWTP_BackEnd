@@ -26,7 +26,6 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
     email_usuario: req.body.email_usuario,
     password_usuario: req.body.password_usuario,
     tipo_usuario: req.body.tipo_usuario,
-    zona: req.body.zona,
     nivel_cazador: req.body.nivel_cazador,
     estado_aprobacion: req.body.estado_aprobacion,
   }
@@ -179,14 +178,20 @@ async function rejectCazador(req: Request, res: Response) {
     const id = new ObjectId(req.params.id)
     const usuarioToUpdate = await em.findOneOrFail(Usuario, id)
     if (usuarioToUpdate.tipo_usuario !== 'cazador') {
-      res.status(400).json({ message: 'El usuario no es un cazador' })
+      console.log('El usuario no es un cazador.')
+      res.status(400).json({ message: 'El usuario no es un cazador.' })
       return
     }
     if (usuarioToUpdate.estado_aprobacion === 'aprobado') {
-      res.status(400).json({ message: 'El cazador ya está aprobado' })
+      console.log('El cazador ya está aprobado.')
+      res.status(400).json({ message: 'El cazador ya está aprobado.' })
       return
     }
+    usuarioToUpdate.estado_aprobacion = 'rechazado'
+    await em.flush()
+    res.status(200).json({ message: 'Cazador rechazado.' })
   } catch (error: any) {
+    console.log('Error al buscar el usuario: ', error)
     res.status(500).json({ message: error.message })
   }
 }

@@ -9,6 +9,9 @@ import { ObjectId } from 'mongodb'
 
 const em = orm.em
 
+// Error 401: no autorizado (no autenticado) -> cuando no está definido el token o es inválido (expiró)
+// Error 403: prohibido (no autorizado) -> cuando el usuario no tiene permisos
+
 interface JwtPayload {
   id: string | undefined | ObjectId
   email: string
@@ -20,14 +23,30 @@ if (!process.env.JWT_SECRET) {
 }
 export const JWT_SECRET = process.env.JWT_SECRET
 
+// req.body.user viene de verifyToken
+
 // Middleware para autorizar según roles
 const authorizeRoles = (allowedRoles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    // req.body.user viene de verifyToken
+  return async (req: Request, res: Response, next: NextFunction) => {
+    // Verificamos que el rol del usuario es permitidos
     if (!allowedRoles.includes(req.body.user.rol)) {
-      console.log('Access denied: insufficient permissions')
-      res.status(403).json({ message: 'Access denied: insufficient permissions' })
+      console.log('Acceso denegado. Permisos insuficientes.')
+      res.status(403).json({ message: 'Acceso denegado. Permisos insuficientes.' })
       return
+    }
+    if (req.body.user.rol === 'cazador') {
+      // Si es cazador verificamos que está aprobado
+      const usuario = await em.findOneOrFail(Usuario, { _id: new ObjectId(req.body.user.id) })
+      if (usuario.estado_aprobacion === 'rechazado') {
+        console.log('Acceso denegado. Cazador rechazado.')
+        res.status(403).json({ message: 'Acceso denegado. Cazador rechazado.' })
+        return
+      }
+      if (usuario.estado_aprobacion === 'pendiente') {
+        console.log('Acceso denegado. Cazador pendiente de aprobación.')
+        res.status(403).json({ message: 'Acceso denegado. Cazador pendiente de aprobación.' })
+        return
+      }
     }
     next()
   }
@@ -43,8 +62,8 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = authHeader.split(' ')[1]
 
     if (!token) {
-      console.log('Token required, authorization denied')
-      res.status(401).json({ message: 'Token required, authorization denied' })
+      console.log('Token requerido.')
+      res.status(401).json({ message: 'Token requerido.' })
       return
     }
 
@@ -55,24 +74,17 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
         req.body = {}
       }
       req.body.user = decodedUser
-      if (decodedUser.rol === 'cazador') {
-        const usuario = await em.findOne(Usuario, { _id: new ObjectId(decodedUser.id) })
-        if (usuario?.estado_aprobacion === 'rechazado' || usuario?.estado_aprobacion === 'pendiente') {
-          console.log('Authorization denied. Usuario no aprobado: ' + usuario.estado_aprobacion)
-          res.status(403).json({ message: 'Acceess denied. Usuario no aprobado' })
-          return
-        }
-      }
       next()
     } catch (err: any) {
+      // Si el token no es válido, enviar error
       console.log('Token error:', err.message)
-      res.status(400).json({ message: 'Token error' })
+      res.status(401).json({ message: err.message })
       return
     }
   } else {
     // Si no hay token, enviar error
-    console.log('No token provided, authorization denied')
-    res.status(401).json({ message: 'No token provided, authorization denied' })
+    console.log('Token requerido.')
+    res.status(401).json({ message: 'Token requerido.' })
     return
   }
 }
@@ -239,7 +251,7 @@ const registerUsuario: RequestHandler = async (req, res, next) => {
 
     await em.flush()
 
-    res.status(201).json({ message: 'Registro exitoso', data: nuevoUsuario })
+    res.status(201).json({ message: 'Registro exitoso.', data: nuevoUsuario })
     return
   } catch (err: any) {
     res.status(500).json({ message: err.message })
@@ -272,7 +284,7 @@ const registerDenunciante: RequestHandler = async (req, res, next) => {
     const nuevoDenunciante = em.create(Denunciante, req.body.sanitizeDenuncianteAuthInput)
     await em.flush()
 
-    res.status(201).json({ message: 'Registro exitoso', data: nuevoDenunciante })
+    res.status(201).json({ message: 'Registro exitoso.', data: nuevoDenunciante })
     return
   } catch (err: any) {
     res.status(500).json({ message: err.message })
@@ -290,13 +302,14 @@ const login: RequestHandler = async (req, res, next) => {
       const denunciante = await em.findOne(Denunciante, { email_denunciante: email })
       if (!denunciante) {
         // Significa que no existe el mail
-        res.status(400).json({ message: 'Email no registrado' })
+        console.log('Email no registrado: ' + email)
+        res.status(400).json({ message: 'Email no registrado.' })
         return
       } else {
         // Comparamos passwords
         const validDenunciante = await bcrypt.compare(password, denunciante.password_denunciante)
         if (!validDenunciante) {
-          res.status(400).json({ message: 'Contraseña incorrecta' })
+          res.status(400).json({ message: 'Contraseña incorrecta.' })
           return
         }
         // Es denunciante: creamos token con id, email y rol, y enviamos
@@ -306,6 +319,7 @@ const login: RequestHandler = async (req, res, next) => {
           rol: 'denunciante',
         }
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
+        console.log('Denunciante logueado: ' + email)
         res.status(200).json({ message: 'Login exitoso', token, rol: 'denunciante' })
         return
       }
@@ -313,15 +327,19 @@ const login: RequestHandler = async (req, res, next) => {
       // Si es usuario, comparamos passwords
       const validUsuario = await bcrypt.compare(password, usuario.password_usuario)
       if (!validUsuario) {
-        res.status(400).json({ message: 'Contraseña incorrecta' })
+        console.log('Contraseña incorrecta para email: ' + email)
+        res.status(400).json({ message: 'Contraseña incorrecta.' })
         return
       }
       // Si es cazador, verificamos que esté aprobado
-      if (
-        usuario.tipo_usuario === 'cazador' &&
-        (usuario.estado_aprobacion === 'rechazado' || usuario.estado_aprobacion === 'pendiente')
-      ) {
-        res.status(403).json({ message: 'Acceso denegado. Usuario no aprobado' })
+      if (usuario.tipo_usuario === 'cazador' && usuario.estado_aprobacion === 'rechazado') {
+        console.log('Acceso denegado. Cazador rechazado.')
+        res.status(403).json({ message: 'Acceso denegado. Cazador rechazado.' })
+        return
+      }
+      if (usuario.tipo_usuario === 'cazador' && usuario.estado_aprobacion === 'pendiente') {
+        console.log('Acceso denegado. Cazador pendiente de aprobación.')
+        res.status(403).json({ message: 'Acceso denegado. Cazador pendiente de aprobación.' })
         return
       }
       // Creamos token con id, email y rol, y enviamos
