@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb'
 import { Zona } from '../localidad/zona.entity.js'
 import { Denunciante } from '../denunciante/denunciante.entity.js'
 import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
+import { Pedido_Agregacion } from '../pedido_agregacion/pedido_agregacion.entity.js'
 
 const em = orm.em
 
@@ -132,9 +133,15 @@ async function remove(req: Request, res: Response) {
   try {
     // Validamos que no tenga denuncias asociadas
     const id = new ObjectId(req.params.id)
-    const denunciasAsociadas = await em.count(Pedido_Resolucion, { cazador: id })
-    if (denunciasAsociadas > 0) {
+    const pedidosResolucionAsociados = await em.count(Pedido_Resolucion, { cazador: id })
+    if (pedidosResolucionAsociados > 0) {
       res.status(400).json({ message: 'No se puede eliminar el usuario porque tiene denuncias asociadas' })
+      return
+    }
+    // Validamos que no tenga pedidos de agregacion asociados
+    const pedidosAgregacionAsociados = await em.count(Pedido_Agregacion, { cazador: id })
+    if (pedidosAgregacionAsociados > 0) {
+      res.status(400).json({ message: 'No se puede eliminar el usuario porque tiene pedidos de agregación asociados' })
       return
     }
 

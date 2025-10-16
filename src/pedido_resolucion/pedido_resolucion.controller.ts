@@ -13,7 +13,6 @@ if (!process.env.JWT_SECRET) {
     'JWT_SECRET no está definida. Definila en las variables de entorno.'
   );
 }
-const JWT_SECRET = process.env.JWT_SECRET;
 
 const em = orm.em;
 
@@ -77,7 +76,7 @@ async function findAll(req: Request, res: Response) {
 }
 
 async function showMisPedidos(req: Request, res: Response) {
-  //Posiblemente a incluir en el finD ALL
+  //Posiblemente a incluir en el findAll
   try {
     let filter: {
       estado_pedido_resolucion?: string;
@@ -148,13 +147,16 @@ async function showMisPedidos(req: Request, res: Response) {
 async function tomarPedidoResolucion(req: Request, res: Response) {
   try {
     const idCazador = new ObjectId(req.body.user.id);
+    console.log('Cazador intenta tomar el pedido: ' + idCazador);
 
+    // Validamos que no tenga ya un pedido aceptado
     const pedidoExistente = await em.findOne(Pedido_Resolucion, {
       cazador: idCazador,
       estado_pedido_resolucion: 'aceptado',
     });
 
     if (pedidoExistente) {
+      console.log('El cazador ya tiene un pedido aceptado');
       res.status(400).json({
         message:
           'No podés tomar el pedido porque todavía tenés uno pendiente por resolver.',
@@ -176,10 +178,12 @@ async function tomarPedidoResolucion(req: Request, res: Response) {
       em.assign(pedidoResolucionRef, elementosActualizar);
       await em.flush();
 
+      console.log('Pedido tomado');
       res.status(200).json({ message: 'Pedido tomado' });
       return;
     }
   } catch (error: any) {
+    console.log('Error al tomar el pedido');
     res.status(500).json({ message: error.message });
   }
 }
@@ -234,6 +238,7 @@ async function generarPedidoResolucion(req: Request, res: Response) {
       Pedido_Resolucion,
       req.body.sanitizePedidoInput
     );
+    console.log('Pedido de resolución creado');
 
     // Guardamos en la base de datos
     await em.flush();
