@@ -15,6 +15,7 @@ import cookieParser from 'cookie-parser';
 import { authRouter } from './auth/auth.routes.js';
 import { pedidos_agregacion_router } from './pedido_agregacion/pedido_agregacion.routes.js';
 import { inspeccionRouter } from './pedido_resolucion/inspeccion.routes.js';
+import { seedDatabase } from './shared/db/seeder.js';
 
 const app = express();
 const port = process.env.PORT ?? 3000;
@@ -43,6 +44,11 @@ app.use((_, res) => {
 });
 
 await syncSchema();
+
+// Ejecutar seeding solo en desarrollo
+if (process.env.NODE_ENV !== 'production') {
+  await seedDatabase();
+}
 
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');

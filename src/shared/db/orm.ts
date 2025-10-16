@@ -1,5 +1,5 @@
-import { MikroORM } from '@mikro-orm/mongodb'
-import { MongoHighlighter } from '@mikro-orm/mongo-highlighter'
+import { MikroORM } from '@mikro-orm/mongodb';
+import { MongoHighlighter } from '@mikro-orm/mongo-highlighter';
 
 export const orm = await MikroORM.init({
   //entities: ['dist/**/*.entity.js'],
@@ -14,7 +14,7 @@ export const orm = await MikroORM.init({
     'dist/**/anomalia.entity.js',
     'dist/**/pedido_agregacion.entity.js',
     'dist/**/evidencia.entity.js',
-    'dist/**/inspeccion.entity.js'
+    'dist/**/inspeccion.entity.js',
   ],
   entitiesTs: [
     'src/**/zona.entity.ts',
@@ -26,7 +26,7 @@ export const orm = await MikroORM.init({
     'src/**/anomalia.entity.ts',
     'src/**/pedido_agregacion.entity.ts',
     'src/**/evidencia.entity.ts',
-    'src/**/inspeccion.entity.ts'
+    'src/**/inspeccion.entity.ts',
   ],
   dbName: 'datecAnomalias',
   clientUrl: 'mongodb://localhost:27017',
@@ -38,13 +38,15 @@ export const orm = await MikroORM.init({
     createForeignKeyConstraints: true,
     ignoreSchema: [],
   },
-})
+});
 
 export const syncSchema = async () => {
-  const generator = orm.getSchemaGenerator()
-  /*   
-  await generator.dropSchema()
-  await generator.createSchema()
-  */
-  await generator.updateSchema()
-}
+  const generator = orm.getSchemaGenerator();
+  await generator.updateSchema();
+
+  // Ejecutar seeding después de actualizar el schema
+  await seedDatabase();
+};
+
+// Importar la función de seeding
+import { seedDatabase } from './seeder.js';
