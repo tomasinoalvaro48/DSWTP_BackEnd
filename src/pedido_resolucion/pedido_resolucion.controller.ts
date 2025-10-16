@@ -43,7 +43,6 @@ async function findAll(req: Request, res: Response) {
         .estado_pedido_resolucion as string;
     }
     if (req.query.dificultad_pedido_resolucion) {
-      // dificultad especifica
       filter.dificultad_pedido_resolucion = parseInt(
         req.query.dificultad_pedido_resolucion as string
       );
@@ -85,6 +84,7 @@ async function showMisPedidos(req: Request, res: Response) {
       dificultad_pedido_resolucion?: number;
       zona?: any;
       cazador?: any;
+      denunciante?: any;
     } = {};
 
     if (req.query.estado_pedido_resolucion) {
@@ -92,10 +92,14 @@ async function showMisPedidos(req: Request, res: Response) {
         .estado_pedido_resolucion as string;
     }
 
-    filter.cazador = new ObjectId(req.body.user.id);
+    if (req.body.user.rol == 'cazador') {
+      filter.cazador = new ObjectId(req.body.user.id);
+    }
+    if (req.body.user.rol == 'denunciante') {
+      filter.denunciante = new ObjectId(req.body.user.id);
+    }
 
     if (req.query.dificultad_pedido_resolucion) {
-      // dificultad especifica
       filter.dificultad_pedido_resolucion = parseInt(
         req.query.dificultad_pedido_resolucion as string
       );
