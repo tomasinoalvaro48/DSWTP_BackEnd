@@ -14,7 +14,7 @@ export const orm = await MikroORM.init({
     'dist/**/anomalia.entity.js',
     'dist/**/pedido_agregacion.entity.js',
     'dist/**/evidencia.entity.js',
-    'dist/**/inspeccion.entity.js'
+    'dist/**/inspeccion.entity.js',
   ],
   entitiesTs: [
     'src/**/zona.entity.ts',
@@ -26,7 +26,7 @@ export const orm = await MikroORM.init({
     'src/**/anomalia.entity.ts',
     'src/**/pedido_agregacion.entity.ts',
     'src/**/evidencia.entity.ts',
-    'src/**/inspeccion.entity.ts'
+    'src/**/inspeccion.entity.ts',
   ],
   dbName: 'datecAnomalias',
   clientUrl: 'mongodb://localhost:27017',
@@ -34,8 +34,8 @@ export const orm = await MikroORM.init({
   debug: true,
   schemaGenerator: {
     //never in production
-    disableForeignKeys: true,
-    createForeignKeyConstraints: true,
+    // disableForeignKeys: true,
+    // createForeignKeyConstraints: true,
     ignoreSchema: [],
   },
 })

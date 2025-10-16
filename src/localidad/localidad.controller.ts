@@ -3,6 +3,8 @@ import { orm } from '../shared/db/orm.js'
 import { Localidad } from './localidad.entity.js'
 import { Zona } from './zona.entity.js'
 import { ObjectId } from 'mongodb'
+import { Usuario } from '../usuario/usuario.entity.js'
+import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
 const em = orm.em
 
@@ -111,12 +113,33 @@ async function update(req: Request, res: Response) {
 
 async function remove(req: Request, res: Response) {
   try {
-    const id = new ObjectId(req.params.id)
-    const localidadToDelete = await em.findOneOrFail(Localidad, id, { populate: ['zonas'] })
+    const idLoc = new ObjectId(req.params.id)
+    const localidadToDelete = await em.findOneOrFail(Localidad, idLoc, { populate: ['zonas'] })
+    // validar que las zonas no tengan usuarios o pedidos de resolución asociados
     for (const zona of localidadToDelete.zonas) {
-      await em.removeAndFlush(zona)
+      // validar que no tenga usuarios asociados a sus zonas
+      const zonaId = new ObjectId(zona.id)
+      const usuariosCount = await em.count(Usuario, { zona: zonaId })
+      if (usuariosCount > 0) {
+        console.log(`No se puede eliminar la localidad porque tiene usuarios asociados a sus zonas.`)
+        res.status(400).json({ message: 'No se puede eliminar la zona porque tiene usuarios asociados a sus zonas.' })
+        return
+      }
+      // validar que no tenga pedidos de resolución asociados a sus zonas
+      const pedidosCount = await em.count(Pedido_Resolucion, { zona: zonaId })
+      if (pedidosCount > 0) {
+        console.log('No se puede eliminar la zona porque tiene pedidos de resolución asociados a sus zonas.')
+        res
+          .status(400)
+          .json({ message: 'No se puede eliminar la zona porque tiene pedidos de resolución asociados a sus zonas.' })
+        return
+      }
     }
-    await em.removeAndFlush(localidadToDelete)
+    for (const zona of localidadToDelete.zonas) {
+      em.remove(zona)
+    }
+    em.remove(localidadToDelete)
+    await em.flush()
     res.status(200).json({ message: 'Remove localidad', data: localidadToDelete })
   } catch (error: any) {
     res.status(500).json({ message: error.message })

@@ -4,6 +4,8 @@ import { Zona } from './zona.entity.js'
 import { ObjectId } from 'mongodb'
 import { Localidad } from './localidad.entity.js'
 import { findLocalidadByName } from './localidad.controller.js'
+import { Usuario } from '../usuario/usuario.entity.js'
+import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
 const em = orm.em
 
@@ -87,10 +89,8 @@ async function update(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
     const { nombre_zona, localidad } = req.body.sanitizeZonaImput
-
     // Cargar la zona actual
     const zonaToUpdate = await em.findOneOrFail(Zona, id, { populate: ['localidad'] })
-
     // Si se intenta cambiar el nombre, verificar que no exista otra zona con ese nombre en la misma localidad
     if (nombre_zona && nombre_zona !== zonaToUpdate.nombre_zona) {
       const zonaExistente = await em.findOne(Zona, {
@@ -103,7 +103,6 @@ async function update(req: Request, res: Response) {
         return
       }
     }
-
     // Asignar los cambios
     em.assign(zonaToUpdate, req.body.sanitizeZonaImput)
 
@@ -117,13 +116,31 @@ async function update(req: Request, res: Response) {
 async function remove(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
+
+    // validar que no tenga usuarios asociados
+    const usuariosCount = await em.count(Usuario, { zona: id })
+    if (usuariosCount > 0) {
+      console.log('No se puede eliminar la zona porque tiene usuarios asociados.')
+      res.status(400).json({ message: 'No se puede eliminar la zona porque tiene usuarios asociados.' })
+      return
+    }
+    // validar que no tenga pedidos de resolución asociados
+    const pedidosCount = await em.count(Pedido_Resolucion, { zona: id })
+    if (pedidosCount > 0) {
+      console.log('No se puede eliminar la zona porque tiene pedidos de resolución asociados.')
+      res.status(400).json({ message: 'No se puede eliminar la zona porque tiene pedidos de resolución asociados.' })
+      return
+    }
     const zonaToDelete = em.getReference(Zona, id)
     await em.removeAndFlush(zonaToDelete)
+    console.log('Zona eliminada correctamente.')
     res.status(200).json({ message: 'Remove zona', data: zonaToDelete })
   } catch (error: any) {
+    console.log(`Error al eliminar la zona: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
+
 /*
 async function findZonaByNameAndLocalidad(nombre_zona: string,nombre_localidad: string) {
     try{
