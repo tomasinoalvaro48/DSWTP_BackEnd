@@ -8,29 +8,24 @@ import { findLocalidadByName } from './localidad.controller.js'
 const em = orm.em
 
 function sanitizeZonaImput(req: Request, res: Response, next: NextFunction) {
-  if (req.body.localidad !== undefined) {
+  let localidadRef = undefined
+  if (req.body.localidad) {
     const idLocalidad = new ObjectId(req.body.localidad)
-    const localidadRef = em.getReference(Localidad, idLocalidad)
-    req.body.sanitizeZonaImput = {
-      localidad: localidadRef,
-    }
-  } else {
-    req.body.sanitizeZonaImput = {
-      localidad: req.body.localidad,
-    }
+    localidadRef = em.getReference(Localidad, idLocalidad)
   }
+
   req.body.sanitizeZonaImput = {
     nombre_zona: req.body.nombre_zona,
-    localidad: req.body.localidad, //Ver si sacar!!!!!!!!!!!!!!!!!!!!!
+    localidad: localidadRef,
   }
 
   if (!req.body.sanitizeZonaImput.nombre_zona || req.body.sanitizeZonaImput.nombre_zona.trim().length === 0) {
-    res.status(400).json({ message: "El nombre no puede estar vacío" })
+    res.status(400).json({ message: 'El nombre no puede estar vacío' })
     return
   }
-  
+
   if (req.body.sanitizeZonaImput.nombre_zona && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeZonaImput.nombre_zona)) {
-    res.status(400).json({ message: "El nombre no puede tener números" })
+    res.status(400).json({ message: 'El nombre no puede tener números' })
     return
   }
 
@@ -92,26 +87,28 @@ async function update(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
     const { nombre_zona, localidad } = req.body.sanitizeZonaImput
-    const localidadRef = em.getReference(Localidad, (localidad as any).id ?? localidad)
 
-    const zonaExistente = await em.findOne(Zona, {
-      nombre_zona,
-      localidad: localidadRef,
-    })
+    // Cargar la zona actual
+    const zonaToUpdate = await em.findOneOrFail(Zona, id, { populate: ['localidad'] })
 
-    if (zonaExistente && zonaExistente.id !== id.toHexString()) {
-      res.status(400).json({ message: 'Ya existe esa zona en esta localidad.' })
-      return
+    // Si se intenta cambiar el nombre, verificar que no exista otra zona con ese nombre en la misma localidad
+    if (nombre_zona && nombre_zona !== zonaToUpdate.nombre_zona) {
+      const zonaExistente = await em.findOne(Zona, {
+        nombre_zona,
+        localidad: zonaToUpdate.localidad,
+      })
+
+      if (zonaExistente && zonaExistente.id !== id.toHexString()) {
+        res.status(400).json({ message: 'Ya existe esa zona en esta localidad.' })
+        return
+      }
     }
 
-    const zonaToUpdate = em.getReference(Zona, id)
-    em.assign(zonaToUpdate, {
-      nombre_zona,
-      localidad: localidadRef,
-    })
+    // Asignar los cambios
+    em.assign(zonaToUpdate, req.body.sanitizeZonaImput)
 
     await em.flush()
-    res.status(200).json({ message: 'zona update' })
+    res.status(200).json({ message: 'Zona updated.' })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
