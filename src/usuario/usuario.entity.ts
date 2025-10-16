@@ -1,14 +1,6 @@
-import {
-  Entity,
-  OneToMany,
-  Property,
-  Cascade,
-  Collection,
-  Rel,
-  ManyToOne,
-} from '@mikro-orm/core';
-import { BaseEntity } from '../shared/db/baseEntity.entity.js';
-import { Zona } from '../localidad/zona.entity.js';
+import { Entity, OneToMany, Property, Cascade, Collection, Rel, ManyToOne } from '@mikro-orm/core'
+import { BaseEntity } from '../shared/db/baseEntity.entity.js'
+import { Zona } from '../localidad/zona.entity.js'
 
 @Entity()
 export class Usuario extends BaseEntity {
@@ -17,20 +9,23 @@ export class Usuario extends BaseEntity {
   codigo!: Number
 */
   @Property({ nullable: false })
-  nombre_usuario!: string;
+  nombre_usuario!: string
 
   @Property({ nullable: false, unique: true })
-  email_usuario!: string;
+  email_usuario!: string
 
   @Property({ nullable: false })
-  password_usuario!: string;
+  password_usuario!: string
 
   @Property({ nullable: false, onCreate: () => 'cazador' })
-  tipo_usuario!: string;
+  tipo_usuario!: string // 'operador' | 'cazador'
 
   @Property({ nullable: true, onCreate: () => 0 })
-  nivel_cazador!: number;
+  nivel_cazador!: number
+
+  @Property({ nullable: true, onCreate: () => 'pendiente' })
+  estado_aprobacion!: string // 'pendiente' | 'aprobado' | 'rechazado'
 
   @ManyToOne(() => Zona, { nullable: false })
-  zona!: Rel<Zona>;
+  zona!: Rel<Zona>
 }

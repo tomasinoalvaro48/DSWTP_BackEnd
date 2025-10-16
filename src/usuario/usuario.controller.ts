@@ -22,12 +22,13 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
     }
   }
   req.body.sanitizeUsuarioImput = {
-    // codigo: req.body.codigo,
     nombre_usuario: req.body.nombre_usuario,
     email_usuario: req.body.email_usuario,
     password_usuario: req.body.password_usuario,
     tipo_usuario: req.body.tipo_usuario,
-    zona: req.body.zona, //Ver si sacar!!!!!!!!!!!!!!!!!!!!!
+    zona: req.body.zona,
+    nivel_cazador: req.body.nivel_cazador,
+    estado_aprobacion: req.body.estado_aprobacion,
   }
 
   if (!req.body.sanitizeUsuarioImput.nombre_usuario || req.body.sanitizeUsuarioImput.nombre_usuario.trim().length === 0) {
@@ -58,6 +59,14 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
     !['operador', 'cazador'].includes(req.body.sanitizeUsuarioImput.tipo_usuario)
   ) {
     res.status(400).json({ message: 'El tipo de usuario tiene que ser operador o cazador' })
+    return
+  }
+
+  if (
+    req.body.sanitizeUsuarioImput.estado_aprobacion &&
+    !['pendiente', 'aprobado', 'rechazado'].includes(req.body.sanitizeUsuarioImput.estado_aprobacion)
+  ) {
+    res.status(400).json({ message: 'El estado de aprobación tiene que ser pendiente, aprobado o rechazado' })
     return
   }
 
@@ -131,8 +140,8 @@ async function update(req: Request, res: Response) {
 
 async function remove(req: Request, res: Response) {
   try {
-    // Validamos que no tenga denuncias asociadas
     const id = new ObjectId(req.params.id)
+    // Validamos que no tenga denuncias asociadas
     const pedidosResolucionAsociados = await em.count(Pedido_Resolucion, { cazador: id })
     if (pedidosResolucionAsociados > 0) {
       res.status(400).json({ message: 'No se puede eliminar el usuario porque tiene denuncias asociadas' })
@@ -153,4 +162,48 @@ async function remove(req: Request, res: Response) {
   }
 }
 
-export { findAll, findOne, remove, update, sanitizeUsuarioImput }
+async function approveCazador(req: Request, res: Response) {
+  try {
+    const id = new ObjectId(req.params.id)
+    const usuarioToUpdate = await em.findOneOrFail(Usuario, id)
+    usuarioToUpdate.estado_aprobacion = 'aprobado'
+    await em.flush()
+    res.status(200).json({ message: 'Cazador aprobado', data: usuarioToUpdate })
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+async function rejectCazador(req: Request, res: Response) {
+  try {
+    const id = new ObjectId(req.params.id)
+    const usuarioToUpdate = await em.findOneOrFail(Usuario, id)
+    if (usuarioToUpdate.tipo_usuario !== 'cazador') {
+      res.status(400).json({ message: 'El usuario no es un cazador' })
+      return
+    }
+    if (usuarioToUpdate.estado_aprobacion === 'aprobado') {
+      res.status(400).json({ message: 'El cazador ya está aprobado' })
+      return
+    }
+  } catch (error: any) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+async function findPendingCazador(req: Request, res: Response) {
+  try {
+    const cazadoresPendientes = await em.find(
+      Usuario,
+      { tipo_usuario: 'cazador', estado_aprobacion: 'pendiente' },
+      { populate: ['zona', 'zona.localidad'] }
+    )
+    console.log('encontrados cazadores pendientes: ', cazadoresPendientes.length)
+    res.status(200).json({ message: 'Cazadores pendientes de aprobación', data: cazadoresPendientes })
+  } catch (error: any) {
+    console.log('error al buscar cazadores pendientes: ', error)
+    res.status(500).json({ message: error.message })
+  }
+}
+
+export { findAll, findOne, remove, update, sanitizeUsuarioImput, approveCazador, rejectCazador, findPendingCazador }

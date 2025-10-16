@@ -34,7 +34,7 @@ const authorizeRoles = (allowedRoles: string[]) => {
 }
 
 // Middleware para verificar el token JWT
-const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   // Leer el token del encabezado Authorization
   const authHeader = req.headers['authorization']
 
@@ -55,6 +55,14 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
         req.body = {}
       }
       req.body.user = decodedUser
+      if (decodedUser.rol === 'cazador') {
+        const usuario = await em.findOne(Usuario, { _id: new ObjectId(decodedUser.id) })
+        if (usuario?.estado_aprobacion === 'rechazado' || usuario?.estado_aprobacion === 'pendiente') {
+          console.log('Authorization denied. Usuario no aprobado: ' + usuario.estado_aprobacion)
+          res.status(403).json({ message: 'Acceess denied. Usuario no aprobado' })
+          return
+        }
+      }
       next()
     } catch (err: any) {
       console.log('Token error:', err.message)
@@ -308,7 +316,15 @@ const login: RequestHandler = async (req, res, next) => {
         res.status(400).json({ message: 'Contraseña incorrecta' })
         return
       }
-      // Es usuario: creamos token con id, email y rol, y enviamos
+      // Si es cazador, verificamos que esté aprobado
+      if (
+        usuario.tipo_usuario === 'cazador' &&
+        (usuario.estado_aprobacion === 'rechazado' || usuario.estado_aprobacion === 'pendiente')
+      ) {
+        res.status(403).json({ message: 'Acceso denegado. Usuario no aprobado' })
+        return
+      }
+      // Creamos token con id, email y rol, y enviamos
       const payload: JwtPayload = {
         id: usuario.id,
         email: email,
@@ -326,22 +342,22 @@ const login: RequestHandler = async (req, res, next) => {
 
 const changePassword: RequestHandler = async (req, res) => {
   try {
-    const { currentPassword, newPassword, confirmNewPassword } = req.body;
-    const { id, rol } = req.body.user;
+    const { currentPassword, newPassword, confirmNewPassword } = req.body
+    const { id, rol } = req.body.user
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
-      res.status(400).json({ message: 'Debe completar todos los campos' });
-      return;
+      res.status(400).json({ message: 'Debe completar todos los campos' })
+      return
     }
 
     if (newPassword !== confirmNewPassword) {
-      res.status(400).json({ message: 'Las contraseñas nuevas no coinciden' });
-      return;
+      res.status(400).json({ message: 'Las contraseñas nuevas no coinciden' })
+      return
     }
 
     if (newPassword.length < 6) {
-      res.status(400).json({ message: 'La contraseña nueva debe tener mínimo 6 caracteres' });
-      return;
+      res.status(400).json({ message: 'La contraseña nueva debe tener mínimo 6 caracteres' })
+      return
     }
 
     if (rol === 'denunciante') {
@@ -382,11 +398,11 @@ const changePassword: RequestHandler = async (req, res) => {
       return
     }
 
-    res.status(400).json({ message: 'Rol no reconocido para cambio de contraseña' });
+    res.status(400).json({ message: 'Rol no reconocido para cambio de contraseña' })
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message })
   }
-};
+}
 
 export {
   registerDenunciante,
