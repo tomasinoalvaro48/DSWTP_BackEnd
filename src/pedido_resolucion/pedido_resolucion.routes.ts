@@ -6,6 +6,7 @@ import {
   showMisPedidos,
   tomarPedidoResolucion,
   finalizarPedido,
+  eliminarPedidoResolucionDenunciante,
 } from './pedido_resolucion.controller.js';
 import { verifyToken, authorizeRoles } from '../auth/auth.controller.js';
 
@@ -46,4 +47,10 @@ pedidos_resolucion_router.delete(
   verifyToken,
   authorizeRoles(['operador', 'denunciante']),
   remove
+);
+pedidos_resolucion_router.delete(
+  '/denunciante/:id',
+  verifyToken,
+  authorizeRoles(['denunciante']),
+  eliminarPedidoResolucionDenunciante
 );

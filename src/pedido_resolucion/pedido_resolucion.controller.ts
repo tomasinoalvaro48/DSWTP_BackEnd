@@ -292,6 +292,32 @@ async function finalizarPedido(req: Request, res: Response) {
   }
 }
 
+async function eliminarPedidoResolucionDenunciante(req: Request, res: Response) {
+  try {
+    const idPedido = new ObjectId(req.params.id);
+    const idDenunciante = new ObjectId(req.body.user.id);
+    const pedido = await em.findOne(Pedido_Resolucion, { _id: idPedido }, { populate: ['denunciante'] });
+
+    if (!pedido) {
+      res.status(404).json({ message: 'Pedido no encontrado' });
+      return
+    }
+
+    if (pedido.estado_pedido_resolucion !== 'solicitado') {
+      res.status(400).json({ message: 'Solo se pueden eliminar pedidos con estado solicitado' });
+      return
+    }
+
+    await em.removeAndFlush(pedido);
+    res.status(200).json({ message: 'Pedido eliminado correctamente' });
+    return
+  } catch (error: any) {
+    console.error('Error al eliminar pedido:', error);
+    res.status(500).json({ message: 'Error al eliminar el pedido', error: error.message });
+    return
+  }
+}
+
 export {
   findAll,
   remove,
@@ -299,4 +325,5 @@ export {
   showMisPedidos,
   tomarPedidoResolucion,
   finalizarPedido,
+  eliminarPedidoResolucionDenunciante,
 };
