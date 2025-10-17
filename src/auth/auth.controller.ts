@@ -561,7 +561,7 @@ const deleteAccount: RequestHandler = async (req, res) => {
 
       const pedidosAgregPendientes = await em.count('Pedido_Agregacion', {
         cazador: new ObjectId(id),
-        estado_pedido_agregacion: { $in: 'pendiente' },
+        estado_pedido_agregacion: { $in: ['pendiente'] },
       })
 
       if (pedidosResolPendientes > 0) {
