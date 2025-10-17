@@ -13,35 +13,8 @@ if (!process.env.JWT_SECRET) {
     'JWT_SECRET no está definida. Definila en las variables de entorno.'
   );
 }
-const JWT_SECRET = process.env.JWT_SECRET;
 
 const em = orm.em;
-
-/*
-function sanitizePedidoInput(
-    req: Request, 
-    res: Response, 
-    next :NextFunction
-){
-
-  
-    req.body.sanitizePedidoInput = {
-        direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
-        descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
-        comentario_pedido_resolucion: req.body.comentario_pedido_resolucion,
-        zona: req.body.zona,
-        denunciante: req.body.denunciante
-                 
-    }
-
-    Object.keys(req.body.sanitizePedidoInput).forEach((key)=>{
-        if(req.body.sanitizePedidoInput[key]===undefined){
-            delete req.body.sanitizePedidoInput[key]
-        }
-    }) 
-    next()
-}
-*/
 
 async function remove(req: Request, res: Response) {
   try {
@@ -69,7 +42,6 @@ async function findAll(req: Request, res: Response) {
         .estado_pedido_resolucion as string;
     }
     if (req.query.dificultad_pedido_resolucion) {
-      // dificultad especifica
       filter.dificultad_pedido_resolucion = parseInt(
         req.query.dificultad_pedido_resolucion as string
       );
@@ -104,11 +76,14 @@ async function findAll(req: Request, res: Response) {
 }
 
 async function showMisPedidos(req: Request, res: Response) {
-  //Posiblemente a incluir en el finD ALL
+  //Posiblemente a incluir en el findAll
   try {
     let filter: {
       estado_pedido_resolucion?: string;
+      dificultad_pedido_resolucion?: number;
+      zona?: any;
       cazador?: any;
+      denunciante?: any;
     } = {};
 
     if (req.query.estado_pedido_resolucion) {
@@ -116,7 +91,30 @@ async function showMisPedidos(req: Request, res: Response) {
         .estado_pedido_resolucion as string;
     }
 
-    filter.cazador = new ObjectId(req.body.user.id);
+    if (req.body.user.rol == 'cazador') {
+      filter.cazador = new ObjectId(req.body.user.id);
+    }
+    if (req.body.user.rol == 'denunciante') {
+      filter.denunciante = new ObjectId(req.body.user.id);
+    }
+
+    if (req.query.dificultad_pedido_resolucion) {
+      filter.dificultad_pedido_resolucion = parseInt(
+        req.query.dificultad_pedido_resolucion as string
+      );
+    }
+
+    if (req.query.zonas) {
+      const zonasQuery = Array.isArray(req.query.zonas)
+        ? req.query.zonas
+        : [req.query.zonas];
+
+      const zonasObjectIds = zonasQuery.map(
+        (zonaIdString) => new ObjectId(zonaIdString as string)
+      );
+
+      filter.zona = { $in: zonasObjectIds };
+    }
 
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
       populate: [
@@ -149,19 +147,20 @@ async function showMisPedidos(req: Request, res: Response) {
 async function tomarPedidoResolucion(req: Request, res: Response) {
   try {
     const idCazador = new ObjectId(req.body.user.id);
+    console.log('Cazador intenta tomar el pedido: ' + idCazador);
 
+    // Validamos que no tenga ya un pedido aceptado
     const pedidoExistente = await em.findOne(Pedido_Resolucion, {
       cazador: idCazador,
       estado_pedido_resolucion: 'aceptado',
     });
 
     if (pedidoExistente) {
-      res
-        .status(400)
-        .json({
-          message:
-            'No podés tomar el pedido porque todavía tenés uno pendiente por resolver.',
-        });
+      console.log('El cazador ya tiene un pedido aceptado');
+      res.status(400).json({
+        message:
+          'No podés tomar el pedido porque todavía tenés uno pendiente por resolver.',
+      });
       return;
     } else {
       const idPedidoResolucion = new ObjectId(req.params.id);
@@ -179,10 +178,12 @@ async function tomarPedidoResolucion(req: Request, res: Response) {
       em.assign(pedidoResolucionRef, elementosActualizar);
       await em.flush();
 
+      console.log('Pedido tomado');
       res.status(200).json({ message: 'Pedido tomado' });
       return;
     }
   } catch (error: any) {
+    console.log('Error al tomar el pedido');
     res.status(500).json({ message: error.message });
   }
 }
@@ -291,6 +292,32 @@ async function finalizarPedido(req: Request, res: Response) {
   }
 }
 
+async function eliminarPedidoResolucionDenunciante(req: Request, res: Response) {
+  try {
+    const idPedido = new ObjectId(req.params.id);
+    const idDenunciante = new ObjectId(req.body.user.id);
+    const pedido = await em.findOne(Pedido_Resolucion, { _id: idPedido }, { populate: ['denunciante'] });
+
+    if (!pedido) {
+      res.status(404).json({ message: 'Pedido no encontrado' });
+      return
+    }
+
+    if (pedido.estado_pedido_resolucion !== 'solicitado') {
+      res.status(400).json({ message: 'Solo se pueden eliminar pedidos con estado solicitado' });
+      return
+    }
+
+    await em.removeAndFlush(pedido);
+    res.status(200).json({ message: 'Pedido eliminado correctamente' });
+    return
+  } catch (error: any) {
+    console.error('Error al eliminar pedido:', error);
+    res.status(500).json({ message: 'Error al eliminar el pedido', error: error.message });
+    return
+  }
+}
+
 export {
   findAll,
   remove,
@@ -298,4 +325,5 @@ export {
   showMisPedidos,
   tomarPedidoResolucion,
   finalizarPedido,
+  eliminarPedidoResolucionDenunciante,
 };
