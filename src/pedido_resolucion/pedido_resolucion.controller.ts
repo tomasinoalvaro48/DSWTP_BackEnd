@@ -277,7 +277,7 @@ async function finalizarPedido(req: Request, res: Response) {
     if (!valid) {
       res.status(400).json({
         message:
-          'Hay anomalias no resueltas. No es posible finalizar pedido hasta que todas sus anomalias esten resueltas',
+          'No se puede finalizar el pedido hasta que todas sus anomalias estén resueltas',
       });
       return;
     } else {
