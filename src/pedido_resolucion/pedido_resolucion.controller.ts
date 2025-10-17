@@ -200,6 +200,12 @@ async function generarPedidoResolucion(req: Request, res: Response) {
 
     // referenciamos las anomalías y calculamos la dificultad del pedido de resolución
     const anomaliaInput = req.body.anomalias as Anomalia[];
+
+    if (!anomaliaInput || anomaliaInput.length === 0) {
+      res.status(400).json({ message: 'Debe agregar al menos una anomalía.' });
+      return
+    }
+
     anomaliaInput.map(async (a) => {
       const id_tipo_anomalia = new ObjectId(a.tipo_anomalia.id);
       const tipo = await em.getReference(Tipo_Anomalia, id_tipo_anomalia);
@@ -223,10 +229,12 @@ async function generarPedidoResolucion(req: Request, res: Response) {
 
     console.log('Dificultad del pedido de resolución: ' + dificultad);
 
+    const descripcion = req.body.descripcion_pedido_resolucion?.trim() || null;
+
     // Sanitizamos el input
     req.body.sanitizePedidoInput = {
       direccion_pedido_resolucion: req.body.direccion_pedido_resolucion,
-      descripcion_pedido_resolucion: req.body.descripcion_pedido_resolucion,
+      descripcion_pedido_resolucion: descripcion,
       dificultad_pedido_resolucion: dificultad,
       zona: zonaRef,
       denunciante: denuncianteRef,
