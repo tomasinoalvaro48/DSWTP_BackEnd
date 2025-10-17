@@ -15,7 +15,7 @@ export const pedidos_resolucion_router = Router();
 pedidos_resolucion_router.get(
   '/',
   verifyToken,
-  authorizeRoles(['cazador', 'operador', 'denunciante']),
+  authorizeRoles(['cazador', 'operador']),
   findAll
 );
 pedidos_resolucion_router.get(

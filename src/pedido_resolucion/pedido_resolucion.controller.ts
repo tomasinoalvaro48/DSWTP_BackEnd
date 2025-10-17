@@ -192,7 +192,7 @@ async function generarPedidoResolucion(req: Request, res: Response) {
   try {
     const idDenunciante = new ObjectId(req.body.user.id);
     const denuncianteRef = await em.getReference(Denunciante, idDenunciante);
-    console.log('Denucniante logueado');
+    console.log('Denunciante logueado');
 
     //---------------- Lógica de creación del pedido de resolución
     let dificultad = 0;
