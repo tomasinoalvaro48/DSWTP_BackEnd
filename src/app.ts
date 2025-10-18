@@ -16,17 +16,18 @@ import { authRouter } from './auth/auth.routes.js'
 import { pedidos_agregacion_router } from './pedido_agregacion/pedido_agregacion.routes.js'
 import { inspeccionRouter } from './pedido_resolucion/inspeccion.routes.js'
 import { seedDatabase } from './shared/db/seeder.js'
+import path from 'path'
 
 const app = express()
 const port = process.env.PORT ?? 3000
 
-app.use(express.json(), cors())
+app.use(cors())
+app.use(cookieParser())
+app.use(express.json())
 
 app.use((req, res, next) => {
   RequestContext.create(orm.em, next)
 })
-
-app.use(cookieParser())
 
 app.use('/api/auth', authRouter)
 app.use('/api/localidad', localidadRouter)
@@ -38,6 +39,7 @@ app.use('/api/pedido_resolucion', pedidos_resolucion_router)
 app.use('/api/anomalia', anomaliaRouter)
 app.use('/api/pedido_agregacion', pedidos_agregacion_router)
 app.use('/api/inspeccion', inspeccionRouter)
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
 app.use((_, res) => {
   res.status(404).send({ mesagge: 'Resourse not found' })

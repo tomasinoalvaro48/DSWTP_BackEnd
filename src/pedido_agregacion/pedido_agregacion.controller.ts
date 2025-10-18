@@ -7,6 +7,10 @@ import { Usuario } from '../usuario/usuario.entity.js'
 import { Tipo_Anomalia } from '../tipo_anomalia/tipo_anomalia.entity.js'
 import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../auth/auth.controller.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const em = orm.em
 
@@ -48,25 +52,36 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
 
     const evidenciaInput = (req.body.evidencias as { url_evidencia?: string; archivo_evidencia?: string }[]) || []
     for (const e of evidenciaInput) {
-      if (e.url_evidencia?.trim() || e.archivo_evidencia?.trim()) {
-        req.body.sanitizeEvidenciaInput = {
+      if (e.url_evidencia?.trim()) {
+        const nuevaEvidencia = em.create(Evidencia, {
           url_evidencia: e.url_evidencia,
-          archivo_evidencia: e.archivo_evidencia,
-        }
-        const nuevaEvidencia = em.create(Evidencia, req.body.sanitizeEvidenciaInput)
+          archivo_evidencia: '',
+          pedido_agregacion: '',
+        })
         evidencias.push(nuevaEvidencia)
       }
     }
 
-    req.body.sanitizePedidoInput = {
+    const files = req.files as Express.Multer.File[]
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const relativePath = `/uploads/${file.filename}`
+        const nuevaEvidencia = em.create(Evidencia, {
+          archivo_evidencia: relativePath,
+          url_evidencia: '',
+          pedido_agregacion: '',
+        })
+        evidencias.push(nuevaEvidencia)
+      }
+    }
+
+    const pedido_agregacion = em.create(Pedido_Agregacion, {
       descripcion_pedido_agregacion: req.body.descripcion_pedido_agregacion,
       dificultad_pedido_agregacion: req.body.dificultad_pedido_agregacion,
       estado_pedido_agregacion: 'pendiente',
       cazador: cazadorRef,
-      evidencias: evidencias,
-    }
-
-    const pedido_agregacion = await em.create(Pedido_Agregacion, req.body.sanitizePedidoInput)
+      evidencias,
+    })
 
     await em.flush()
     res.status(201).json({ message: 'pedido de agregación created', data: pedido_agregacion })
