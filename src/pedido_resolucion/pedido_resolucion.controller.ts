@@ -28,7 +28,7 @@ async function remove(req: Request, res: Response) {
     res.status(500).json({ message: error.message });
   }
 }
-
+/*
 async function findAll(req: Request, res: Response) {
   try {
     let filter: {
@@ -75,9 +75,8 @@ async function findAll(req: Request, res: Response) {
     res.status(500).json({ message: error.message });
   }
 }
-
-async function showMisPedidos(req: Request, res: Response) {
-  //Posiblemente a incluir en el findAll
+*/
+async function findAll(req: Request, res: Response) {
   try {
     let filter: {
       estado_pedido_resolucion?: string;
@@ -227,8 +226,6 @@ async function generarPedidoResolucion(req: Request, res: Response) {
     const id_zona = new ObjectId(req.body.zona.id);
     const zonaRef = await em.getReference(Zona, id_zona);
 
-    console.log('Dificultad del pedido de resolución: ' + dificultad);
-
     const descripcion = req.body.descripcion_pedido_resolucion?.trim() || null;
 
     // Sanitizamos el input
@@ -366,7 +363,6 @@ export {
   findAll,
   remove,
   generarPedidoResolucion,
-  showMisPedidos,
   tomarPedidoResolucion,
   finalizarPedido,
   eliminarPedidoResolucionDenunciante,

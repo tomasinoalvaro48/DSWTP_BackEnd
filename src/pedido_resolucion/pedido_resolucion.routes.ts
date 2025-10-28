@@ -3,7 +3,6 @@ import {
   findAll,
   remove,
   generarPedidoResolucion,
-  showMisPedidos,
   tomarPedidoResolucion,
   finalizarPedido,
   eliminarPedidoResolucionDenunciante,
@@ -15,15 +14,15 @@ export const pedidos_resolucion_router = Router();
 pedidos_resolucion_router.get(
   '/',
   verifyToken,
-  authorizeRoles(['cazador', 'operador']),
+  authorizeRoles(['cazador', 'operador', 'denunciante']),
   findAll
-);
+); /*
 pedidos_resolucion_router.get(
   '/mis_pedidos',
   verifyToken,
   authorizeRoles(['cazador', 'operador', 'denunciante']),
   showMisPedidos
-);
+);*/
 pedidos_resolucion_router.post(
   '/',
   verifyToken,
