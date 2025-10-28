@@ -3,9 +3,9 @@ import { orm } from '../shared/db/orm.js'
 import { Usuario } from './usuario.entity.js'
 import { ObjectId } from 'mongodb'
 import { Zona } from '../localidad/zona.entity.js'
-//import { Denunciante } from '../denunciante/denunciante.entity.js'
-//import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
-//import { Pedido_Agregacion } from '../pedido_agregacion/pedido_agregacion.entity.js'
+import { Denunciante } from '../denunciante/denunciante.entity.js'
+import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
+import { Pedido_Agregacion } from '../pedido_agregacion/pedido_agregacion.entity.js'
 
 const em = orm.em
 
@@ -106,7 +106,7 @@ async function add(req: Request, res: Response) {
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
-}
+}*/
 
 async function update(req: Request, res: Response) {
   try {
@@ -160,7 +160,6 @@ async function remove(req: Request, res: Response) {
     res.status(500).json({ message: error.message })
   }
 }
-*/
 
 async function approveCazador(req: Request, res: Response) {
   try {
@@ -212,4 +211,4 @@ async function findPendingCazador(req: Request, res: Response) {
   }
 }
 
-export { findAll, findOne, sanitizeUsuarioImput, approveCazador, rejectCazador, findPendingCazador }
+export { findAll, findOne, remove, update, sanitizeUsuarioImput, approveCazador, rejectCazador, findPendingCazador }

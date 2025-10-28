@@ -2,8 +2,8 @@ import { Request, Response, NextFunction, RequestHandler } from 'express'
 import { Denunciante } from './denunciante.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
-//import { Usuario } from '../usuario/usuario.entity.js'
-//import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
+import { Usuario } from '../usuario/usuario.entity.js'
+import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
 const em = orm.em
 
@@ -88,7 +88,7 @@ async function findOne(req: Request, res: Response) {
   }
 }
 
-/* async function add(req: Request, res: Response) {
+/*async function add(req: Request, res: Response) {
   try {
     const denunciante = em.create(Denunciante, req.body.sanitizeDenuncianteInput)
     await em.flush()
@@ -96,7 +96,7 @@ async function findOne(req: Request, res: Response) {
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
-}
+}*/
 
 async function update(req: Request, res: Response) {
   try {
@@ -143,6 +143,5 @@ async function remove(req: Request, res: Response) {
     res.status(500).json({ message: error.message })
   }
 }
-*/
 
-export { sanitizeDenuncianteInput, findAll, findOne }
+export { sanitizeDenuncianteInput, findAll, findOne, update, remove }
