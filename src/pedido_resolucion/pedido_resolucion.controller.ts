@@ -232,12 +232,24 @@ async function finalizarPedido(req: Request, res: Response) {
       })
       return
     } else {
-      pedido_resolucion.cazador.nivel_cazador = (pedido_resolucion.cazador.nivel_cazador + pedido_resolucion.dificultad_pedido_resolucion) / 3
-      // si el nivel es mayor a 10 dejarlo en 10
-      console.log('Subida de nivel: ' + pedido_resolucion.cazador.nivel_cazador)
-      if (pedido_resolucion.cazador.nivel_cazador > 10) {
-        pedido_resolucion.cazador.nivel_cazador = 10
+      // si el nivel es 10 dejarlo en 10
+      if (pedido_resolucion.cazador.nivel_cazador < 10) {
+        // Actualizamos el nivel del cazador
+        console.log('Nivel anterior: ' + pedido_resolucion.cazador.nivel_cazador)
+        if (pedido_resolucion.cazador.nivel_cazador >= 1 && pedido_resolucion.cazador.nivel_cazador <= 3) {
+          // Ejemplo dificultad 3 -> +1.5 nivel, dificultad 1 -> 0.5 nivel
+          pedido_resolucion.cazador.nivel_cazador = pedido_resolucion.cazador.nivel_cazador + pedido_resolucion.dificultad_pedido_resolucion / 2
+        } else {
+          // Ejemplo: dificultad 5 -> +0.33 nivel, dificultad 10 -> +0.66 nivel
+          pedido_resolucion.cazador.nivel_cazador = pedido_resolucion.cazador.nivel_cazador + pedido_resolucion.dificultad_pedido_resolucion / 10
+        }
+        if (pedido_resolucion.cazador.nivel_cazador > 10) {
+          pedido_resolucion.cazador.nivel_cazador = 10
+        }
+        console.log('Subió a nivel: ' + pedido_resolucion.cazador.nivel_cazador)
       }
+
+      // Actualizamos el estado y comentario del pedido de resolución
       pedido_resolucion.estado_pedido_resolucion = 'resuelto'
       pedido_resolucion.comentario_pedido_resolucion = req.body.comentario_pedido_resolucion
 
