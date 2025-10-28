@@ -318,7 +318,7 @@ const login: RequestHandler = async (req, res, next) => {
           email: email,
           rol: 'denunciante',
         }
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: 15 })
         console.log('Denunciante logueado: ' + email)
         res.status(200).json({ message: 'Login exitoso', token, rol: 'denunciante' })
         return
@@ -348,7 +348,7 @@ const login: RequestHandler = async (req, res, next) => {
         email: email,
         rol: usuario.tipo_usuario,
       }
-      const token = jwt.sign(payload, JWT_SECRET)
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '48h' })
       res.status(200).json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
       return
     }

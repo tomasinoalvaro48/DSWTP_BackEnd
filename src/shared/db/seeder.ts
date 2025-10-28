@@ -34,7 +34,7 @@ export async function seedDatabase() {
     email_usuario: 'operador@operador',
     password_usuario: hashPsw,
     tipo_usuario: 'operador',
-    nivel_cazador: 0,
+    nivel_cazador: 10,
     estado_aprobacion: 'aprobado',
     zona: zona,
   })
