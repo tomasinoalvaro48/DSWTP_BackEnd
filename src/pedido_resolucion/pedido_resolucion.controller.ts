@@ -65,6 +65,7 @@ async function findAll(req: Request, res: Response) {
         'denunciante',
         'anomalias.tipo_anomalia',
         'cazador',
+        'inspecciones',
       ],
     });
     res
@@ -192,7 +193,7 @@ async function generarPedidoResolucion(req: Request, res: Response) {
   try {
     const idDenunciante = new ObjectId(req.body.user.id);
     const denuncianteRef = await em.getReference(Denunciante, idDenunciante);
-    console.log('Denunciante logueado');
+    console.log('Denucniante logueado');
 
     //---------------- Lógica de creación del pedido de resolución
     let dificultad = 0;
@@ -200,12 +201,6 @@ async function generarPedidoResolucion(req: Request, res: Response) {
 
     // referenciamos las anomalías y calculamos la dificultad del pedido de resolución
     const anomaliaInput = req.body.anomalias as Anomalia[];
-
-    if (!anomaliaInput || anomaliaInput.length === 0) {
-      res.status(400).json({ message: 'Debe agregar al menos una anomalía.' });
-      return
-    }
-
     anomaliaInput.map(async (a) => {
       const id_tipo_anomalia = new ObjectId(a.tipo_anomalia.id);
       const tipo = await em.getReference(Tipo_Anomalia, id_tipo_anomalia);
@@ -222,6 +217,11 @@ async function generarPedidoResolucion(req: Request, res: Response) {
         anomalias.push(nuevaAnomalia);
       }
     });
+
+    // validamos que la dificultad no sea > 10
+    if (dificultad > 10) {
+      dificultad = 10;
+    }
 
     // referenciamos la zona
     const id_zona = new ObjectId(req.body.zona.id);
@@ -277,14 +277,39 @@ async function finalizarPedido(req: Request, res: Response) {
     if (!valid) {
       res.status(400).json({
         message:
-          'No se puede finalizar el pedido hasta que todas sus anomalias estén resueltas',
+          'Hay anomalias no resueltas. No es posible finalizar pedido hasta que todas sus anomalias esten resueltas',
       });
       return;
     } else {
-      pedido_resolucion.cazador.nivel_cazador =
-        pedido_resolucion.cazador.nivel_cazador +
-        pedido_resolucion.dificultad_pedido_resolucion;
+      // si el nivel es 10 dejarlo en 10
+      if (pedido_resolucion.cazador.nivel_cazador < 10) {
+        // Actualizamos el nivel del cazador
+        console.log(
+          'Nivel anterior: ' + pedido_resolucion.cazador.nivel_cazador
+        );
+        if (
+          pedido_resolucion.cazador.nivel_cazador >= 1 &&
+          pedido_resolucion.cazador.nivel_cazador <= 3
+        ) {
+          // Ejemplo dificultad 3 -> +1.5 nivel, dificultad 1 -> 0.5 nivel
+          pedido_resolucion.cazador.nivel_cazador =
+            pedido_resolucion.cazador.nivel_cazador +
+            pedido_resolucion.dificultad_pedido_resolucion / 2;
+        } else {
+          // Ejemplo: dificultad 5 -> +0.33 nivel, dificultad 10 -> +0.66 nivel
+          pedido_resolucion.cazador.nivel_cazador =
+            pedido_resolucion.cazador.nivel_cazador +
+            pedido_resolucion.dificultad_pedido_resolucion / 10;
+        }
+        if (pedido_resolucion.cazador.nivel_cazador > 10) {
+          pedido_resolucion.cazador.nivel_cazador = 10;
+        }
+        console.log(
+          'Subió a nivel: ' + pedido_resolucion.cazador.nivel_cazador
+        );
+      }
 
+      // Actualizamos el estado y comentario del pedido de resolución
       pedido_resolucion.estado_pedido_resolucion = 'resuelto';
       pedido_resolucion.comentario_pedido_resolucion =
         req.body.comentario_pedido_resolucion;
@@ -300,29 +325,40 @@ async function finalizarPedido(req: Request, res: Response) {
   }
 }
 
-async function eliminarPedidoResolucionDenunciante(req: Request, res: Response) {
+async function eliminarPedidoResolucionDenunciante(
+  req: Request,
+  res: Response
+) {
   try {
     const idPedido = new ObjectId(req.params.id);
     const idDenunciante = new ObjectId(req.body.user.id);
-    const pedido = await em.findOne(Pedido_Resolucion, { _id: idPedido }, { populate: ['denunciante'] });
+    const pedido = await em.findOne(
+      Pedido_Resolucion,
+      { _id: idPedido },
+      { populate: ['denunciante'] }
+    );
 
     if (!pedido) {
       res.status(404).json({ message: 'Pedido no encontrado' });
-      return
+      return;
     }
 
     if (pedido.estado_pedido_resolucion !== 'solicitado') {
-      res.status(400).json({ message: 'Solo se pueden eliminar pedidos con estado solicitado' });
-      return
+      res.status(400).json({
+        message: 'Solo se pueden eliminar pedidos con estado solicitado',
+      });
+      return;
     }
 
     await em.removeAndFlush(pedido);
     res.status(200).json({ message: 'Pedido eliminado correctamente' });
-    return
+    return;
   } catch (error: any) {
     console.error('Error al eliminar pedido:', error);
-    res.status(500).json({ message: 'Error al eliminar el pedido', error: error.message });
-    return
+    res
+      .status(500)
+      .json({ message: 'Error al eliminar el pedido', error: error.message });
+    return;
   }
 }
 

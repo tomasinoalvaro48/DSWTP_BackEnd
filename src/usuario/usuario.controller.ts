@@ -9,6 +9,7 @@ import { Pedido_Agregacion } from '../pedido_agregacion/pedido_agregacion.entity
 
 const em = orm.em
 
+//eliminar sanitizeUsuarioImput (porque sacamos add, update y remove)
 function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
   if (req.body.zona !== undefined) {
     const idZona = new ObjectId(req.body.zona.id)
@@ -35,10 +36,7 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
     return
   }
 
-  if (
-    req.body.sanitizeUsuarioImput.nombre_usuario &&
-    !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeUsuarioImput.nombre_usuario)
-  ) {
+  if (req.body.sanitizeUsuarioImput.nombre_usuario && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeUsuarioImput.nombre_usuario)) {
     res.status(400).json({ message: 'El nombre no puede tener números' })
     return
   }
@@ -53,10 +51,7 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
     return
   }
 
-  if (
-    req.body.sanitizeUsuarioImput.tipo_usuario &&
-    !['operador', 'cazador'].includes(req.body.sanitizeUsuarioImput.tipo_usuario)
-  ) {
+  if (req.body.sanitizeUsuarioImput.tipo_usuario && !['operador', 'cazador'].includes(req.body.sanitizeUsuarioImput.tipo_usuario)) {
     res.status(400).json({ message: 'El tipo de usuario tiene que ser operador o cazador' })
     return
   }
@@ -66,6 +61,11 @@ function sanitizeUsuarioImput(req: Request, res: Response, next: NextFunction) {
     !['pendiente', 'aprobado', 'rechazado'].includes(req.body.sanitizeUsuarioImput.estado_aprobacion)
   ) {
     res.status(400).json({ message: 'El estado de aprobación tiene que ser pendiente, aprobado o rechazado' })
+    return
+  }
+
+  if (req.body.sanitizeUsuarioImput.nivel_cazador > 10 || req.body.sanitizeUsuarioImput.nivel_cazador < 1) {
+    res.status(400).json({ message: 'El nivel de cazador tiene que estar entre 1 y 10' })
     return
   }
 
@@ -105,8 +105,7 @@ async function add(req: Request, res: Response) {
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
-}
-*/
+}*/
 
 async function update(req: Request, res: Response) {
   try {

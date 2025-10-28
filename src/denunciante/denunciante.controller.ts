@@ -7,6 +7,7 @@ import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity
 
 const em = orm.em
 
+//eliminar sanitizeUsuarioImput (porque sacamos add, update y remove)
 function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizeDenuncianteInput = {
     nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
@@ -87,7 +88,7 @@ async function findOne(req: Request, res: Response) {
   }
 }
 
-/* async function add(req: Request, res: Response) {
+/*async function add(req: Request, res: Response) {
   try {
     const denunciante = em.create(Denunciante, req.body.sanitizeDenuncianteInput)
     await em.flush()
@@ -95,8 +96,7 @@ async function findOne(req: Request, res: Response) {
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
-} 
-  */
+}*/
 
 async function update(req: Request, res: Response) {
   try {
