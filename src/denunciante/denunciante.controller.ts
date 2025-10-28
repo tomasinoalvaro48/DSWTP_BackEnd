@@ -2,11 +2,12 @@ import { Request, Response, NextFunction, RequestHandler } from 'express'
 import { Denunciante } from './denunciante.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
-import { Usuario } from '../usuario/usuario.entity.js'
-import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
+//import { Usuario } from '../usuario/usuario.entity.js'
+//import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
 const em = orm.em
 
+//eliminar sanitizeUsuarioImput (porque sacamos add, update y remove)
 function sanitizeDenuncianteInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizeDenuncianteInput = {
     nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
@@ -95,8 +96,7 @@ async function findOne(req: Request, res: Response) {
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
-} 
-  */
+}
 
 async function update(req: Request, res: Response) {
   try {
@@ -143,5 +143,6 @@ async function remove(req: Request, res: Response) {
     res.status(500).json({ message: error.message })
   }
 }
+*/
 
-export { sanitizeDenuncianteInput, findAll, findOne, update, remove }
+export { sanitizeDenuncianteInput, findAll, findOne }
