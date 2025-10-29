@@ -349,7 +349,6 @@ const login: RequestHandler = async (req, res, next) => {
         rol: usuario.tipo_usuario,
       }
       const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '72h' })
-      // Envamos respuesta con token, rol y mensaje
       res.status(200).json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
       return
     }
@@ -598,4 +597,5 @@ export {
   updatePerfil,
   getPerfil,
   deleteAccount,
+  JwtPayload,
 }

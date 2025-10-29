@@ -8,7 +8,7 @@ export class Evidencia extends BaseEntity {
   url_evidencia!: string
 
   @Property({ nullable: true })
-  archivo_evidencia!: string    //a implementar: cambiar de string a que se pueda ingresar un archivo adjunto
+  archivo_evidencia!: string
 
   @ManyToOne(( )=> Pedido_Agregacion, { nullable: false })
   pedido_agregacion!: Rel<Pedido_Agregacion>
