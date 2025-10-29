@@ -107,6 +107,4 @@ export async function seedDatabase() {
   })
 
   await em.flush()
-
-  console.log('Datos iniciales creados exitosamente')
 }

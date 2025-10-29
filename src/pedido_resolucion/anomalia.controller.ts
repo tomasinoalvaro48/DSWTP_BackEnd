@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express'
 import { orm } from '../shared/db/orm.js'
 import { Anomalia } from './anomalia.entity.js'
 import { ObjectId } from 'mongodb'
-import { Pedido_Resolucion } from './pedido_resolucion.entity.js'
 
 const em = orm.em
 
@@ -15,6 +14,7 @@ async function registrarAnomaliaResuelta(req: Request, res: Response) {
     await em.flush()
     res.status(200).json({ message: 'Anomalia resuelta' })
   } catch (error: any) {
+    console.log(`Error al registrar anomalia resuelta: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }

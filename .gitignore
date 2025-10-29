@@ -31,4 +31,8 @@ dist/**/*
 ## built vscode extensions
 *.vsix
 
-/uploads
+# archivos de testing
+*.http
+
+# uploaded files
+uploads/**/*

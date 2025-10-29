@@ -1,17 +1,12 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
 import { Pedido_Agregacion } from './pedido_agregacion.entity.js'
-import { Evidencia } from './evidencia.entity.js'
 import { Usuario } from '../usuario/usuario.entity.js'
 import { Tipo_Anomalia } from '../tipo_anomalia/tipo_anomalia.entity.js'
 import { JwtPayload } from '../auth/auth.controller.js'
 import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../auth/auth.controller.js'
-import path from 'path'
-import { fileURLToPath } from 'url'
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const em = orm.em
 
@@ -22,6 +17,7 @@ async function remove(req: Request, res: Response) {
     await em.removeAndFlush(pedido_agregacion_to_remove)
     res.status(200).json({ message: 'pedido de agregacion deleted', data: pedido_agregacion_to_remove })
   } catch (error: any) {
+    console.log(`Error al eliminar pedido de agregacion: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -38,18 +34,20 @@ async function findAll(req: Request, res: Response) {
       const idCazador = new ObjectId(req.body.user.id)
       pedidos_agregacion = await em.find(Pedido_Agregacion, { cazador: idCazador }, { populate: ['evidencias', 'cazador'] })
     }
+
     res.status(200).json({ message: 'found all pedidos agregacion', data: pedidos_agregacion })
   } catch (error: any) {
+    console.log(`Error al obtener pedidos de agregación: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
 
 async function generarPedidosAgregacion(req: Request, res: Response) {
   try {
-    console.log('=== GENERANDO PEDIDO DE AGREGACIÓN ===')
-    console.log('Body:', req.body)
-    console.log('Files recibidos:', req.files ? (req.files as Express.Multer.File[]).length : 0)
-
+    // obtenemos el usuario autenticado desde el token JWT
+    // porque el middleware de multer sobreescribe el body.
+    // no verificamos rol ni auth porque el middleware de
+    // autenticación ya lo hizo, solo obtenemos el id de usuario.
     const authHeader = req.headers['authorization']
     if (!authHeader) {
       res.status(401).json({ message: 'Authorization header missing' })
@@ -58,11 +56,8 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
     const token = authHeader.split(' ')[1]
     const decodedUser = jwt.verify(token, JWT_SECRET) as JwtPayload
 
-    console.log('Usuario autenticado con ID:', decodedUser.id)
-
     const idCazador = new ObjectId(decodedUser.id)
     const cazadorRef = await em.getReference(Usuario, idCazador)
-    console.log('Cazador id:', idCazador)
 
     const evidencias: any[] = []
 
@@ -70,11 +65,9 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
     if (req.body.evidencias) {
       try {
         const evidenciasUrl = JSON.parse(req.body.evidencias)
-        console.log('Evidencias con URL parseadas:', evidenciasUrl)
 
         for (const e of evidenciasUrl) {
           if (e.url_evidencia?.trim()) {
-            console.log(`✅ Agregando evidencia con URL: ${e.url_evidencia}`)
             evidencias.push({
               url_evidencia: e.url_evidencia,
               archivo_evidencia: '',
@@ -83,16 +76,15 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
         }
       } catch (parseError) {
         console.error('Error parseando evidencias:', parseError)
+        res.status(400).json({ message: 'Evidencias inválidas' })
       }
     }
 
-    // Procesar archivos subidos (campo 'archivos' desde FormData)
+    // Procesar archivos subidos (campo 'archivos')
     const files = req.files as Express.Multer.File[]
     if (files && files.length > 0) {
-      console.log(`Procesando ${files.length} archivos`)
       for (const file of files) {
         const relativePath = `/uploads/${file.filename}`
-        console.log(`✅ Agregando evidencia con archivo: ${relativePath}`)
         evidencias.push({
           archivo_evidencia: relativePath,
           url_evidencia: '',
@@ -100,8 +92,7 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
       }
     }
 
-    console.log(`Total de evidencias: ${evidencias.length}`)
-
+    // finalmente creamos el pedido de agregación
     const pedido_agregacion = em.create(Pedido_Agregacion, {
       descripcion_pedido_agregacion: req.body.descripcion_pedido_agregacion,
       dificultad_pedido_agregacion: parseInt(req.body.dificultad_pedido_agregacion),
@@ -111,7 +102,6 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
     })
 
     await em.flush()
-    console.log('✅ Pedido de agregación creado con ID:', pedido_agregacion.id)
     res.status(201).json({ message: 'pedido de agregación created', data: pedido_agregacion })
   } catch (err: any) {
     console.log('Error creating pedido de agregacion:', err)
@@ -153,6 +143,7 @@ async function tomarPedidosAgregacion(req: Request, res: Response) {
       return
     }
   } catch (error: any) {
+    console.log(`Error al tomar pedido de agregación: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
