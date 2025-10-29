@@ -1,5 +1,6 @@
-import { MikroORM } from '@mikro-orm/mongodb';
-import { MongoHighlighter } from '@mikro-orm/mongo-highlighter';
+import 'dotenv/config'
+import { MikroORM } from '@mikro-orm/mongodb'
+import { MongoHighlighter } from '@mikro-orm/mongo-highlighter'
 
 export const orm = await MikroORM.init({
   //entities: ['dist/**/*.entity.js'],
@@ -28,25 +29,22 @@ export const orm = await MikroORM.init({
     'src/**/evidencia.entity.ts',
     'src/**/inspeccion.entity.ts',
   ],
-  dbName: 'datecAnomalias',
-  clientUrl: 'mongodb://localhost:27017',
+  dbName: process.env.DB_NAME,
+  clientUrl: process.env.DATABASE_URL,
   highlighter: new MongoHighlighter(),
-  debug: true,
+  debug: process.env.NODE_ENV !== 'production',
   schemaGenerator: {
-    //never in production
-    // disableForeignKeys: true,
-    // createForeignKeyConstraints: true,
     ignoreSchema: [],
   },
-});
+})
 
 export const syncSchema = async () => {
-  const generator = orm.getSchemaGenerator();
-  await generator.updateSchema();
+  const generator = orm.getSchemaGenerator()
+  await generator.updateSchema()
 
   // Ejecutar seeding después de actualizar el schema
-  await seedDatabase();
-};
+  await seedDatabase()
+}
 
 // Importar la función de seeding
-import { seedDatabase } from './seeder.js';
+import { seedDatabase } from './seeder.js'

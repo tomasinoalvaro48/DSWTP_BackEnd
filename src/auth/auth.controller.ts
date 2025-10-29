@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { NextFunction, Request, Response, RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
@@ -11,7 +12,9 @@ const em = orm.em
 
 // Error 401: no autorizado (no autenticado) -> cuando no está definido el token o es inválido (expiró)
 // Error 403: prohibido (no autorizado) -> cuando el usuario no tiene permisos
+// req.body.user -> viene de verifyToken datos del JwtPayload (usuario) extraídos del token
 
+// Estructura del payload (data que se guarda en el token)
 interface JwtPayload {
   id: string | undefined | ObjectId
   email: string
@@ -23,34 +26,7 @@ if (!process.env.JWT_SECRET) {
 }
 export const JWT_SECRET = process.env.JWT_SECRET
 
-// req.body.user viene de verifyToken
-
-// Middleware para autorizar según roles
-const authorizeRoles = (allowedRoles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    // Verificamos que el rol del usuario es permitidos
-    if (!allowedRoles.includes(req.body.user.rol)) {
-      console.log('Acceso denegado. Permisos insuficientes.')
-      res.status(403).json({ message: 'Acceso denegado. Permisos insuficientes.' })
-      return
-    }
-    if (req.body.user.rol === 'cazador') {
-      // Si es cazador verificamos que está aprobado
-      const usuario = await em.findOneOrFail(Usuario, { _id: new ObjectId(req.body.user.id) })
-      if (usuario.estado_aprobacion === 'rechazado') {
-        console.log('Acceso denegado. Cazador rechazado.')
-        res.status(403).json({ message: 'Acceso denegado. Cazador rechazado.' })
-        return
-      }
-      if (usuario.estado_aprobacion === 'pendiente') {
-        console.log('Acceso denegado. Cazador pendiente de aprobación.')
-        res.status(403).json({ message: 'Acceso denegado. Cazador pendiente de aprobación.' })
-        return
-      }
-    }
-    next()
-  }
-}
+const JWT_EXPIRATION = '24h' // Duración del token
 
 // Middleware para verificar el token JWT
 const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
@@ -89,18 +65,34 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunction) {
-  /* Modelo del body:
-
-  req.body.sanitizeUsuarioAuthInput = {
-    nombre_usuario
-    email_usuario
-    password_usuario
-    confirm_password
-    zona
+// Middleware para autorizar según roles
+const authorizeRoles = (allowedRoles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    // Verificamos que el rol del usuario es permitidos
+    if (!allowedRoles.includes(req.body.user.rol)) {
+      console.log('Acceso denegado. Permisos insuficientes.')
+      res.status(403).json({ message: 'Acceso denegado. Permisos insuficientes.' })
+      return
+    }
+    if (req.body.user.rol === 'cazador') {
+      // Si es cazador verificamos que está aprobado
+      const usuario = await em.findOneOrFail(Usuario, { _id: new ObjectId(req.body.user.id) })
+      if (usuario.estado_aprobacion === 'rechazado') {
+        console.log('Acceso denegado. Cazador rechazado.')
+        res.status(403).json({ message: 'Acceso denegado. Cazador rechazado.' })
+        return
+      }
+      if (usuario.estado_aprobacion === 'pendiente') {
+        console.log('Acceso denegado. Cazador pendiente de aprobación.')
+        res.status(403).json({ message: 'Acceso denegado. Cazador pendiente de aprobación.' })
+        return
+      }
+    }
+    next()
   }
-  */
+}
 
+function sanitizeUsuarioAuthInput(req: Request, res: Response, next: NextFunction) {
   if (req.body.nombre_usuario && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.nombre_usuario)) {
     res.status(400).json({ message: 'El nombre no puede tener números' })
   }
@@ -169,58 +161,6 @@ const sanitizeDenuncianteAuthInput: RequestHandler = (req, res, next) => {
   next()
 }
 
-/*
-function sanitizeDenuncianteAuthInput2(req: Request, res: Response, next: NextFunction) {
-  req.body.sanitizeDenuncianteAuthInput = {
-    nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
-    telefono_denunciante: req.body.telefono_denunciante,
-    email_denunciante: req.body.email_denunciante,
-    password_denunciante: req.body.password_denunciante,
-    confir_password: req.body.confir_password,
-  }
-
-  if (
-    req.body.nombre_apellido_denunciante &&
-    !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.nombre_apellido_denunciante)
-  ) {
-    return res.status(400).json({ message: 'El nombre no puede tener números' })
-  }
-
-  if (req.body.telefono_denunciante && !/^[0-9]+$/.test(req.body.telefono_denunciante)) {
-    return res.status(400).json({ message: 'El teléfono no puede tener letras ni espacios' })
-  }
-
-  if (req.body.email_denunciante && !/.*@.*/
-/*.test(req.body.email_denunciante)) {
-    res.status(400).json({ message: 'El email tiene que tener @' })
-    return
-  }
-
-  if (req.body.confir_password !== req.body.password_usuario) {
-    res.status(400).json({ message: 'Las contraseñas ingresadas no coinciden' })
-    return
-  }
-  if (req.body.password_usuario.length < 6) {
-    res.status(400).json({ message: 'La contraseña no puede tener menos de 6 caracteres' })
-    return
-  }
-
-  req.body.sanitizeDenuncianteAuthInput = {
-    nombre_apellido_denunciante: req.body.nombre_apellido_denunciante,
-    telefono_denunciante: req.body.telefono_denunciante,
-    email_denunciante: req.body.email_denunciante,
-    password_denunciante: req.body.password_denunciante,
-  }
-
-  Object.keys(req.body.sanitizeDenuncianteAuthInput).forEach((key) => {
-    if (req.body.sanitizeDenuncianteAuthInput[key] === undefined) {
-      delete req.body.sanitizeDenuncianteAuthInput[key]
-    }
-  })
-  next()
-}
-*/
-
 const registerUsuario: RequestHandler = async (req, res, next) => {
   try {
     //Valida que no exista como usuario
@@ -234,26 +174,27 @@ const registerUsuario: RequestHandler = async (req, res, next) => {
     //Valida que no exista como denunciante
     const email_denunciante = req.body.sanitizeUsuarioAuthInput.email_usuario
     const existeDenunciante = await em.findOne(Denunciante, { email_denunciante })
-
     if (existeDenunciante) {
       res.status(400).json({ message: 'El email ya está registrado como denunciante' })
       return
     }
 
+    // Hashea la contraseña antes de guardarla
     const hashedPass = await bcrypt.hash(req.body.sanitizeUsuarioAuthInput.password_usuario, 10)
     req.body.sanitizeUsuarioAuthInput.password_usuario = hashedPass
 
+    // Convierte zona de string a referencia y asigna
     const idZona = new ObjectId(req.body.sanitizeUsuarioAuthInput.zona)
     const zonaRef = em.getReference(Zona, idZona)
     req.body.sanitizeUsuarioAuthInput.zona = zonaRef
 
     const nuevoUsuario = em.create(Usuario, req.body.sanitizeUsuarioAuthInput)
-
     await em.flush()
 
     res.status(201).json({ message: 'Registro exitoso.', data: nuevoUsuario })
     return
   } catch (err: any) {
+    console.log('Error registering usuario:', err)
     res.status(500).json({ message: err.message })
     return
   }
@@ -287,6 +228,7 @@ const registerDenunciante: RequestHandler = async (req, res, next) => {
     res.status(201).json({ message: 'Registro exitoso.', data: nuevoDenunciante })
     return
   } catch (err: any) {
+    console.log('Error registering denunciante:', err)
     res.status(500).json({ message: err.message })
     return
   }
@@ -300,9 +242,9 @@ const login: RequestHandler = async (req, res, next) => {
     if (!usuario) {
       // Si no es usuario, busca si es denunciante
       const denunciante = await em.findOne(Denunciante, { email_denunciante: email })
+
       if (!denunciante) {
         // Significa que no existe el mail
-        console.log('Email no registrado: ' + email)
         res.status(400).json({ message: 'Email no registrado.' })
         return
       } else {
@@ -312,14 +254,14 @@ const login: RequestHandler = async (req, res, next) => {
           res.status(400).json({ message: 'Contraseña incorrecta.' })
           return
         }
+
         // Es denunciante: creamos token con id, email y rol, y enviamos
         const payload: JwtPayload = {
           id: denunciante.id?.toString(),
           email: email,
           rol: 'denunciante',
         }
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '5h' })
-        console.log('Denunciante logueado: ' + email)
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION })
         res.status(200).json({ message: 'Login exitoso', token, rol: 'denunciante' })
         return
       }
@@ -327,10 +269,10 @@ const login: RequestHandler = async (req, res, next) => {
       // Si es usuario, comparamos passwords
       const validUsuario = await bcrypt.compare(password, usuario.password_usuario)
       if (!validUsuario) {
-        console.log('Contraseña incorrecta para email: ' + email)
         res.status(400).json({ message: 'Contraseña incorrecta.' })
         return
       }
+
       // Si es cazador, verificamos que esté aprobado
       if (usuario.tipo_usuario === 'cazador' && usuario.estado_aprobacion === 'rechazado') {
         console.log('Acceso denegado. Cazador rechazado.')
@@ -338,21 +280,22 @@ const login: RequestHandler = async (req, res, next) => {
         return
       }
       if (usuario.tipo_usuario === 'cazador' && usuario.estado_aprobacion === 'pendiente') {
-        console.log('Acceso denegado. Cazador pendiente de aprobación.')
         res.status(403).json({ message: 'Acceso denegado. Cazador pendiente de aprobación.' })
         return
       }
+
       // Creamos token con id, email y rol, y enviamos
       const payload: JwtPayload = {
         id: usuario.id,
         email: email,
         rol: usuario.tipo_usuario,
       }
-      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '72h' })
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION })
       res.status(200).json({ message: 'Login exitoso', token, rol: usuario.tipo_usuario })
       return
     }
   } catch (err: any) {
+    console.log('Error logging in:', err)
     res.status(500).json({ message: err.message })
     return
   }
@@ -418,6 +361,7 @@ const changePassword: RequestHandler = async (req, res) => {
 
     res.status(400).json({ message: 'Rol no reconocido para cambio de contraseña' })
   } catch (error: any) {
+    console.log('Error changing password:', error)
     res.status(500).json({ message: error.message })
   }
 }
@@ -485,6 +429,7 @@ const updatePerfil: RequestHandler = async (req, res) => {
 
     res.status(400).json({ message: 'Rol no reconocido para actualización de perfil' })
   } catch (error: any) {
+    console.log('Error updating perfil:', error)
     res.status(500).json({ message: error.message })
   }
 }
@@ -515,6 +460,7 @@ const getPerfil: RequestHandler = async (req, res) => {
 
     res.status(400).json({ message: 'Rol no reconocido' })
   } catch (error: any) {
+    console.log('Error getting perfil:', error)
     res.status(500).json({ message: error.message })
   }
 }
@@ -581,6 +527,7 @@ const deleteAccount: RequestHandler = async (req, res) => {
 
     res.status(400).json({ message: 'Rol no reconocido o sin permiso para eliminar su cuenta' })
   } catch (error: any) {
+    console.log('Error deleting account:', error)
     res.status(500).json({ message: error.message })
   }
 }

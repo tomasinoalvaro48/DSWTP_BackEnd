@@ -7,5 +7,4 @@ export abstract class BaseEntity {
 
   @SerializedPrimaryKey()
   id?: string
-
 }

@@ -3,7 +3,6 @@ import { orm } from '../shared/db/orm.js'
 import { Zona } from './zona.entity.js'
 import { ObjectId } from 'mongodb'
 import { Localidad } from './localidad.entity.js'
-import { findLocalidadByName } from './localidad.controller.js'
 import { Usuario } from '../usuario/usuario.entity.js'
 import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 
@@ -44,6 +43,7 @@ async function findAll(req: Request, res: Response) {
     const zonas = await em.find(Zona, {}, { populate: ['localidad', 'usuarios'] })
     res.status(200).json({ message: 'find all zonas', data: zonas })
   } catch (error: any) {
+    console.log(`Error al obtener las zonas: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -54,6 +54,7 @@ async function findOne(req: Request, res: Response) {
     const zona = await em.findOneOrFail(Zona, id, { populate: ['localidad', 'usuarios'] })
     res.status(200).json({ message: 'find one zona', data: zona })
   } catch (error: any) {
+    console.log(`Error al obtener la zona: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -63,11 +64,11 @@ async function add(req: Request, res: Response) {
     const { nombre_zona, localidad } = req.body.sanitizeZonaImput
     const localidadRef = em.getReference(Localidad, (localidad as any).id ?? localidad)
 
+    // verificar que no exista otra zona con ese nombre en la misma localidad
     const zonaExistente = await em.findOne(Zona, {
       nombre_zona,
       localidad: localidadRef,
     })
-
     if (zonaExistente) {
       res.status(400).json({ message: 'Ya existe esa zona en esta localidad.' })
       return
@@ -81,6 +82,7 @@ async function add(req: Request, res: Response) {
     await em.flush()
     res.status(200).json({ message: 'create zona', data: zona })
   } catch (error: any) {
+    console.log(`Error al crear la zona: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -109,6 +111,7 @@ async function update(req: Request, res: Response) {
     await em.flush()
     res.status(200).json({ message: 'Zona updated.' })
   } catch (error: any) {
+    console.log(`Error al actualizar la zona: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -120,41 +123,24 @@ async function remove(req: Request, res: Response) {
     // validar que no tenga usuarios asociados
     const usuariosCount = await em.count(Usuario, { zona: id })
     if (usuariosCount > 0) {
-      console.log('No se puede eliminar la zona porque tiene usuarios asociados.')
       res.status(400).json({ message: 'No se puede eliminar la zona porque tiene usuarios asociados.' })
       return
     }
+
     // validar que no tenga pedidos de resolución asociados
     const pedidosCount = await em.count(Pedido_Resolucion, { zona: id })
     if (pedidosCount > 0) {
-      console.log('No se puede eliminar la zona porque tiene pedidos de resolución asociados.')
       res.status(400).json({ message: 'No se puede eliminar la zona porque tiene pedidos de resolución asociados.' })
       return
     }
+
     const zonaToDelete = em.getReference(Zona, id)
     await em.removeAndFlush(zonaToDelete)
-    console.log('Zona eliminada correctamente.')
     res.status(200).json({ message: 'Remove zona', data: zonaToDelete })
   } catch (error: any) {
-    console.log(`Error al eliminar la zona: ${error.message}`)
+    console.log(`Error al eliminar zona: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
-
-/*
-async function findZonaByNameAndLocalidad(nombre_zona: string,nombre_localidad: string) {
-    try{
-        const localidadFound = await findLocalidadByName(nombre_localidad)
-        if(localidadFound)
-        {
-            const zonaFound = await em.findOneOrFail(Zona,{ nombre_zona: nombre_zona, localidad: localidadFound })
-            return zonaFound
-        }
-    }
-    catch(error: any)
-    {
-        console.log(`Error al buscar zona: ${error.message}`)
-    }
-}*/
 
 export { findAll, findOne, add, remove, update, sanitizeZonaImput }

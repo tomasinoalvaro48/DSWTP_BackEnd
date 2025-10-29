@@ -12,17 +12,17 @@ function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
   }
 
   if (!req.body.sanitizeTipoInput.nombre_tipo_anomalia || req.body.sanitizeTipoInput.nombre_tipo_anomalia.trim().length === 0) {
-    res.status(400).json({ message: "El nombre no puede estar vacío" })
+    res.status(400).json({ message: 'El nombre no puede estar vacío' })
     return
   }
 
   if (req.body.sanitizeTipoInput.nombre_tipo_anomalia && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(req.body.sanitizeTipoInput.nombre_tipo_anomalia)) {
-    res.status(400).json({ message: "El nombre no puede tener números" })
+    res.status(400).json({ message: 'El nombre no puede tener números' })
     return
   }
 
   if (req.body.sanitizeTipoInput.dificultad_tipo_anomalia && !/^[1-3]$/.test(req.body.sanitizeTipoInput.dificultad_tipo_anomalia)) {
-    res.status(400).json({ message: "La dificultad tiene que ser 1, 2 o 3" })
+    res.status(400).json({ message: 'La dificultad tiene que ser 1, 2 o 3' })
     return
   }
 
@@ -37,6 +37,7 @@ async function findAll(req: Request, res: Response) {
     const tipos = await em.find(Tipo_Anomalia, {})
     res.status(200).json({ message: 'found all tipos de anomalia', data: tipos })
   } catch (error: any) {
+    console.log(`Error al obtener los tipos de anomalia: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -47,6 +48,7 @@ async function findOne(req: Request, res: Response) {
     const tipo = await em.findOneOrFail(Tipo_Anomalia, id)
     res.status(200).json({ message: 'found tipo de anomalia', data: tipo })
   } catch (error: any) {
+    console.log(`Error al obtener el tipo de anomalia: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -62,6 +64,7 @@ async function add(req: Request, res: Response) {
       res.status(201).json({ message: 'tipo de anomalia created', data: tipo })
     }
   } catch (error: any) {
+    console.log(`Error al crear el tipo de anomalia: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -79,6 +82,7 @@ async function update(req: Request, res: Response) {
       res.status(200).json({ message: 'tipo de anomalia updated', data: tipoToUpdate })
     }
   } catch (error: any) {
+    console.log(`Error al actualizar el tipo de anomalia: ${error.message}`)
     res.status(500).json({ message: error.message })
   }
 }
@@ -91,6 +95,7 @@ async function remove(req: Request, res: Response) {
     res.status(200).json({ message: 'tipo de anomalia deleted' })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
+    console.log(`Error al eliminar el tipo de anomalia: ${error.message}`)
   }
 }
 

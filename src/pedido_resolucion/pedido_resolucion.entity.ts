@@ -1,4 +1,4 @@
-import { Entity, OneToMany, Property, Cascade, Collection, ManyToOne, Rel, ManyToMany } from '@mikro-orm/core'
+import { Entity, OneToMany, Property, Cascade, Collection, ManyToOne, Rel } from '@mikro-orm/core'
 
 import { Zona } from '../localidad/zona.entity.js'
 import { BaseEntity } from '../shared/db/baseEntity.entity.js'
@@ -44,7 +44,7 @@ export class Pedido_Resolucion extends BaseEntity {
   })
   anomalias = new Collection<Anomalia>(this)
 
-  @OneToMany(()=> Inspeccion, (inspeccion)=>inspeccion.pedido_resolucion,{
+  @OneToMany(() => Inspeccion, (inspeccion) => inspeccion.pedido_resolucion, {
     eager: true,
     nullable: true,
     orphanRemoval: true,

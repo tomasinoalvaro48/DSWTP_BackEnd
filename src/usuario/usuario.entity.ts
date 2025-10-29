@@ -1,13 +1,9 @@
-import { Entity, OneToMany, Property, Cascade, Collection, Rel, ManyToOne } from '@mikro-orm/core'
+import { Entity, Property, Rel, ManyToOne } from '@mikro-orm/core'
 import { BaseEntity } from '../shared/db/baseEntity.entity.js'
 import { Zona } from '../localidad/zona.entity.js'
 
 @Entity()
 export class Usuario extends BaseEntity {
-  /*
-  @Property({ nullable: false, unique: true })
-  codigo!: Number
-*/
   @Property({ nullable: false })
   nombre_usuario!: string
 
