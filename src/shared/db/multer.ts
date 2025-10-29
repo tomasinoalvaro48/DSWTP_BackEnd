@@ -12,14 +12,40 @@ const storage = multer.diskStorage({
     cb(null, uploadPath)
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    cb(null, uniqueSuffix + path.extname(file.originalname))
+    const uniqueSuffix = Date.now() + '-' + file.originalname
+    cb(null, uniqueSuffix)
   },
 })
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
-  if (file.mimetype === 'application/pdf') cb(null, true)
-  else cb(new Error('Solo se permiten archivos PDF'), false)
+  // Lista de tipos MIME permitidos
+  const allowedMimeTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'video/mpeg',
+    'video/quicktime',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
+  ]
+
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true)
+  } else {
+    cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Solo se permiten: PDF, imágenes, videos y documentos.`), false)
+  }
 }
 
-export const upload = multer({ storage, fileFilter })
+export const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB máximo por archivo
+  },
+})

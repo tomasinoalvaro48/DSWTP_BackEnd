@@ -17,30 +17,14 @@ import { pedidos_agregacion_router } from './pedido_agregacion/pedido_agregacion
 import { inspeccionRouter } from './pedido_resolucion/inspeccion.routes.js'
 import { seedDatabase } from './shared/db/seeder.js'
 import path from 'path'
-import multer from 'multer'
 
 const app = express()
 
 app.use(cors())
 app.use(cookieParser())
 app.use(express.json())
-
 app.use((req, res, next) => {
   RequestContext.create(orm.em, next)
-})
-
-// Configuración de Multer para manejo de archivos
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/')
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname)
-  },
-})
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
 })
 
 app.use('/api/auth', authRouter)
