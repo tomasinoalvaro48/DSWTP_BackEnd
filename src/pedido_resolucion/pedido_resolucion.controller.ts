@@ -125,7 +125,7 @@ async function generarPedidoResolucion(req: Request, res: Response) {
 
     // referenciamos las anomalías y calculamos la dificultad del pedido de resolución
     const anomaliaInput = req.body.anomalias as Anomalia[]
-    anomaliaInput.map(async (a) => {
+    for (const a of anomaliaInput) {
       const id_tipo_anomalia = new ObjectId(a.tipo_anomalia.id)
       const tipo = await em.getReference(Tipo_Anomalia, id_tipo_anomalia)
 
@@ -138,7 +138,7 @@ async function generarPedidoResolucion(req: Request, res: Response) {
         const nuevaAnomalia = em.create(Anomalia, req.body.sanitizeAnomaliaInput)
         anomalias.push(nuevaAnomalia)
       }
-    })
+    }
 
     // validamos que la dificultad no sea > 10
     if (dificultad > 10) {
