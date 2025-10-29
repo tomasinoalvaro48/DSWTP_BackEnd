@@ -6,6 +6,7 @@ import {
   tomarPedidoResolucion,
   finalizarPedido,
   eliminarPedidoResolucionDenunciante,
+  findPosiblesPedidos,
 } from './pedido_resolucion.controller.js';
 import { verifyToken, authorizeRoles } from '../auth/auth.controller.js';
 
@@ -16,13 +17,13 @@ pedidos_resolucion_router.get(
   verifyToken,
   authorizeRoles(['cazador', 'operador', 'denunciante']),
   findAll
-); /*
+);
 pedidos_resolucion_router.get(
-  '/mis_pedidos',
+  '/posibles_pedidos',
   verifyToken,
-  authorizeRoles(['cazador', 'operador', 'denunciante']),
-  showMisPedidos
-);*/
+  authorizeRoles(['cazador']),
+  findPosiblesPedidos
+);
 pedidos_resolucion_router.post(
   '/',
   verifyToken,

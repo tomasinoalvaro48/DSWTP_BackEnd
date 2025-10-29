@@ -28,12 +28,18 @@ async function remove(req: Request, res: Response) {
     res.status(500).json({ message: error.message });
   }
 }
-/*
-async function findAll(req: Request, res: Response) {
+
+async function findPosiblesPedidos(req: Request, res: Response) {
   try {
+    const idCazador = new ObjectId(req.body.user.id);
+    const cazadorRef = await em.findOneOrFail(Usuario, idCazador);
+
+    let dificultad_maxima = cazadorRef.nivel_cazador;
+    let dificultad_minima = 0;
+
     let filter: {
       estado_pedido_resolucion?: string;
-      dificultad_pedido_resolucion?: number;
+      dificultad_pedido_resolucion?: number[];
       zona?: any;
     } = {};
 
@@ -41,11 +47,20 @@ async function findAll(req: Request, res: Response) {
       filter.estado_pedido_resolucion = req.query
         .estado_pedido_resolucion as string;
     }
+
     if (req.query.dificultad_pedido_resolucion) {
-      filter.dificultad_pedido_resolucion = parseInt(
+      dificultad_minima = parseInt(
         req.query.dificultad_pedido_resolucion as string
       );
     }
+
+    const rango_dificultad_pedido_resolucion: number[] = [];
+
+    for (let i = dificultad_minima; i <= dificultad_maxima + 1; i++) {
+      rango_dificultad_pedido_resolucion.push(i);
+    }
+
+    filter.dificultad_pedido_resolucion = rango_dificultad_pedido_resolucion;
 
     if (req.query.zonas) {
       const zonasQuery = Array.isArray(req.query.zonas)
@@ -60,27 +75,26 @@ async function findAll(req: Request, res: Response) {
     }
 
     const pedido_resolucion = await em.find(Pedido_Resolucion, filter, {
-      populate: [
-        'zona.localidad',
-        'denunciante',
-        'anomalias.tipo_anomalia',
-        'cazador',
-        'inspecciones',
-      ],
+      populate: ['zona.localidad', 'denunciante', 'anomalias.tipo_anomalia'],
+      orderBy: { fecha_pedido_resolucion: 'DESC' },
     });
+
     res
       .status(200)
-      .json({ message: 'find all pedidos', data: pedido_resolucion });
+      .json({ message: 'find posibles pedidos', data: pedido_resolucion });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 }
-*/
+
 async function findAll(req: Request, res: Response) {
   try {
+    let dificultad_maxima = 10;
+    let dificultad_minima = 0;
+
     let filter: {
       estado_pedido_resolucion?: string;
-      dificultad_pedido_resolucion?: number;
+      dificultad_pedido_resolucion?: number[];
       zona?: any;
       cazador?: any;
       denunciante?: any;
@@ -93,16 +107,27 @@ async function findAll(req: Request, res: Response) {
 
     if (req.body.user.rol == 'cazador') {
       filter.cazador = new ObjectId(req.body.user.id);
+
+      const cazadorRef = await em.findOneOrFail(Usuario, filter.cazador);
+      dificultad_maxima = cazadorRef.nivel_cazador;
     }
     if (req.body.user.rol == 'denunciante') {
       filter.denunciante = new ObjectId(req.body.user.id);
     }
 
     if (req.query.dificultad_pedido_resolucion) {
-      filter.dificultad_pedido_resolucion = parseInt(
+      dificultad_minima = parseInt(
         req.query.dificultad_pedido_resolucion as string
       );
     }
+
+    const rango_dificultad_pedido_resolucion: number[] = [];
+
+    for (let i = dificultad_minima; i <= dificultad_maxima + 1; i++) {
+      rango_dificultad_pedido_resolucion.push(i);
+    }
+
+    filter.dificultad_pedido_resolucion = rango_dificultad_pedido_resolucion;
 
     if (req.query.zonas) {
       const zonasQuery = Array.isArray(req.query.zonas)
@@ -138,7 +163,7 @@ async function findAll(req: Request, res: Response) {
 
     res
       .status(200)
-      .json({ message: 'find mis pedidos', data: pedido_resolucion });
+      .json({ message: 'find all pedidos', data: pedido_resolucion });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -366,4 +391,5 @@ export {
   tomarPedidoResolucion,
   finalizarPedido,
   eliminarPedidoResolucionDenunciante,
+  findPosiblesPedidos,
 };
