@@ -314,4 +314,4 @@ async function eliminarPedidoResolucionDenunciante(req: Request, res: Response) 
   }
 }
 
-export { findAll, remove, generarPedidoResolucion, tomarPedidoResolucion, finalizarPedido, eliminarPedidoResolucionDenunciante }
+export { findAll, remove, generarPedidoResolucion, tomarPedidoResolucion, finalizarPedido, eliminarPedidoResolucionDenunciante, findPosiblesPedidos }
