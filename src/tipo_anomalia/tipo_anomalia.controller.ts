@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express'
 import { Tipo_Anomalia } from './tipo_anomalia.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
+import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
+import { Anomalia } from '../pedido_resolucion/anomalia.entity.js'
 
 const em = orm.em
 
@@ -91,6 +93,11 @@ async function remove(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
     const tipo = em.getReference(Tipo_Anomalia, id)
+    const pedidos = await em.count(Anomalia, { tipo_anomalia: tipo })
+    if (pedidos > 0) {
+      res.status(400).json({ message: 'No se puede eliminar el tipo de anomalia porque está asociado a un pedido' })
+      return
+    }
     await em.removeAndFlush(tipo)
     res.status(200).json({ message: 'tipo de anomalia deleted' })
   } catch (error: any) {
