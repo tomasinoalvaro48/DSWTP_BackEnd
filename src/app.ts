@@ -51,7 +51,9 @@ app.use((_, res) => {
 });
 
 if (process.env.NODE_ENV !== 'test') {
-  await initServer();
+  (async () => {
+    await initServer();
+  })();
 }
 
 // Iniciar el servidor
@@ -66,10 +68,7 @@ async function initServer() {
   await syncSchema();
 
   // Ejecutar seeding solo en desarrollo
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    process.env.NODE_ENV !== 'test'
-  ) {
+  if (process.env.NODE_ENV !== 'production') {
     await seedDatabase();
   }
 }

@@ -26,8 +26,17 @@ const Localidad = require('../localidad/localidad.entity');
 
 const api = supertest(app);
 
-describe('getAll localidades', () => {
-  test('localidades are returned as json', async () => {
+describe('CRUD localidades', () => {
+  test('localidades getAll', async () => {
+    const response = await api
+      .get('/api/localidad/')
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    expect(response.body).toEqual(intialLocalidades);
+  });
+
+  test('localidades getAll', async () => {
     const response = await api
       .get('/api/localidad/')
       .expect(200)
