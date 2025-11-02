@@ -1,6 +1,12 @@
-import 'dotenv/config'
-import { MikroORM } from '@mikro-orm/mongodb'
-import { MongoHighlighter } from '@mikro-orm/mongo-highlighter'
+import 'dotenv/config';
+import { MikroORM } from '@mikro-orm/mongodb';
+import { MongoHighlighter } from '@mikro-orm/mongo-highlighter';
+
+// compute db name based on environment
+const dbName =
+  process.env.NODE_ENV === 'test'
+    ? process.env.DB_NAME_TEST
+    : process.env.DB_NAME;
 
 export const orm = await MikroORM.init({
   //entities: ['dist/**/*.entity.js'],
@@ -29,22 +35,22 @@ export const orm = await MikroORM.init({
     'src/**/evidencia.entity.ts',
     'src/**/inspeccion.entity.ts',
   ],
-  dbName: process.env.DB_NAME,
+  dbName,
   clientUrl: process.env.DATABASE_URL,
   highlighter: new MongoHighlighter(),
   debug: process.env.NODE_ENV !== 'production',
   schemaGenerator: {
     ignoreSchema: [],
   },
-})
+});
 
 export const syncSchema = async () => {
-  const generator = orm.getSchemaGenerator()
-  await generator.updateSchema()
+  const generator = orm.getSchemaGenerator();
+  await generator.updateSchema();
 
   // Ejecutar seeding después de actualizar el schema
-  await seedDatabase()
-}
+  await seedDatabase();
+};
 
 // Importar la función de seeding
-import { seedDatabase } from './seeder.js'
+import { seedDatabase } from './seeder.js';
