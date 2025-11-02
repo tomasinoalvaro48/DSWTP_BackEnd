@@ -65,7 +65,11 @@
       "^.+\\.tsx?$": [
         "ts-jest",
         {
-          "useESM": true
+          "useESM": true,
+          "tsconfig": {
+            "module": "es2022",
+            "target": "es2020"
+          }
         }
       ]
     }
