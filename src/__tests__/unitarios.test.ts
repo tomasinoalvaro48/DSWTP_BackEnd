@@ -1,7 +1,7 @@
 jest.mock('../shared/db/orm', () => ({
   orm: {
     em: {
-      find: jest.fn(), // 👈 la vamos a controlar en cada test
+      find: jest.fn(),
     },
   },
 }));
@@ -25,18 +25,15 @@ const initialTipoAnomalia = [
   },
 ];
 
-// 🧩 2. Importar la función a testear
 import { validateName } from '../tipo_anomalia/tipo_anomalia.controller.js';
 import { orm } from '../shared/db/orm';
-import { Tipo_Anomalia } from '../tipo_anomalia/tipo_anomalia.entity.js';
-// 🧪 3. Tests
+
 describe('validateName', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   test('devuelve true si el nombre ya existe', async () => {
-    // Mockeamos el resultado del ORM
     (orm.em.find as jest.Mock).mockResolvedValue(initialTipoAnomalia);
 
     const result = await validateName('Zombie');
