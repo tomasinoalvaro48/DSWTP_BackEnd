@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "start:dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
-    "test": "jest --verbose --silent",
+    "test": "jest --verbose --silent --detectOpenHandles",
     "test:watch": "pnpm run test -- --watch"
   },
   "keywords": [],
@@ -20,6 +20,7 @@
     "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "9.0.10",
     "@types/multer": "^2.0.0",
+    "@types/supertest": "^6.0.3",
     "jest": "30.2.0",
     "prettier": "3.6.2",
     "supertest": "^7.1.4",
