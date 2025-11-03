@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express'
 import { Tipo_Anomalia } from './tipo_anomalia.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
-import { Pedido_Resolucion } from '../pedido_resolucion/pedido_resolucion.entity.js'
 import { Anomalia } from '../pedido_resolucion/anomalia.entity.js'
 
 const em = orm.em

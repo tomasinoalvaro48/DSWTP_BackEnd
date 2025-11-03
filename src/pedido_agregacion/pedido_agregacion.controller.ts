@@ -150,7 +150,10 @@ async function tomarPedidosAgregacion(req: Request, res: Response) {
       const nueva_anomalia = em.create(Tipo_Anomalia, {
         nombre_tipo_anomalia: pedido_agregacion.descripcion_pedido_agregacion,
         dificultad_tipo_anomalia: pedido_agregacion.dificultad_pedido_agregacion,
+        pedido_agregacion: pedido_agregacion,
       })
+
+      pedido_agregacion.tipo_anomalia = nueva_anomalia
 
       await em.flush()
       res.status(200).json({

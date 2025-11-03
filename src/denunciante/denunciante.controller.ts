@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express'
+import { Request, Response } from 'express'
 import { Denunciante } from './denunciante.entity.js'
 import { orm } from '../shared/db/orm.js'
 import { ObjectId } from 'mongodb'
