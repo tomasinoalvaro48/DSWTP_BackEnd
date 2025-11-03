@@ -1,4 +1,3 @@
-// 🧩 1. Mock del ORM antes de importar nada
 jest.mock('../shared/db/orm', () => ({
   orm: {
     em: {
@@ -53,6 +52,8 @@ describe('validateName', () => {
     expect(result).toBe(false);
   });
 });
+
+//Test unitario sanitize input de Usuario
 
 import { sanitizeUsuarioAuthInput } from '../auth/auth.controller.js';
 import { Request, Response, NextFunction } from 'express';
@@ -157,5 +158,92 @@ describe('sanitizeUsuarioAuthInput middleware', () => {
       email_usuario: 'juan@test.com',
       password_usuario: 'abcdef',
     });
+  });
+});
+
+// Test unitario de sanitize input localidad
+import { sanitizeLocalidadInput } from '../localidad/localidad.controller.js';
+
+const localidadBody = [
+  { codigo_localidad: '', nombre_localidad: 'Rosario' },
+  { codigo_localidad: '12A4', nombre_localidad: 'Rosario' },
+  { codigo_localidad: '123', nombre_localidad: '' },
+  { codigo_localidad: '123', nombre_localidad: 'Rosario2' },
+  { codigo_localidad: '123', nombre_localidad: 'Rosario' },
+];
+
+describe('sanitizeLocalidadInput middleware', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let next: NextFunction;
+
+  beforeEach(() => {
+    req = { body: {} };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    next = jest.fn();
+  });
+
+  test('rechaza si el código está vacío', () => {
+    req.body = localidadBody[0];
+
+    sanitizeLocalidadInput(req as Request, res as Response, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'El código no puede estar vacío',
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('rechaza si el código tiene letras', () => {
+    req.body = localidadBody[1];
+
+    sanitizeLocalidadInput(req as Request, res as Response, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'El código no puede tener letras',
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('rechaza si el nombre está vacío', () => {
+    req.body = localidadBody[2];
+
+    sanitizeLocalidadInput(req as Request, res as Response, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'El nombre no puede estar vacío',
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('rechaza si el nombre tiene números', () => {
+    req.body = localidadBody[3];
+
+    sanitizeLocalidadInput(req as Request, res as Response, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'El nombre no puede tener números',
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('llama a next() si los datos son válidos y sanitiza el body', () => {
+    req.body = localidadBody[4];
+
+    sanitizeLocalidadInput(req as Request, res as Response, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(req.body.sanitizeLocalidadInput).toEqual({
+      codigo_localidad: '123',
+      nombre_localidad: 'Rosario',
+    });
+    expect(res.status).not.toHaveBeenCalled();
   });
 });
