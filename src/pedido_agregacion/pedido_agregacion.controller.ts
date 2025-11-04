@@ -24,16 +24,34 @@ async function remove(req: Request, res: Response) {
 
 async function findAll(req: Request, res: Response) {
   try {
-    var pedidos_agregacion
+    const filter: {
+      estado_pedido_agregacion?: string
+      dificultad_pedido_agregacion?: number
+      cazador?: any
+    } = {}
 
-    // Si es operador, ve todos los pedidos de agregacion
-    if (req.body.user.rol === 'operador') {
-      pedidos_agregacion = await em.find(Pedido_Agregacion, {}, { populate: ['evidencias', 'cazador'] })
-    } else {
-      // Si es cazador, ve solo sus pedidos de agregacion
-      const idCazador = new ObjectId(req.body.user.id)
-      pedidos_agregacion = await em.find(Pedido_Agregacion, { cazador: idCazador }, { populate: ['evidencias', 'cazador'] })
+    if (req.query.estado_pedido_agregacion) {
+      filter.estado_pedido_agregacion = req.query.estado_pedido_agregacion as string
     }
+
+    if (req.query.dificultad_pedido_agregacion) {
+      const dificultad = parseInt(req.query.dificultad_pedido_agregacion as string)
+
+      if (![1, 2, 3].includes(dificultad)) {
+        res.status(400).json({ message: 'La dificultad debe ser 1, 2 o 3' })
+        return
+      }
+
+      filter.dificultad_pedido_agregacion = dificultad
+    }
+
+    if (req.body.user.rol === 'cazador') {
+      filter.cazador = new ObjectId(req.body.user.id)
+    }
+
+    const pedidos_agregacion = await em.find(Pedido_Agregacion, filter, {
+      populate: ['evidencias', 'cazador', 'tipo_anomalia'],
+    })
 
     res.status(200).json({ message: 'found all pedidos agregacion', data: pedidos_agregacion })
   } catch (error: any) {
@@ -132,7 +150,10 @@ async function tomarPedidosAgregacion(req: Request, res: Response) {
       const nueva_anomalia = em.create(Tipo_Anomalia, {
         nombre_tipo_anomalia: pedido_agregacion.descripcion_pedido_agregacion,
         dificultad_tipo_anomalia: pedido_agregacion.dificultad_pedido_agregacion,
+        pedido_agregacion: pedido_agregacion,
       })
+
+      pedido_agregacion.tipo_anomalia = nueva_anomalia
 
       await em.flush()
       res.status(200).json({
