@@ -62,3 +62,5 @@ if (process.env.NODE_ENV !== 'production') {
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on http://${process.env.HOST}:${process.env.PORT}`)
 })
+
+export { app }
