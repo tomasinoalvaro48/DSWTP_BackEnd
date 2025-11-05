@@ -1,0 +1,22 @@
+export default {
+  preset: 'ts-jest/presets/default-esm',
+  testEnvironment: 'node',
+  verbose: true,
+  testMatch: ['**/tests/**/*.test.ts'],
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+        tsconfig: {
+          module: 'es2022',
+          target: 'es2020',
+        },
+      },
+    ],
+  },
+}

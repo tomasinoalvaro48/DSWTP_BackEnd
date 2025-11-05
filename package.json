@@ -40,37 +40,5 @@
     "mongodb": "6.18.0",
     "multer": "2.0.2",
     "reflect-metadata": "0.2.2"
-  },
-  "eslintConfig": {
-    "extends": "./node_modules/standard/eslintrc.json",
-    "env": {
-      "jest": true
-    }
-  },
-  "jest": {
-    "preset": "ts-jest/presets/default-esm",
-    "testEnvironment": "node",
-    "verbose": true,
-    "testMatch": [
-      "**/tests/**/*.test.ts"
-    ],
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "transform": {
-      "^.+\\.tsx?$": [
-        "ts-jest",
-        {
-          "useESM": true,
-          "tsconfig": {
-            "module": "es2022",
-            "target": "es2020"
-          }
-        }
-      ]
-    }
   }
 }
