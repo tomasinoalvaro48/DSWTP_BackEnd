@@ -1,10 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { Tipo_Anomalia } from './tipo_anomalia.entity.js'
-import { orm } from '../shared/db/orm.js'
+import { orm } from '../shared/db/orm_test.js'
 import { ObjectId } from 'mongodb'
 import { Anomalia } from '../pedido_resolucion/anomalia.entity.js'
-
-const em = orm.em
 
 function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
   req.body.sanitizeTipoInput = {
@@ -34,6 +32,8 @@ function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
 }
 
 async function findAll(req: Request, res: Response) {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const tipos = await em.find(Tipo_Anomalia, {})
     res.status(200).json({ message: 'found all tipos de anomalia', data: tipos })
@@ -44,6 +44,8 @@ async function findAll(req: Request, res: Response) {
 }
 
 async function findOne(req: Request, res: Response) {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const id = new ObjectId(req.params.id)
     const tipo = await em.findOneOrFail(Tipo_Anomalia, id)
@@ -55,6 +57,8 @@ async function findOne(req: Request, res: Response) {
 }
 
 async function add(req: Request, res: Response) {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const nombre_tipo = req.body.sanitizeTipoInput.nombre_tipo_anomalia
     if (await validateName(nombre_tipo)) {
@@ -71,6 +75,8 @@ async function add(req: Request, res: Response) {
 }
 
 async function update(req: Request, res: Response) {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const id = new ObjectId(req.params.id)
     const tipoToUpdate = await em.findOneOrFail(Tipo_Anomalia, id)
@@ -89,6 +95,8 @@ async function update(req: Request, res: Response) {
 }
 
 async function remove(req: Request, res: Response) {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const id = new ObjectId(req.params.id)
     const tipo = em.getReference(Tipo_Anomalia, id)
@@ -106,6 +114,8 @@ async function remove(req: Request, res: Response) {
 }
 
 async function validateName(nombre_tipo: string) {
+  const orminst = await orm()
+  const em = orminst.em
   const tipo_nombre = await em.find(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
   if (tipo_nombre.length > 0) return true
   return false

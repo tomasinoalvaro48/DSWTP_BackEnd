@@ -11,9 +11,10 @@ describe('API Integration Tests', () => {
   })
 
   describe('Tipo Anomalia Endpoint', () => {
-    test('GET /api/tipo_anomalia - should return 200 and list of tipos', async () => {
+    test('GET /api/tipo_anomalia - debería devolver 200 y la lista de tipos de anomalías', async () => {
       const response = await request.get('/api/tipo_anomalia').expect(200)
 
+      expect(response.body.status).toBe(200)
       expect(response.body).toBeDefined()
       expect(Array.isArray(response.body.data)).toBe(true)
     })

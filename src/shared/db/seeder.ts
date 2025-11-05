@@ -1,4 +1,4 @@
-import { orm } from './orm.js'
+import { orm } from './orm_test.js'
 import { Localidad } from '../../localidad/localidad.entity.js'
 import { Zona } from '../../localidad/zona.entity.js'
 import { Usuario } from '../../usuario/usuario.entity.js'
@@ -7,7 +7,8 @@ import { Denunciante } from '../../denunciante/denunciante.entity.js'
 import { Tipo_Anomalia } from '../../tipo_anomalia/tipo_anomalia.entity.js'
 
 export async function seedDatabase() {
-  const em = orm.em.fork()
+  const orminst = await orm()
+  const em = orminst.em
 
   // Verificar si ya existen datos
   const localidadCount = await em.count(Localidad)

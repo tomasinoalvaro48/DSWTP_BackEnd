@@ -3,12 +3,10 @@ import { NextFunction, Request, Response, RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { Denunciante } from '../denunciante/denunciante.entity.js'
-import { orm } from '../shared/db/orm.js'
+import { orm } from '../shared/db/orm_test.js'
 import { Usuario } from '../usuario/usuario.entity.js'
 import { Zona } from '../localidad/zona.entity.js'
 import { ObjectId } from 'mongodb'
-
-const em = orm.em
 
 // Error 401: no autorizado (no autenticado) -> cuando no está definido el token o es inválido (expiró)
 // Error 403: prohibido (no autorizado) -> cuando el usuario no tiene permisos
@@ -68,6 +66,8 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 // Middleware para autorizar según roles
 const authorizeRoles = (allowedRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
+    const orminst = await orm()
+    const em = orminst.em
     // Verificamos que el rol del usuario es permitidos
     if (!allowedRoles.includes(req.body.user.rol)) {
       console.log('Acceso denegado. Permisos insuficientes.')
@@ -162,6 +162,8 @@ const sanitizeDenuncianteAuthInput: RequestHandler = (req, res, next) => {
 }
 
 const registerUsuario: RequestHandler = async (req, res, next) => {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     //Valida que no exista como usuario
     const email_usuario = req.body.sanitizeUsuarioAuthInput.email_usuario
@@ -201,6 +203,8 @@ const registerUsuario: RequestHandler = async (req, res, next) => {
 }
 
 const registerDenunciante: RequestHandler = async (req, res, next) => {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     //Valida que no exista como usuario
     const email_usuario = req.body.sanitizeDenuncianteAuthInput.email_denunciante
@@ -235,6 +239,8 @@ const registerDenunciante: RequestHandler = async (req, res, next) => {
 }
 
 const login: RequestHandler = async (req, res, next) => {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const { email, password } = req.body
 
@@ -302,6 +308,8 @@ const login: RequestHandler = async (req, res, next) => {
 }
 
 const changePassword: RequestHandler = async (req, res) => {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const { currentPassword, newPassword, confirmNewPassword } = req.body
     const { id, rol } = req.body.user
@@ -367,6 +375,8 @@ const changePassword: RequestHandler = async (req, res) => {
 }
 
 const updatePerfil: RequestHandler = async (req, res) => {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const { id, rol } = req.body.user
 
@@ -435,6 +445,8 @@ const updatePerfil: RequestHandler = async (req, res) => {
 }
 
 const getPerfil: RequestHandler = async (req, res) => {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const { id, rol } = req.body.user
 
@@ -466,6 +478,8 @@ const getPerfil: RequestHandler = async (req, res) => {
 }
 
 const deleteAccount: RequestHandler = async (req, res) => {
+  const orminst = await orm()
+  const em = orminst.em
   try {
     const { id, rol } = req.body.user
 
