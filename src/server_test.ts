@@ -3,6 +3,7 @@ import cors from 'cors'
 import { MikroORM } from '@mikro-orm/mongodb'
 import { MongoHighlighter } from '@mikro-orm/mongo-highlighter'
 import { tipoRouter } from './tipo_anomalia/tipo_anomalia.routes.js'
+import { authRouter } from './auth/auth.routes.js'
 
 async function createServer() {
   const app = express()
@@ -42,6 +43,7 @@ async function createServer() {
     clientUrl: process.env.DATABASE_URL,
     highlighter: new MongoHighlighter(),
     debug: process.env.NODE_ENV !== 'production',
+    allowGlobalContext: true,
     schemaGenerator: {
       ignoreSchema: [],
     },
@@ -51,6 +53,7 @@ async function createServer() {
   app.locals.orm = orm
 
   // Rutas
+  app.use('/api/auth', authRouter)
   app.use('/api/tipo_anomalia', tipoRouter)
 
   // Rutas no encontradas
