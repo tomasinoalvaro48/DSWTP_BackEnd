@@ -33,6 +33,7 @@ export const orm = await MikroORM.init({
   clientUrl: process.env.DATABASE_URL,
   highlighter: new MongoHighlighter(),
   debug: process.env.NODE_ENV !== 'production',
+  allowGlobalContext: true,
   schemaGenerator: {
     ignoreSchema: [],
   },

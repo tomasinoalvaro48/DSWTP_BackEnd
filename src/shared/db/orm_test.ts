@@ -38,6 +38,7 @@ export const orm = async () => {
     clientUrl: process.env.DATABASE_URL,
     highlighter: new MongoHighlighter(),
     debug: process.env.NODE_ENV !== 'production',
+    allowGlobalContext: true,
     schemaGenerator: {
       ignoreSchema: [],
     },
