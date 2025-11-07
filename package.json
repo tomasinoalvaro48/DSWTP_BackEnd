@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "start:dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
-    "test": "jest --verbose --silent --detectOpenHandles",
+    "test": "jest --verbose --silent",
     "test:watch": "pnpm run test -- --watch"
   },
   "keywords": [],
