@@ -106,11 +106,9 @@ async function remove(req: Request, res: Response) {
 }
 
 async function validateName(nombre_tipo: string, id: string | undefined | null = null) {
-  if (id) {
-    const currentTipo = await em.findOne(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
-    if (currentTipo && currentTipo.id !== id) {
-      return true
-    }
+  const currentTipo = await em.findOne(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
+  if (currentTipo && currentTipo.id !== id) {
+    return true
   }
   return false
 }
