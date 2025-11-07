@@ -16,7 +16,7 @@ export class Usuario extends BaseEntity {
   @Property({ nullable: false, onCreate: () => 'cazador' })
   tipo_usuario!: string // 'operador' | 'cazador'
 
-  @Property({ nullable: true, onCreate: () => 0 })
+  @Property({ nullable: true, onCreate: () => 1 })
   nivel_cazador!: number
 
   @Property({ nullable: true, onCreate: () => 'pendiente' })

@@ -75,7 +75,7 @@ async function update(req: Request, res: Response) {
     const id = new ObjectId(req.params.id)
     const tipoToUpdate = await em.findOneOrFail(Tipo_Anomalia, id)
     const nombre_tipo = req.body.sanitizeTipoInput.nombre_tipo_anomalia
-    if (nombre_tipo && (await validateName(nombre_tipo))) {
+    if (nombre_tipo && (await validateName(nombre_tipo, tipoToUpdate.id))) {
       res.status(409).json({ message: 'nombre de tipo duplicado', data: tipoToUpdate })
     } else {
       em.assign(tipoToUpdate, req.body.sanitizeTipoInput)
@@ -105,9 +105,13 @@ async function remove(req: Request, res: Response) {
   }
 }
 
-async function validateName(nombre_tipo: string) {
-  const tipo_nombre = await em.find(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
-  if (tipo_nombre.length > 0) return true
+async function validateName(nombre_tipo: string, id: string | undefined | null = null) {
+  if (id) {
+    const currentTipo = await em.findOne(Tipo_Anomalia, { nombre_tipo_anomalia: nombre_tipo })
+    if (currentTipo && currentTipo.id !== id) {
+      return true
+    }
+  }
   return false
 }
 
