@@ -50,7 +50,7 @@ async function findAll(req: Request, res: Response) {
       filter.nombre_localidad = req.query.nombre as string
     }
     const localidades = await em.find(Localidad, filter, { populate: ['zonas'] })
-    res.status(200).json({ message: 'find all localidades', data: localidades })
+    res.status(200).json({ message: 'Todas las localidades encontradas', data: localidades })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -60,7 +60,7 @@ async function findOne(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
     const localidad = await em.findOneOrFail(Localidad, id, { populate: ['zonas'] })
-    res.status(200).json({ message: 'find one localidad', data: localidad })
+    res.status(200).json({ message: 'Localidad encontrada', data: localidad })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -70,7 +70,7 @@ async function add(req: Request, res: Response) {
   try {
     const localidad = em.create(Localidad, req.body.sanitizeLocalidadInput)
     await em.flush()
-    res.status(200).json({ message: 'create localidad', data: localidad })
+    res.status(200).json({ message: 'Localidad creada', data: localidad })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -98,7 +98,7 @@ async function update(req: Request, res: Response) {
 
     em.assign(localidadToUpdate, req.body.sanitizeLocalidadInput)
     await em.flush()
-    res.status(200).json({ message: 'localidad updated.' })
+    res.status(200).json({ message: 'Localidad modificada' })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
@@ -115,14 +115,14 @@ async function remove(req: Request, res: Response) {
       const zonaId = new ObjectId(zona.id)
       const usuariosCount = await em.count(Usuario, { zona: zonaId })
       if (usuariosCount > 0) {
-        res.status(400).json({ message: 'No se puede eliminar la zona porque tiene usuarios asociados a sus zonas.' })
+        res.status(400).json({ message: 'No se puede eliminar la localidad porque tiene usuarios asociados a sus zonas' })
         return
       }
 
       // validar que no tenga pedidos de resolución asociados a sus zonas
       const pedidosCount = await em.count(Pedido_Resolucion, { zona: zonaId })
       if (pedidosCount > 0) {
-        res.status(400).json({ message: 'No se puede eliminar la zona porque tiene pedidos de resolución asociados a sus zonas.' })
+        res.status(400).json({ message: 'No se puede eliminar la localidad porque tiene pedidos de resolución asociados a sus zonas' })
         return
       }
     }
@@ -133,7 +133,7 @@ async function remove(req: Request, res: Response) {
     }
     em.remove(localidadToDelete)
     await em.flush()
-    res.status(200).json({ message: 'Remove localidad', data: localidadToDelete })
+    res.status(200).json({ message: 'Localidad eliminada', data: localidadToDelete })
   } catch (error: any) {
     console.log('Error removing localidad:', error)
     res.status(500).json({ message: error.message })

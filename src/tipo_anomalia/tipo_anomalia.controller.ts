@@ -36,7 +36,7 @@ function sanitizeTipoInput(req: Request, res: Response, next: NextFunction) {
 async function findAll(req: Request, res: Response) {
   try {
     const tipos = await em.find(Tipo_Anomalia, {})
-    res.status(200).json({ message: 'found all tipos de anomalia', data: tipos })
+    res.status(200).json({ message: 'Todos los tipos de anomalia encontrados', data: tipos })
   } catch (error: any) {
     console.log(`Error al obtener los tipos de anomalia: ${error.message}`)
     res.status(500).json({ message: error.message })
@@ -47,7 +47,7 @@ async function findOne(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
     const tipo = await em.findOneOrFail(Tipo_Anomalia, id)
-    res.status(200).json({ message: 'found tipo de anomalia', data: tipo })
+    res.status(200).json({ message: 'Tipo de anomalia encontrada', data: tipo })
   } catch (error: any) {
     console.log(`Error al obtener el tipo de anomalia: ${error.message}`)
     res.status(500).json({ message: error.message })
@@ -58,11 +58,11 @@ async function add(req: Request, res: Response) {
   try {
     const nombre_tipo = req.body.sanitizeTipoInput.nombre_tipo_anomalia
     if (await validateName(nombre_tipo)) {
-      res.status(409).json({ message: 'nombre de tipo duplicado', data: nombre_tipo })
+      res.status(409).json({ message: 'Nombre de tipo duplicado', data: nombre_tipo })
     } else {
       const tipo = em.create(Tipo_Anomalia, req.body.sanitizeTipoInput)
       await em.flush()
-      res.status(201).json({ message: 'tipo de anomalia created', data: tipo })
+      res.status(201).json({ message: 'Tipo de anomalia creada', data: tipo })
     }
   } catch (error: any) {
     console.log(`Error al crear el tipo de anomalia: ${error.message}`)
@@ -76,11 +76,11 @@ async function update(req: Request, res: Response) {
     const tipoToUpdate = await em.findOneOrFail(Tipo_Anomalia, id)
     const nombre_tipo = req.body.sanitizeTipoInput.nombre_tipo_anomalia
     if (nombre_tipo && (await validateName(nombre_tipo, tipoToUpdate.id))) {
-      res.status(409).json({ message: 'nombre de tipo duplicado', data: tipoToUpdate })
+      res.status(409).json({ message: 'Nombre de tipo duplicado', data: tipoToUpdate })
     } else {
       em.assign(tipoToUpdate, req.body.sanitizeTipoInput)
       await em.flush()
-      res.status(200).json({ message: 'tipo de anomalia updated', data: tipoToUpdate })
+      res.status(200).json({ message: 'Tipo de anomalia modificada', data: tipoToUpdate })
     }
   } catch (error: any) {
     console.log(`Error al actualizar el tipo de anomalia: ${error.message}`)
@@ -98,7 +98,7 @@ async function remove(req: Request, res: Response) {
       return
     }
     await em.removeAndFlush(tipo)
-    res.status(200).json({ message: 'tipo de anomalia deleted' })
+    res.status(200).json({ message: 'Tipo de anomalia eliminada' })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
     console.log(`Error al eliminar el tipo de anomalia: ${error.message}`)
