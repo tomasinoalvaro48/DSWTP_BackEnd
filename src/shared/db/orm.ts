@@ -37,6 +37,7 @@ export const orm = await MikroORM.init({
   schemaGenerator: {
     ignoreSchema: [],
   },
+  ensureIndexes: false,
 })
 
 export const syncSchema = async () => {
