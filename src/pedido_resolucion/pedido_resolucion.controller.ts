@@ -17,9 +17,13 @@ const em = orm.em
 async function remove(req: Request, res: Response) {
   try {
     const id = new ObjectId(req.params.id)
-    const pedido_resolucion_to_remove = em.getReference(Pedido_Resolucion, id)
-    await em.removeAndFlush(pedido_resolucion_to_remove)
-    res.status(200).json({ message: 'Remove pedido', data: pedido_resolucion_to_remove })
+    const pedidoToDelete = await em.findOneOrFail(Pedido_Resolucion, id)
+    for (const anomalia of pedidoToDelete.anomalias) {
+      await em.remove(anomalia)
+    }
+    await em.remove(pedidoToDelete)
+    em.flush()
+    res.status(200).json({ message: 'Pedido eliminado', data: pedidoToDelete })
   } catch (error: any) {
     res.status(500).json({ message: error.message })
   }
