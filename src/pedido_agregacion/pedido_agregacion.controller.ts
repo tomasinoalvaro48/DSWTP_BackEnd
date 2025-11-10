@@ -15,7 +15,7 @@ async function remove(req: Request, res: Response) {
     const id = new ObjectId(req.params.id)
     const pedido_agregacion_to_remove = em.getReference(Pedido_Agregacion, id)
     await em.removeAndFlush(pedido_agregacion_to_remove)
-    res.status(200).json({ message: 'pedido de agregacion deleted', data: pedido_agregacion_to_remove })
+    res.status(200).json({ message: 'Pedido de agregacion eliminado', data: pedido_agregacion_to_remove })
   } catch (error: any) {
     console.log(`Error al eliminar pedido de agregacion: ${error.message}`)
     res.status(500).json({ message: error.message })
@@ -120,9 +120,9 @@ async function generarPedidosAgregacion(req: Request, res: Response) {
     })
 
     await em.flush()
-    res.status(201).json({ message: 'pedido de agregación created', data: pedido_agregacion })
+    res.status(201).json({ message: 'Pedido de agregación creado', data: pedido_agregacion })
   } catch (err: any) {
-    console.log('Error creating pedido de agregacion:', err)
+    console.log('Error creando pedido de agregacion:', err)
     res.status(500).json({ message: err.message })
   }
 }
