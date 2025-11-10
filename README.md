@@ -82,9 +82,6 @@ JWT_EXPIRES_IN=1h
 UPLOAD_DIR=uploads
 MAX_FILE_SIZE=10485760
 
-# Logging
-LOG_LEVEL=debug
-```
 
 ## Ejecución
 
