@@ -5,8 +5,9 @@
 - [Tecnologías](#tecnologías)
 - [Instalación](#instalación)
 - [Ejecución](#ejecución)
-- [Scripts Disponibles](#scripts)
+- [Scripts](#scripts)
 - [Documentación de la API](#documentación-de-la-api)
+- [Ejecución de Tests](#ejecución-de-tests)
 
 ## Tecnologías
 
@@ -60,7 +61,7 @@ MAX_FILE_SIZE=10485760
 
 ### 5. Ejecutar el proyecto
 
-### Ejemplo completo (.env.example):
+### Ejemplo completo (.env):
 
 ```env
 # Entorno
@@ -81,7 +82,7 @@ JWT_EXPIRES_IN=1h
 # Uploads
 UPLOAD_DIR=uploads
 MAX_FILE_SIZE=10485760
-
+```
 
 ## Ejecución
 
@@ -108,7 +109,7 @@ pnpm start
 
 ## Documentación de la API
 
-Ver API_DOCUMENTATION.md
+[Ver API_DOCUMENTATION.md](/API_DOCUMENTATION.md)
 
 ### Autenticación
 
@@ -153,3 +154,13 @@ await post('http://localhost:3000/api/pedido_agregacion', {
   body: formData,
 })
 ```
+
+## Ejecución de Tests
+
+[Videos de Ejecución de Tests](https://drive.google.com/drive/folders/1NDyjkOL_AKKLR-kaGWmaDavEDl680VbS?usp=sharing)
+
+Los tests del Backend se encuentran disponibles en las ramas:
+
+- "integration-tests-nomod" (para tests de integración)
+
+- "tests" (para tests unitarios)
